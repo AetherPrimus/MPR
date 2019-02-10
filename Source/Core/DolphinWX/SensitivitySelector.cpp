@@ -5,6 +5,7 @@
 
 #include "DolphinWX/SensitivitySelector.h"
 #include "Core/ActionReplay.h"
+#include "Common/IniFile.h"
 
 SensitivitySelector::SensitivitySelector(wxWindow* parent, wxWindowID id,
   const wxString& title, const wxPoint& pos,
@@ -36,5 +37,12 @@ void SensitivitySelector::OnOK(wxCommandEvent& event)
   }
 
   ActionReplay::SetSensitivity(parsed_val);
+
+  {
+    IniFile sens_file;
+    sens_file.Load("config_sensitivity.ini", true);
+    sens_file.GetOrCreateSection("mouse")->Set("PrimeHack_Sensitivity", val.ToStdString());
+    sens_file.Save("config_sensitivity.ini");
+  }
   Close();
 }
