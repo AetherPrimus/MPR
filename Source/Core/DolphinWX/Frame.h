@@ -94,6 +94,11 @@ public:
   CCodeWindow* m_code_window = nullptr;
   NetPlaySetupFrame* m_netplay_setup_frame = nullptr;
 
+  CRenderFrame* GetRenderFrame()
+  {
+    return m_render_frame;
+  }
+
   void DoStop();
   void UpdateGUI();
   void GameListRefresh();
@@ -261,6 +266,8 @@ private:
 
   void OnQuit(wxCommandEvent& event);
   void OnHelp(wxCommandEvent& event);
+
+  void OnPrimeSettings(wxCommandEvent& event);
 
   void OnReloadThemeBitmaps(wxCommandEvent& event);
   void OnRefreshGameList(wxCommandEvent& event);

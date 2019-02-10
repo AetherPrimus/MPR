@@ -45,4 +45,9 @@ void EnableSelfLogging(bool enable);
 std::vector<std::string> GetSelfLog();
 void ClearSelfLog();
 bool IsSelfLogging();
+
+void SetSensitivity(float sens);
+float GetSensitivity();
+
+void SetActiveGame(int game);
 }  // namespace

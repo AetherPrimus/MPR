@@ -98,6 +98,11 @@
 #include "VideoCommon/VideoBackendBase.h"
 #include "VideoCommon/VideoConfig.h"
 
+#include "InputCommon\DInputMouseAbsolute.h"
+
+#include "Core/ActionReplay.h"
+#include "DolphinWX/SensitivitySelector.h"
+
 class InputConfig;
 class wxFrame;
 
@@ -211,6 +216,8 @@ void CFrame::BindMenuBarEvents()
   Bind(wxEVT_MENU, &CFrame::OnHelp, this, IDM_HELP_ONLINE_DOCS);
   Bind(wxEVT_MENU, &CFrame::OnHelp, this, IDM_HELP_GITHUB);
   Bind(wxEVT_MENU, &CFrame::OnHelp, this, wxID_ABOUT);
+
+  Bind(wxEVT_MENU, &CFrame::OnPrimeSettings, this, IDM_SENSITIVITY);
 
   if (m_use_debugger)
     BindDebuggerMenuBarEvents();
@@ -765,6 +772,8 @@ void CFrame::StartGame(std::unique_ptr<BootParameters> boot)
     wxTheApp->Bind(wxEVT_MOTION, &CFrame::OnMouse, this);
     m_render_parent->Bind(wxEVT_SIZE, &CFrame::OnRenderParentResize, this);
     m_render_parent->SetCursor(wxCURSOR_BLANK);
+
+    wxTheApp->Bind(wxEVT_LEFT_DOWN, &InputExternal::DInputMouse::OnWindowClick, &InputExternal::g_mouse_input);
   }
 }
 
@@ -1102,6 +1111,21 @@ void CFrame::OnHelp(wxCommandEvent& event)
   case IDM_HELP_GITHUB:
     WxUtils::Launch("https://github.com/dolphin-emu/dolphin");
     break;
+  }
+}
+
+void CFrame::OnPrimeSettings(wxCommandEvent& event)
+{
+  switch (event.GetId())
+  {
+  case IDM_SENSITIVITY:
+  {
+    SensitivitySelector frame(this);
+    HotkeyManagerEmu::Enable(false);
+    frame.ShowModal();
+    HotkeyManagerEmu::Enable(true);
+  }
+  break;
   }
 }
 

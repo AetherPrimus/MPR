@@ -110,6 +110,9 @@
     <ClCompile Include="ControlReference\ControlReference.cpp">
       <Filter>ControllerInterface</Filter>
     </ClCompile>
+    <ClCompile Include="DInputMouseAbsolute.cpp">
+      <Filter>ControllerInterface\DInput</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GCAdapter.h" />
@@ -201,6 +204,9 @@
     </ClInclude>
     <ClInclude Include="ControlReference\ControlReference.h">
       <Filter>ControllerInterface</Filter>
+    </ClInclude>
+    <ClInclude Include="DInputMouseAbsolute.h">
+      <Filter>ControllerInterface\DInput</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -122,6 +122,7 @@
     <ClCompile Include="MemcardManager.cpp" />
     <ClCompile Include="NetPlay\PadMapDialog.cpp" />
     <ClCompile Include="PatchAddEdit.cpp" />
+    <ClCompile Include="SensitivitySelector.cpp" />
     <ClCompile Include="SoftwareVideoConfigDialog.cpp" />
     <ClCompile Include="TASInputDlg.cpp" />
     <ClCompile Include="UINeedsControllerState.cpp" />
@@ -200,6 +201,7 @@
     <ClInclude Include="MainToolBar.h" />
     <ClInclude Include="MemcardManager.h" />
     <ClInclude Include="PatchAddEdit.h" />
+    <ClInclude Include="SensitivitySelector.h" />
     <ClInclude Include="SoftwareVideoConfigDialog.h" />
     <ClInclude Include="TASInputDlg.h" />
     <ClInclude Include="UINeedsControllerState.h" />

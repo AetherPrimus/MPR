@@ -9,6 +9,8 @@
 #include "InputCommon/ControllerInterface/DInput/DInputJoystick.h"
 #include "InputCommon/ControllerInterface/DInput/DInputKeyboardMouse.h"
 
+#include "InputCommon/DInputMouseAbsolute.h"
+
 #pragma comment(lib, "Dinput8.lib")
 #pragma comment(lib, "dxguid.lib")
 
@@ -52,6 +54,9 @@ void PopulateDevices(HWND hwnd)
   {
     return;
   }
+
+  // MODIFICATION: Initialize external mouse device, keep it separate from Dolphin's keyboardmouse devices
+  InputExternal::InitMouse(idi8);
 
   InitKeyboardMouse(idi8, hwnd);
   InitJoystick(idi8, hwnd);

@@ -328,6 +328,8 @@ enum
   IDM_FREELOOK_RESET,
 
   ID_TOOLBAR = 500,
+
+    IDM_SENSITIVITY,
 };
 
 // custom message macro

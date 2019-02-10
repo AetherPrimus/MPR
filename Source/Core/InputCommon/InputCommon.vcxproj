@@ -63,6 +63,7 @@
     <ClCompile Include="ControlReference\ExpressionParser.cpp" />
     <ClCompile Include="ControllerInterface\ForceFeedback\ForceFeedbackDevice.cpp" />
     <ClCompile Include="ControllerInterface\XInput\XInput.cpp" />
+    <ClCompile Include="DInputMouseAbsolute.cpp" />
     <ClCompile Include="GCAdapter.cpp">
       <!--
       Disable "nonstandard extension used : zero-sized array in struct/union" warning,
@@ -102,6 +103,7 @@
     <ClInclude Include="ControlReference\ExpressionParser.h" />
     <ClInclude Include="ControllerInterface\ForceFeedback\ForceFeedbackDevice.h" />
     <ClInclude Include="ControllerInterface\XInput\XInput.h" />
+    <ClInclude Include="DInputMouseAbsolute.h" />
     <ClInclude Include="GCAdapter.h" />
     <ClInclude Include="GCPadStatus.h" />
     <ClInclude Include="InputConfig.h" />

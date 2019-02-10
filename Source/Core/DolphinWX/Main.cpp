@@ -509,6 +509,34 @@ bool Host_RendererIsFullscreen()
   return main_frame->RendererIsFullscreen();
 }
 
+void Host_RenderScreenToClient(int* x, int* y)
+{
+  main_frame->GetRenderFrame()->ScreenToClient(x, y);
+}
+
+void Host_GetRendererClientRect(wxRect& rectOut)
+{
+  CRenderFrame* renderFrame = main_frame->GetRenderFrame();
+  wxSize size = renderFrame->GetClientSize();
+  wxPoint loc = renderFrame->GetScreenPosition();
+  rectOut.x = loc.x;
+  rectOut.y = loc.y;
+  rectOut.width = size.GetWidth();
+  rectOut.height = size.GetHeight();
+}
+
+void* Host_GetRenderFrame()
+{
+  if (main_frame)
+  {
+    return main_frame->GetRenderFrame();
+  }
+  else
+  {
+    return nullptr;
+  }
+}
+
 void Host_ShowVideoConfig(void* parent, const std::string& backend_name)
 {
   wxWindow* const parent_window = static_cast<wxWindow*>(parent);

@@ -23,9 +23,14 @@
 // The host can be just a command line app that opens a window, or a full blown debugger
 // interface.
 
+class wxRect;
+
 bool Host_UINeedsControllerState();
 bool Host_RendererHasFocus();
 bool Host_RendererIsFullscreen();
+void Host_RenderScreenToClient(int* x, int* y);
+void Host_GetRendererClientRect(wxRect& rectOut);
+void* Host_GetRenderFrame();
 void Host_Message(int Id);
 void Host_NotifyMapLoaded();
 void Host_RefreshDSPDebuggerWindow();
