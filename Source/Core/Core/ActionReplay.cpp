@@ -975,6 +975,8 @@ void primeMenu_NTSC()
   int dx = InputExternal::g_mouse_input.GetDeltaHorizontalAxis(), dy = InputExternal::g_mouse_input.GetDeltaVerticalAxis();
 
   float aspect_ratio = getAspectRatio();
+  if (isnan(aspect_ratio))
+    return;
 
   xPosition += ((float)dx / 500.f);
   yPosition += ((float)dy * aspect_ratio / (500.f));
@@ -998,6 +1000,8 @@ void primeMenu_PAL()
   int dx = InputExternal::g_mouse_input.GetDeltaHorizontalAxis(), dy = InputExternal::g_mouse_input.GetDeltaVerticalAxis();
 
   float aspect_ratio = getAspectRatio();
+  if (isnan(aspect_ratio))
+    return;
 
   xPosition.f += ((float)dx / 500.f);
   yPosition.f += ((float)dy * aspect_ratio / (500.f));
