@@ -27,6 +27,7 @@
 #include <iterator>
 #include <mutex>
 #include <string>
+#include <tuple>
 #include <unordered_set>
 #include <utility>
 #include <vector>
@@ -43,21 +44,20 @@
 
 #include "Core/Host.h"
 #include "DolphinWX/Frame.h"
+#include "InputCommon/ControllerInterface/ControllerInterface.h"
 #include "InputCommon/DInputMouseAbsolute.h"
 #include "VideoCommon/RenderBase.h"
-
-#include "InputCommon/DInputMouseAbsolute.h"
 
 namespace ActionReplay
 {
 #define clamp(min, max, v) ((v) > (max) ? (max) : ((v) < (min) ? (min) : (v)))
-  //  turning rate horizontal for Prime 1 is approximately this (in rad/sec)
+//  turning rate horizontal for Prime 1 is approximately this (in rad/sec)
 #define TURNRATE_RATIO 0.00498665500569808449206349206349f
-  typedef union
-  {
-    u32 i;
-    float f;
-  }rawfloat;
+typedef union
+{
+  u32 i;
+  float f;
+} rawfloat;
 enum
 {
   // Zero Code Types
@@ -75,30 +75,30 @@ enum
   CONDTIONAL_GREATER_THAN_UNSIGNED = 0x06,
   CONDTIONAL_AND = 0x07,  // bitwise AND
 
-                          // Conditional Line Counts
-                          CONDTIONAL_ONE_LINE = 0x00,
-                          CONDTIONAL_TWO_LINES = 0x01,
-                          CONDTIONAL_ALL_LINES_UNTIL = 0x02,
-                          CONDTIONAL_ALL_LINES = 0x03,
+  // Conditional Line Counts
+  CONDTIONAL_ONE_LINE = 0x00,
+  CONDTIONAL_TWO_LINES = 0x01,
+  CONDTIONAL_ALL_LINES_UNTIL = 0x02,
+  CONDTIONAL_ALL_LINES = 0x03,
 
-                          // Data Types
-                          DATATYPE_8BIT = 0x00,
-                          DATATYPE_16BIT = 0x01,
-                          DATATYPE_32BIT = 0x02,
-                          DATATYPE_32BIT_FLOAT = 0x03,
+  // Data Types
+  DATATYPE_8BIT = 0x00,
+  DATATYPE_16BIT = 0x01,
+  DATATYPE_32BIT = 0x02,
+  DATATYPE_32BIT_FLOAT = 0x03,
 
-                          // Normal Code 0 Subtypes
-                          SUB_RAM_WRITE = 0x00,
-                          SUB_WRITE_POINTER = 0x01,
-                          SUB_ADD_CODE = 0x02,
-                          SUB_MASTER_CODE = 0x03,
+  // Normal Code 0 Subtypes
+  SUB_RAM_WRITE = 0x00,
+  SUB_WRITE_POINTER = 0x01,
+  SUB_ADD_CODE = 0x02,
+  SUB_MASTER_CODE = 0x03,
 };
 
 // General lock. Protects codes list and internal log.
 static std::mutex s_lock;
 static std::vector<ARCode> s_active_codes;
 static std::vector<std::string> s_internal_log;
-static std::atomic<bool> s_use_internal_log{ false };
+static std::atomic<bool> s_use_internal_log{false};
 static float sensitivity = 7.5f;
 static int active_game = 1;
 // pointer to the code currently being run, (used by log messages that include the code name)
@@ -137,7 +137,7 @@ void ApplyCodes(const std::vector<ARCode>& codes)
   s_disable_logging = false;
   s_active_codes.clear();
   std::copy_if(codes.begin(), codes.end(), std::back_inserter(s_active_codes),
-    [](const ARCode& code) { return code.active; });
+               [](const ARCode& code) { return code.active; });
   s_active_codes.shrink_to_fit();
 }
 
@@ -178,7 +178,7 @@ std::vector<ARCode> LoadCodes(const IniFile& global_ini, const IniFile& local_in
     }
   }
 
-  const IniFile* inis[2] = { &global_ini, &local_ini };
+  const IniFile* inis[2] = {&global_ini, &local_ini};
   for (const IniFile* ini : inis)
   {
     std::vector<std::string> lines;
@@ -244,7 +244,7 @@ std::vector<ARCode> LoadCodes(const IniFile& global_ini, const IniFile& local_in
         {
           pieces = SplitString(line, '-');
           if (pieces.size() == 3 && pieces[0].size() == 4 && pieces[1].size() == 4 &&
-            pieces[2].size() == 5)
+              pieces[2].size() == 5)
           {
             // Encrypted AR code
             // Decryption is done in "blocks", so we must push blocks into a vector,
@@ -386,8 +386,8 @@ static bool Subtype_RamWriteAndFill(const ARAddr& addr, const u32 data)
   default:
     LogInfo("Bad Size");
     PanicAlertT("Action Replay Error: Invalid size "
-      "(%08x : address = %08x) in Ram Write And Fill (%s)",
-      addr.size, addr.gcaddr, s_current_code->name.c_str());
+                "(%08x : address = %08x) in Ram Write And Fill (%s)",
+                addr.size, addr.gcaddr, s_current_code->name.c_str());
     return false;
   }
 
@@ -446,8 +446,8 @@ static bool Subtype_WriteToPointer(const ARAddr& addr, const u32 data)
   default:
     LogInfo("Bad Size");
     PanicAlertT("Action Replay Error: Invalid size "
-      "(%08x : address = %08x) in Write To Pointer (%s)",
-      addr.size, addr.gcaddr, s_current_code->name.c_str());
+                "(%08x : address = %08x) in Write To Pointer (%s)",
+                addr.size, addr.gcaddr, s_current_code->name.c_str());
     return false;
   }
   return true;
@@ -508,8 +508,8 @@ static bool Subtype_AddCode(const ARAddr& addr, const u32 data)
   default:
     LogInfo("Bad Size");
     PanicAlertT("Action Replay Error: Invalid size "
-      "(%08x : address = %08x) in Add Code (%s)",
-      addr.size, addr.gcaddr, s_current_code->name.c_str());
+                "(%08x : address = %08x) in Add Code (%s)",
+                addr.size, addr.gcaddr, s_current_code->name.c_str());
     return false;
   }
   return true;
@@ -523,8 +523,8 @@ static bool Subtype_MasterCodeAndWriteToCCXXXXXX(const ARAddr& addr, const u32 d
   // u8  mcode_count = (data & 0xFF00) >> 8;
   // u8  mcode_number = data & 0xFF;
   PanicAlertT("Action Replay Error: Master Code and Write To CCXXXXXX not implemented (%s)\n"
-    "Master codes are not needed. Do not use master codes.",
-    s_current_code->name.c_str());
+              "Master codes are not needed. Do not use master codes.",
+              s_current_code->name.c_str());
   return false;
 }
 
@@ -598,7 +598,7 @@ static bool ZeroCode_FillAndSlide(const u32 val_last, const ARAddr& addr, const 
   default:
     LogInfo("Bad Size");
     PanicAlertT("Action Replay Error: Invalid size (%08x : address = %08x) in Fill and Slide (%s)",
-      size, new_addr, s_current_code->name.c_str());
+                size, new_addr, s_current_code->name.c_str());
     return false;
   }
   return true;
@@ -652,7 +652,7 @@ static bool ZeroCode_MemoryCopy(const u32 val_last, const ARAddr& addr, const u3
   {
     LogInfo("Bad Value");
     PanicAlertT("Action Replay Error: Invalid value (%08x) in Memory Copy (%s)", (data & ~0x7FFF),
-      s_current_code->name.c_str());
+                s_current_code->name.c_str());
     return false;
   }
   return true;
@@ -689,7 +689,7 @@ static bool NormalCode(const ARAddr& addr, const u32 data)
   default:
     LogInfo("Bad Subtype");
     PanicAlertT("Action Replay: Normal Code 0: Invalid Subtype %08x (%s)", addr.subtype,
-      s_current_code->name.c_str());
+                s_current_code->name.c_str());
     return false;
   }
 
@@ -731,7 +731,7 @@ static bool CompareValues(const u32 val1, const u32 val2, const int type)
   default:
     LogInfo("Unknown Compare type");
     PanicAlertT("Action Replay: Invalid Normal Code Type %08x (%s)", type,
-      s_current_code->name.c_str());
+                s_current_code->name.c_str());
     return false;
   }
 }
@@ -763,7 +763,7 @@ static bool ConditionalCode(const ARAddr& addr, const u32 data, int* const pSkip
   default:
     LogInfo("Bad Size");
     PanicAlertT("Action Replay: Conditional Code: Invalid Size %08x (%s)", addr.size,
-      s_current_code->name.c_str());
+                s_current_code->name.c_str());
     return false;
   }
 
@@ -787,7 +787,7 @@ static bool ConditionalCode(const ARAddr& addr, const u32 data, int* const pSkip
     default:
       LogInfo("Bad Subtype");
       PanicAlertT("Action Replay: Normal Code %i: Invalid subtype %08x (%s)", 1, addr.subtype,
-        s_current_code->name.c_str());
+                  s_current_code->name.c_str());
       return false;
     }
   }
@@ -870,9 +870,9 @@ static bool RunCodeLocked(const ARCode& arcode)
     if (addr >= 0x00002000 && addr < 0x00003000)
     {
       LogInfo(
-        "This action replay simulator does not support codes that modify Action Replay itself.");
+          "This action replay simulator does not support codes that modify Action Replay itself.");
       PanicAlertT(
-        "This action replay simulator does not support codes that modify Action Replay itself.");
+          "This action replay simulator does not support codes that modify Action Replay itself.");
       return false;
     }
 
@@ -904,7 +904,7 @@ static bool RunCodeLocked(const ARCode& arcode)
       case ZCODE_ROW:  // Executes all codes in the same row
                        // Todo: Set register 1BB4 to 1
         LogInfo("ZCode: Executes all codes in the same row, Set register 1BB4 to 1 (zcode not "
-          "supported)");
+                "supported)");
         PanicAlertT("Zero 3 code not supported");
         return false;
 
@@ -972,7 +972,8 @@ void primeMenu_NTSC()
 {
   static float xPosition = 0;
   static float yPosition = 0;
-  int dx = InputExternal::g_mouse_input.GetDeltaHorizontalAxis(), dy = InputExternal::g_mouse_input.GetDeltaVerticalAxis();
+  int dx = InputExternal::g_mouse_input.GetDeltaHorizontalAxis(),
+      dy = InputExternal::g_mouse_input.GetDeltaVerticalAxis();
 
   float aspect_ratio = getAspectRatio();
   if (isnan(aspect_ratio))
@@ -995,9 +996,10 @@ void primeMenu_NTSC()
 
 void primeMenu_PAL()
 {
-  static rawfloat xPosition = { 0 };
-  static rawfloat yPosition = { 0 };
-  int dx = InputExternal::g_mouse_input.GetDeltaHorizontalAxis(), dy = InputExternal::g_mouse_input.GetDeltaVerticalAxis();
+  static rawfloat xPosition = {0};
+  static rawfloat yPosition = {0};
+  int dx = InputExternal::g_mouse_input.GetDeltaHorizontalAxis(),
+      dy = InputExternal::g_mouse_input.GetDeltaVerticalAxis();
 
   float aspect_ratio = getAspectRatio();
   if (isnan(aspect_ratio))
@@ -1009,11 +1011,116 @@ void primeMenu_PAL()
   xPosition.f = clamp(-1, 0.95f, xPosition.f);
   yPosition.f = clamp(-1, 0.90f, yPosition.f);
 
-
   u32 cursorBaseAddr = PowerPC::HostRead_U32(0x80621ffc);
 
   PowerPC::HostWrite_U32(xPosition.i, cursorBaseAddr + 0xDC);
   PowerPC::HostWrite_U32(yPosition.i, cursorBaseAddr + 0x19C);
+}
+
+std::tuple<int, int> getVisorSwitch()
+{
+  static bool combat = false, scan = false, thermal = false, xray = false;
+  const auto dev = g_controller_interface.FindDevice(
+      ciface::Core::DeviceQualifier("DInput", 0, "Keyboard Mouse"));
+  if (!(dev->FindInput("LSHIFT")->GetState() > 0.5))
+  {
+    return std::make_tuple(-1, 0);
+  }
+
+  if ((dev->FindInput("1")->GetState() > 0.5))
+  {
+    if (!combat)
+    {
+      scan = thermal = xray = false;
+      combat = true;
+      return std::make_tuple(0, 0x11);
+    }
+  }
+  else if ((dev->FindInput("2")->GetState() > 0.5))
+  {
+    if (!scan)
+    {
+      combat = thermal = xray = false;
+      scan = true;
+      return std::make_tuple(2, 0x05);
+    }
+  }
+  else if ((dev->FindInput("3")->GetState() > 0.5))
+  {
+    if (!thermal)
+    {
+      combat = scan = xray = false;
+      thermal = true;
+      return std::make_tuple(3, 0x09);
+    }
+  }
+  else if ((dev->FindInput("4")->GetState() > 0.5))
+  {
+    if (!xray)
+    {
+      combat = scan = thermal = false;
+      xray = true;
+      return std::make_tuple(1, 0x0d);
+    }
+  }
+  else
+  {
+    combat = scan = thermal = xray = false;
+  }
+  return std::make_tuple(-1, 0);
+}
+
+int getBeamSwitch()
+{
+  static bool power = false, wave = false, plasma = false, ice = false;
+  const auto dev = g_controller_interface.FindDevice(
+      ciface::Core::DeviceQualifier("DInput", 0, "Keyboard Mouse"));
+  if (dev->FindInput("LSHIFT")->GetState() > 0.5)
+  {
+    return -1;
+  }
+
+  if ((dev->FindInput("1")->GetState() > 0.5))
+  {
+    if (!power)
+    {
+      wave = ice = plasma = false;
+      power = true;
+      return 0;
+    }
+  }
+  else if ((dev->FindInput("2")->GetState() > 0.5))
+  {
+    if (!wave)
+    {
+      power = ice = plasma = false;
+      wave = true;
+      return 2;
+    }
+  }
+  else if ((dev->FindInput("3")->GetState() > 0.5))
+  {
+    if (!ice)
+    {
+      power = wave = plasma = false;
+      ice = true;
+      return 1;
+    }
+  }
+  else if ((dev->FindInput("4")->GetState() > 0.5))
+  {
+    if (!plasma)
+    {
+      power = wave = ice = false;
+      plasma = true;
+      return 3;
+    }
+  }
+  else
+  {
+    power = wave = ice = plasma = false;
+  }
+  return -1;
 }
 
 //*****************************************************************************************
@@ -1027,14 +1134,12 @@ void primeOne_NTSC()
     return;
   }
 
-  //static bool firstRun = true;
-
   // for vertical angle control, we need to send the actual direction to look
   // i believe the angle is measured in radians, clamped ~[-1.22, 1.22]
   static float yAngle = 0;
 
-  int dx = InputExternal::g_mouse_input.GetDeltaHorizontalAxis(), dy = InputExternal::g_mouse_input.GetDeltaVerticalAxis();
-
+  int dx = InputExternal::g_mouse_input.GetDeltaHorizontalAxis(),
+      dy = InputExternal::g_mouse_input.GetDeltaVerticalAxis();
 
   float vSensitivity = (sensitivity * TURNRATE_RATIO) / (60.0f);
 
@@ -1042,11 +1147,9 @@ void primeOne_NTSC()
   yAngle += ((float)dy * -vSensitivity);
   yAngle = clamp(-1.22f, 1.22f, yAngle);
 
-
   u32 horizontalSpeed, verticalAngle;
   memcpy(&horizontalSpeed, &dfx, 4);
   memcpy(&verticalAngle, &yAngle, 4);
-
 
   //  Provide the destination vertical angle
   PowerPC::HostWrite_U32(verticalAngle, 0x804D3FFC);
@@ -1057,7 +1160,24 @@ void primeOne_NTSC()
   //  provide the speed to turn horizontally
   PowerPC::HostWrite_U32(horizontalSpeed, 0x804d3d38);
 
-
+  // beam switching
+  int beam_id = getBeamSwitch();
+  if (beam_id != -1)
+  {
+    PowerPC::HostWrite_U32(beam_id, 0x804a7fa4);
+    PowerPC::HostWrite_U32(1, 0x804a7fa0);
+  }
+  int visor_id, visor_off;
+  std::tie(visor_id, visor_off) = getVisorSwitch();
+  if (visor_id != -1)
+  {
+    u32 visor_base = PowerPC::HostRead_U32(0x804bfcd4);
+    // check if we have the visor
+    if (PowerPC::HostRead_U32(visor_base + (visor_off * 8) + 0x30) != 0)
+    {
+      PowerPC::HostWrite_U32(visor_id, visor_base + 0x1c);
+    }
+  }
 }
 
 void primeOne_PAL()
@@ -1069,14 +1189,14 @@ void primeOne_PAL()
     return;
   }
 
-  //static bool firstRun = true;
+  // static bool firstRun = true;
 
   // for vertical angle control, we need to send the actual direction to look
   // i believe the angle is measured in radians, clamped ~[-1.22, 1.22]
   static float yAngle = 0;
 
-  int dx = InputExternal::g_mouse_input.GetDeltaHorizontalAxis(), dy = InputExternal::g_mouse_input.GetDeltaVerticalAxis();
-
+  int dx = InputExternal::g_mouse_input.GetDeltaHorizontalAxis(),
+      dy = InputExternal::g_mouse_input.GetDeltaVerticalAxis();
 
   float vSensitivity = (sensitivity * TURNRATE_RATIO) / (60.0f);
 
@@ -1084,11 +1204,9 @@ void primeOne_PAL()
   yAngle += ((float)dy * -vSensitivity);
   yAngle = clamp(-1.22f, 1.22f, yAngle);
 
-
   u32 horizontalSpeed, verticalAngle;
   memcpy(&horizontalSpeed, &dfx, 4);
   memcpy(&verticalAngle, &yAngle, 4);
-
 
   //  Provide the destination vertical angle
   PowerPC::HostWrite_U32(verticalAngle, 0x804D7F3C);
@@ -1106,10 +1224,11 @@ void primeTwo_NTSC()
   static float yAngle = 0;
 
   //// Makes sure that code is only run once
-  //static bool firstRun = true;
+  // static bool firstRun = true;
 
   // Create values for Change in X and Y mouse position
-  int dx = InputExternal::g_mouse_input.GetDeltaHorizontalAxis(), dy = InputExternal::g_mouse_input.GetDeltaVerticalAxis();
+  int dx = InputExternal::g_mouse_input.GetDeltaHorizontalAxis(),
+      dy = InputExternal::g_mouse_input.GetDeltaVerticalAxis();
 
   // hSensitivity - Horizontal axis sensitivity
   // vSensitivity - Vertical axis sensitivity
@@ -1129,7 +1248,8 @@ void primeTwo_NTSC()
   // Makes sure the baaseaddress is within the valid range of memoryaddresses for GamCube/Wii
   if (baseAddress > 0x80000000 && baseAddress < 0x81800000)
   {
-    // HorizontalSpeed and Vertical angle to store values, used as buffers for memcpy reference variables
+    // HorizontalSpeed and Vertical angle to store values, used as buffers for memcpy reference
+    // variables
     u32 horizontalSpeed, verticalAngle;
 
     // Copying values representing floating point data into integers
@@ -1146,7 +1266,8 @@ void primeTwo_PAL()
 {
   static float yAngle = 0;
 
-  int dx = InputExternal::g_mouse_input.GetDeltaHorizontalAxis(), dy = InputExternal::g_mouse_input.GetDeltaVerticalAxis();
+  int dx = InputExternal::g_mouse_input.GetDeltaHorizontalAxis(),
+      dy = InputExternal::g_mouse_input.GetDeltaVerticalAxis();
 
   float vSensitivity = (sensitivity * TURNRATE_RATIO) / (60.0f);
 
@@ -1161,7 +1282,8 @@ void primeTwo_PAL()
   // Makes sure the baaseaddress is within the valid range of memoryaddresses for GamCube/Wii
   if (baseAddress > 0x80000000 && baseAddress < 0x81800000)
   {
-    // HorizontalSpeed and Vertical angle to store values, used as buffers for memcpy reference variables
+    // HorizontalSpeed and Vertical angle to store values, used as buffers for memcpy reference
+    // variables
     u32 horizontalSpeed, verticalAngle;
 
     // Copying values representing floating point data into integers
@@ -1177,13 +1299,28 @@ void primeTwo_PAL()
 //*****************************************************************************************
 // Metroid Prime 3
 //*****************************************************************************************
-void primeThree()
-{
+void primeThree() {}
 
+void beamChangeCode(std::vector<ARCode>& code_vec, u32 base_offset)
+{
+  ARCode c1;
+  c1.active = c1.user_defined = true;
+
+  c1.ops.push_back(AREntry(0x0418e544, 0x3c80804a));
+  c1.ops.push_back(AREntry(0x0418e548, 0x38847fa0));
+  c1.ops.push_back(AREntry(0x0418e54c, 0x80640000));
+  c1.ops.push_back(AREntry(0x0418e550, 0x2c030000));
+  c1.ops.push_back(AREntry(0x0418e554, 0x41820058));
+  c1.ops.push_back(AREntry(0x0418e558, 0x83440004));
+  c1.ops.push_back(AREntry(0x0418e55c, 0x7f59d378));
+  c1.ops.push_back(AREntry(0x0418e560, 0x38600000));
+  c1.ops.push_back(AREntry(0x0418e564, 0x90640000));
+  c1.ops.push_back(AREntry(0x0418e568, 0x48000044));
+  code_vec.push_back(c1);
 }
 
-//region 0: NTSC
-//region 1: PAL
+// region 0: NTSC
+// region 1: PAL
 void ActivateARCodesFor(int game, int region)
 {
   std::vector<ARCode> codes;
@@ -1191,24 +1328,33 @@ void ActivateARCodesFor(int game, int region)
   {
     if (game == 1)
     {
-      ARCode c1, c2, c3, c4, c5;
-      c1.active = c2.active = c3.active = c4.active = c5.active = true;
-      c1.user_defined = c2.user_defined = c3.user_defined = c4.user_defined = c5.user_defined = true;
+      ARCode c1, c2, c3, c4, c5, c6;
+      c1.active = c2.active = c3.active = c4.active = c5.active = c6.active = true;
+      c1.user_defined = c2.user_defined = c3.user_defined = c4.user_defined = c5.user_defined =
+          c6.user_defined = true;
 
       c1.ops.push_back(AREntry(0x04098ee4, 0xec010072));
       c2.ops.push_back(AREntry(0x04099138, 0x60000000));
       c3.ops.push_back(AREntry(0x04183a8c, 0x60000000));
       c4.ops.push_back(AREntry(0x04183a64, 0x60000000));
       c5.ops.push_back(AREntry(0x0417661c, 0x60000000));
+      c6.ops.push_back(AREntry(0x042fb5b4, 0xd23f009c));
 
+      codes.push_back(c1);
+      codes.push_back(c2);
+      codes.push_back(c3);
+      codes.push_back(c4);
+      codes.push_back(c5);
+      codes.push_back(c6);
 
-      codes.push_back(c1); codes.push_back(c2); codes.push_back(c3); codes.push_back(c4); codes.push_back(c5);
+      beamChangeCode(codes, 0x0418e544);
     }
     else if (game == 2)
     {
       ARCode c1, c2, c3, c4, c5, c6, c7;
       c1.active = c2.active = c3.active = c4.active = c5.active = c6.active = c7.active = true;
-      c1.user_defined = c2.user_defined = c3.user_defined = c4.user_defined = c5.user_defined = c6.user_defined = c7.user_defined = true;
+      c1.user_defined = c2.user_defined = c3.user_defined = c4.user_defined = c5.user_defined =
+          c6.user_defined = c7.user_defined = true;
 
       c1.ops.push_back(AREntry(0x0408ccc8, 0xc0430184));
       c2.ops.push_back(AREntry(0x0408cd1c, 0x60000000));
@@ -1218,8 +1364,13 @@ void ActivateARCodesFor(int game, int region)
       c6.ops.push_back(AREntry(0x0408bb48, 0x60000000));
       c7.ops.push_back(AREntry(0x0408bb18, 0x60000000));
 
-      codes.push_back(c1); codes.push_back(c2); codes.push_back(c3); codes.push_back(c4);
-      codes.push_back(c5); codes.push_back(c6); codes.push_back(c7);
+      codes.push_back(c1);
+      codes.push_back(c2);
+      codes.push_back(c3);
+      codes.push_back(c4);
+      codes.push_back(c5);
+      codes.push_back(c6);
+      codes.push_back(c7);
     }
   }
   else if (region == 1)
@@ -1228,21 +1379,29 @@ void ActivateARCodesFor(int game, int region)
     {
       ARCode c1, c2, c3, c4, c5;
       c1.active = c2.active = c3.active = c4.active = c5.active = true;
-      c1.user_defined = c2.user_defined = c3.user_defined = c4.user_defined = c5.user_defined = true;
+      c1.user_defined = c2.user_defined = c3.user_defined = c4.user_defined = c5.user_defined =
+          true;
 
-      c1.ops.push_back(AREntry(0x04099068, 0xec010072)); //PAL: 04099068
+      c1.ops.push_back(AREntry(0x04099068, 0xec010072));  // PAL: 04099068
       c2.ops.push_back(AREntry(0x040992C4, 0x60000000));
       c3.ops.push_back(AREntry(0x04183CFC, 0x60000000));
       c4.ops.push_back(AREntry(0x04183D24, 0x60000000));
       c5.ops.push_back(AREntry(0x041768B4, 0x60000000));
 
-      codes.push_back(c1); codes.push_back(c2); codes.push_back(c3); codes.push_back(c4); codes.push_back(c5);
+      codes.push_back(c1);
+      codes.push_back(c2);
+      codes.push_back(c3);
+      codes.push_back(c4);
+      codes.push_back(c5);
+
+      //beamChangeCode(codes, 0x0418E7DC);
     }
     if (game == 2)
     {
       ARCode c1, c2, c3, c4, c5, c6, c7;
       c1.active = c2.active = c3.active = c4.active = c5.active = c6.active = c7.active = true;
-      c1.user_defined = c2.user_defined = c3.user_defined = c4.user_defined = c5.user_defined = c6.user_defined = c7.user_defined = true;
+      c1.user_defined = c2.user_defined = c3.user_defined = c4.user_defined = c5.user_defined =
+          c6.user_defined = c7.user_defined = true;
 
       c1.ops.push_back(AREntry(0x0408e30C, 0xc0430184));
       c2.ops.push_back(AREntry(0x0408E360, 0x60000000));
@@ -1252,8 +1411,13 @@ void ActivateARCodesFor(int game, int region)
       c6.ops.push_back(AREntry(0x0408D18C, 0x60000000));
       c7.ops.push_back(AREntry(0x0408D15C, 0x60000000));
 
-      codes.push_back(c1); codes.push_back(c2); codes.push_back(c3); codes.push_back(c4);
-      codes.push_back(c5); codes.push_back(c6); codes.push_back(c7);
+      codes.push_back(c1);
+      codes.push_back(c2);
+      codes.push_back(c3);
+      codes.push_back(c4);
+      codes.push_back(c5);
+      codes.push_back(c6);
+      codes.push_back(c7);
     }
   }
   ApplyCodes(codes);
@@ -1321,7 +1485,7 @@ void RunAllActive()
       primeOne_PAL();
     }
   }
-  else if (game_id == 1)//TODO
+  else if (game_id == 1)  // TODO
   {
     if (last_game_running != 2)
     {
@@ -1361,15 +1525,14 @@ void RunAllActive()
 
   InputExternal::g_mouse_input.ResetDeltas();
 
-
   std::lock_guard<std::mutex> guard(s_lock);
   s_active_codes.erase(std::remove_if(s_active_codes.begin(), s_active_codes.end(),
-    [](const ARCode& code) {
-    bool success = RunCodeLocked(code);
-    LogInfo("\n");
-    return !success;
-  }),
-    s_active_codes.end());
+                                      [](const ARCode& code) {
+                                        bool success = RunCodeLocked(code);
+                                        LogInfo("\n");
+                                        return !success;
+                                      }),
+                       s_active_codes.end());
   s_disable_logging = true;
 }
 

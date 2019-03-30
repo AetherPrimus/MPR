@@ -39,6 +39,9 @@
     <ClCompile>
       <AdditionalIncludeDirectories>..\..\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
+    <Lib>
+      <TreatLibWarningAsErrors Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</TreatLibWarningAsErrors>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\SFML\Network\Http.cpp" />

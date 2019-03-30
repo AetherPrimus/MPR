@@ -42,6 +42,9 @@
       <!-- Ensure libusb sees it's own config.h first... -->
       <AdditionalIncludeDirectories>.\msvc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
+    <Lib>
+      <TreatLibWarningAsErrors Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</TreatLibWarningAsErrors>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="libusb\core.c" />
