@@ -1022,7 +1022,7 @@ std::tuple<int, int> getVisorSwitch()
   static bool combat = false, scan = false, thermal = false, xray = false;
   const auto dev = g_controller_interface.FindDevice(
       ciface::Core::DeviceQualifier("DInput", 0, "Keyboard Mouse"));
-  if (!(dev->FindInput("LSHIFT")->GetState() > 0.5))
+  if (!(dev->FindInput("LCONTROL")->GetState() > 0.5))
   {
     return std::make_tuple(-1, 0);
   }
@@ -1075,7 +1075,7 @@ int getBeamSwitch()
   static bool power = false, wave = false, plasma = false, ice = false;
   const auto dev = g_controller_interface.FindDevice(
       ciface::Core::DeviceQualifier("DInput", 0, "Keyboard Mouse"));
-  if (dev->FindInput("LSHIFT")->GetState() > 0.5)
+  if (dev->FindInput("LCONTROL")->GetState() > 0.5)
   {
     return -1;
   }
@@ -1164,8 +1164,8 @@ void primeOne_NTSC()
   int beam_id = getBeamSwitch();
   if (beam_id != -1)
   {
-    PowerPC::HostWrite_U32(beam_id, 0x804a7fa4);
-    PowerPC::HostWrite_U32(1, 0x804a7fa0);
+    PowerPC::HostWrite_U32(beam_id, 0x804a79f4);
+    PowerPC::HostWrite_U32(1, 0x804a79f0);
   }
   int visor_id, visor_off;
   std::tie(visor_id, visor_off) = getVisorSwitch();
@@ -1182,6 +1182,8 @@ void primeOne_NTSC()
 
 void primeOne_PAL()
 {
+  //pal 804A7900
+
   // Flag which indicates lock-on
   if (PowerPC::HostRead_U8(0x804C3FF3))
   {
@@ -1213,6 +1215,25 @@ void primeOne_PAL()
 
   //  provide the speed to turn horizontally
   PowerPC::HostWrite_U32(horizontalSpeed, 0x804D7C78);
+
+  // beam switching
+  int beam_id = getBeamSwitch();
+  if (beam_id != -1)
+  {
+    PowerPC::HostWrite_U32(beam_id, 0x804a79f4);
+    PowerPC::HostWrite_U32(1, 0x804a79f0);
+  }
+  int visor_id, visor_off;
+  std::tie(visor_id, visor_off) = getVisorSwitch();
+  if (visor_id != -1)
+  {
+    u32 visor_base = PowerPC::HostRead_U32(0x804c3c14);
+    // check if we have the visor
+    if (PowerPC::HostRead_U32(visor_base + (visor_off * 8) + 0x30) != 0)
+    {
+      PowerPC::HostWrite_U32(visor_id, visor_base + 0x1c);
+    }
+  }
 }
 
 //*****************************************************************************************
@@ -1307,7 +1328,7 @@ void beamChangeCode(std::vector<ARCode>& code_vec, u32 base_offset)
   c1.active = c1.user_defined = true;
 
   c1.ops.push_back(AREntry(0x0418e544, 0x3c80804a));
-  c1.ops.push_back(AREntry(0x0418e548, 0x38847fa0));
+  c1.ops.push_back(AREntry(0x0418e548, 0x388479f0));
   c1.ops.push_back(AREntry(0x0418e54c, 0x80640000));
   c1.ops.push_back(AREntry(0x0418e550, 0x2c030000));
   c1.ops.push_back(AREntry(0x0418e554, 0x41820058));
@@ -1377,16 +1398,17 @@ void ActivateARCodesFor(int game, int region)
   {
     if (game == 1)
     {
-      ARCode c1, c2, c3, c4, c5;
-      c1.active = c2.active = c3.active = c4.active = c5.active = true;
+      ARCode c1, c2, c3, c4, c5, c6;
+      c1.active = c2.active = c3.active = c4.active = c5.active = c6.active = true;
       c1.user_defined = c2.user_defined = c3.user_defined = c4.user_defined = c5.user_defined =
-          true;
+          c6.user_defined = true;
 
       c1.ops.push_back(AREntry(0x04099068, 0xec010072));  // PAL: 04099068
       c2.ops.push_back(AREntry(0x040992C4, 0x60000000));
       c3.ops.push_back(AREntry(0x04183CFC, 0x60000000));
       c4.ops.push_back(AREntry(0x04183D24, 0x60000000));
       c5.ops.push_back(AREntry(0x041768B4, 0x60000000));
+      c6.ops.push_back(AREntry(0x042FB84C, 0xd23f009c));
 
       codes.push_back(c1);
       codes.push_back(c2);
@@ -1394,7 +1416,7 @@ void ActivateARCodesFor(int game, int region)
       codes.push_back(c4);
       codes.push_back(c5);
 
-      //beamChangeCode(codes, 0x0418E7DC);
+      beamChangeCode(codes, 0x0418E7DC);
     }
     if (game == 2)
     {
