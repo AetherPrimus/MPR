@@ -955,6 +955,11 @@ static bool RunCodeLocked(const ARCode& arcode)
   return true;
 }
 
+bool mem_check(u32 address)
+{
+  return (address >= 0x80000000) && (address < 0x81800000);
+}
+
 void OnMouseClick(wxMouseEvent& event)
 {
   s_window_focused = true;
@@ -1017,9 +1022,9 @@ void primeMenu_PAL()
   PowerPC::HostWrite_U32(yPosition.i, cursorBaseAddr + 0x19C);
 }
 
-std::tuple<int, int> getVisorSwitch()
+std::tuple<int, int> getVisorSwitch(std::array<std::tuple<int, int>, 4> const& visors)
 {
-  static bool combat = false, scan = false, thermal = false, xray = false;
+  static bool pressing_button = false;
   const auto dev = g_controller_interface.FindDevice(
       ciface::Core::DeviceQualifier("DInput", 0, "Keyboard Mouse"));
   if (!(dev->FindInput("LCONTROL")->GetState() > 0.5))
@@ -1029,50 +1034,46 @@ std::tuple<int, int> getVisorSwitch()
 
   if ((dev->FindInput("1")->GetState() > 0.5))
   {
-    if (!combat)
+    if (!pressing_button)
     {
-      scan = thermal = xray = false;
-      combat = true;
-      return std::make_tuple(0, 0x11);
+      pressing_button = true;
+      return visors[0];
     }
   }
   else if ((dev->FindInput("2")->GetState() > 0.5))
   {
-    if (!scan)
+    if (!pressing_button)
     {
-      combat = thermal = xray = false;
-      scan = true;
-      return std::make_tuple(2, 0x05);
+      pressing_button = true;
+      return visors[1];
     }
   }
   else if ((dev->FindInput("3")->GetState() > 0.5))
   {
-    if (!thermal)
+    if (!pressing_button)
     {
-      combat = scan = xray = false;
-      thermal = true;
-      return std::make_tuple(3, 0x09);
+      pressing_button = true;
+      return visors[2];
     }
   }
   else if ((dev->FindInput("4")->GetState() > 0.5))
   {
-    if (!xray)
+    if (!pressing_button)
     {
-      combat = scan = thermal = false;
-      xray = true;
-      return std::make_tuple(1, 0x0d);
+      pressing_button = true;
+      return visors[3];
     }
   }
   else
   {
-    combat = scan = thermal = xray = false;
+    pressing_button = false;
   }
   return std::make_tuple(-1, 0);
 }
 
-int getBeamSwitch()
+int getBeamSwitch(std::array<int, 4> const& beams)
 {
-  static bool power = false, wave = false, plasma = false, ice = false;
+  static bool pressing_button = false;
   const auto dev = g_controller_interface.FindDevice(
       ciface::Core::DeviceQualifier("DInput", 0, "Keyboard Mouse"));
   if (dev->FindInput("LCONTROL")->GetState() > 0.5)
@@ -1082,55 +1083,74 @@ int getBeamSwitch()
 
   if ((dev->FindInput("1")->GetState() > 0.5))
   {
-    if (!power)
+    if (!pressing_button)
     {
-      wave = ice = plasma = false;
-      power = true;
-      return 0;
+      pressing_button = true;
+      return beams[0];
     }
   }
   else if ((dev->FindInput("2")->GetState() > 0.5))
   {
-    if (!wave)
+    if (!pressing_button)
     {
-      power = ice = plasma = false;
-      wave = true;
-      return 2;
+      pressing_button = true;
+      return beams[1];
     }
   }
   else if ((dev->FindInput("3")->GetState() > 0.5))
   {
-    if (!ice)
+    if (!pressing_button)
     {
-      power = wave = plasma = false;
-      ice = true;
-      return 1;
+      pressing_button = true;
+      return beams[2];
     }
   }
   else if ((dev->FindInput("4")->GetState() > 0.5))
   {
-    if (!plasma)
+    if (!pressing_button)
     {
-      power = wave = ice = false;
-      plasma = true;
-      return 3;
+      pressing_button = true;
+      return beams[3];
     }
   }
   else
   {
-    power = wave = ice = plasma = false;
+    pressing_button = false;
   }
   return -1;
 }
 
+/*
+ * Going to comment this up for future reference
+ * Prime one beam IDs: 0 = power, 1 = ice, 2 = wave, 3 = plasma
+ * Prime one visor IDs: 0 = combat, 1 = xray, 2 = scan, 3 = thermal
+ * Prime two beam IDs: 0 = power, 1 = dark, 2 = light, 3 = annihilator
+ * Prime two visor IDs: 0 = combat, 1 = echo, 2 = scan, 3 = dark
+ * ADDITIONAL INFO: Equipment have-status offsets:
+ * Beams can be ignored (for now) as the existing code handles that for us
+ * Prime one visor offsets: combat = 0x11, scan = 0x05, thermal = 0x0d, xray = 0x09
+ * Prime two visor offsets: combat = 0x08, scan = 0x09, dark = 0x0d, echo = 0x0b
+ */
+static std::array<int, 4> prime_one_beams = {0, 2, 1, 3};
+static std::array<int, 4> prime_two_beams = {0, 1, 2, 3};
+// it can not be explained why combat->xray->scan->thermal is the ordering...
+static std::array<std::tuple<int, int>, 4> prime_one_visors = {
+    std::make_tuple<int, int>(0, 0x11), std::make_tuple<int, int>(2, 0x05),
+    std::make_tuple<int, int>(3, 0x0d), std::make_tuple<int, int>(1, 0x09)};
+static std::array<std::tuple<int, int>, 4> prime_two_visors = {
+    std::make_tuple<int, int>(0, 0x08), std::make_tuple<int, int>(2, 0x09),
+    std::make_tuple<int, int>(3, 0x0d), std::make_tuple<int, int>(1, 0x0b)};
+
 //*****************************************************************************************
 // Metroid Prime 1
 //*****************************************************************************************
+
 void primeOne_NTSC()
 {
   // Flag which indicates lock-on
   if (PowerPC::HostRead_U8(0x804C00B3))
   {
+    PowerPC::HostWrite_U32(0, 0x804d3d38);
     return;
   }
 
@@ -1161,14 +1181,14 @@ void primeOne_NTSC()
   PowerPC::HostWrite_U32(horizontalSpeed, 0x804d3d38);
 
   // beam switching
-  int beam_id = getBeamSwitch();
+  int beam_id = getBeamSwitch(prime_one_beams);
   if (beam_id != -1)
   {
     PowerPC::HostWrite_U32(beam_id, 0x804a79f4);
     PowerPC::HostWrite_U32(1, 0x804a79f0);
   }
   int visor_id, visor_off;
-  std::tie(visor_id, visor_off) = getVisorSwitch();
+  std::tie(visor_id, visor_off) = getVisorSwitch(prime_one_visors);
   if (visor_id != -1)
   {
     u32 visor_base = PowerPC::HostRead_U32(0x804bfcd4);
@@ -1182,8 +1202,6 @@ void primeOne_NTSC()
 
 void primeOne_PAL()
 {
-  //pal 804A7900
-
   // Flag which indicates lock-on
   if (PowerPC::HostRead_U8(0x804C3FF3))
   {
@@ -1191,10 +1209,9 @@ void primeOne_PAL()
     return;
   }
 
-  // static bool firstRun = true;
-
   // for vertical angle control, we need to send the actual direction to look
-  // i believe the angle is measured in radians, clamped ~[-1.22, 1.22]
+  // this is a quaternion LOL, clamping between ~[-1.22, 1.22] seems most effective
+  // TODO FUTURE ME: use quaternion math to write immediate look directions
   static float yAngle = 0;
 
   int dx = InputExternal::g_mouse_input.GetDeltaHorizontalAxis(),
@@ -1217,14 +1234,14 @@ void primeOne_PAL()
   PowerPC::HostWrite_U32(horizontalSpeed, 0x804D7C78);
 
   // beam switching
-  int beam_id = getBeamSwitch();
+  int beam_id = getBeamSwitch(prime_one_beams);
   if (beam_id != -1)
   {
     PowerPC::HostWrite_U32(beam_id, 0x804a79f4);
     PowerPC::HostWrite_U32(1, 0x804a79f0);
   }
   int visor_id, visor_off;
-  std::tie(visor_id, visor_off) = getVisorSwitch();
+  std::tie(visor_id, visor_off) = getVisorSwitch(prime_one_visors);
   if (visor_id != -1)
   {
     u32 visor_base = PowerPC::HostRead_U32(0x804c3c14);
@@ -1241,11 +1258,23 @@ void primeOne_PAL()
 //*****************************************************************************************
 void primeTwo_NTSC()
 {
+  // Specific to prime 2 - This find's the "camera structure" for prime 2
+  u32 baseAddress = PowerPC::HostRead_U32(0x804e72e8 + 0x14f4);
+  // Makes sure the baaseaddress is within the valid range of memoryaddresses for Wii
+  // this is a heuristic, not a solution
+  if (!mem_check(baseAddress))
+  {
+    return;
+  }
+
+  // static address representing if lockon pressed
+  if (PowerPC::HostRead_U8(0x804e894f))
+  {
+    PowerPC::HostWrite_U32(0, baseAddress + 0x178);
+    return;
+  }
   // You give yAngle the angle you want to turn to
   static float yAngle = 0;
-
-  //// Makes sure that code is only run once
-  // static bool firstRun = true;
 
   // Create values for Change in X and Y mouse position
   int dx = InputExternal::g_mouse_input.GetDeltaHorizontalAxis(),
@@ -1262,29 +1291,51 @@ void primeTwo_NTSC()
   yAngle += (float)dy * -vSensitivity;
   yAngle = clamp(-1.04f, 1.04f, yAngle);
 
-  // Specific to prime 2 - This find's the "camera structure" for prime 2
-  u32 baseAddress = PowerPC::HostRead_U32(0x804e72e8 + 0x14f4);
+  // HorizontalSpeed and Vertical angle to store values, used as buffers for memcpy reference
+  // variables
+  u32 horizontalSpeed, verticalAngle;
 
-  // Modify this, see if we can check game state or something somehow (what writes to baseAddress?)
-  // Makes sure the baaseaddress is within the valid range of memoryaddresses for GamCube/Wii
-  if (baseAddress > 0x80000000 && baseAddress < 0x81800000)
+  // bit_casting
+  memcpy(&horizontalSpeed, &dfx, 4);
+  memcpy(&verticalAngle, &yAngle, 4);
+
+  // Write the data to the addresses we want
+  PowerPC::HostWrite_U32(verticalAngle, baseAddress + 0x5f0);
+  PowerPC::HostWrite_U32(horizontalSpeed, baseAddress + 0x178);
+
+  int beam_id = getBeamSwitch(prime_two_beams);
+  if (beam_id != -1)
   {
-    // HorizontalSpeed and Vertical angle to store values, used as buffers for memcpy reference
-    // variables
-    u32 horizontalSpeed, verticalAngle;
-
-    // Copying values representing floating point data into integers
-    memcpy(&horizontalSpeed, &dfx, 4);
-    memcpy(&verticalAngle, &yAngle, 4);
-
-    // Write the data to the addresses we want
-    PowerPC::HostWrite_U32(verticalAngle, baseAddress + 0x5f0);
-    PowerPC::HostWrite_U32(horizontalSpeed, baseAddress + 0x178);
+    PowerPC::HostWrite_U32(beam_id, 0x804cd254);
+    PowerPC::HostWrite_U32(1, 0x804cd250);
+  }
+  int visor_id, visor_off;
+  std::tie(visor_id, visor_off) = getVisorSwitch(prime_two_visors);
+  if (visor_id != -1)
+  {
+    u32 visor_base = PowerPC::HostRead_U32(baseAddress + 0x12ec);
+    // check if we have the visor
+    if (PowerPC::HostRead_U32(visor_base + (visor_off * 12) + 0x5c) != 0)
+    {
+      PowerPC::HostWrite_U32(visor_id, visor_base + 0x34);
+    }
   }
 }
 
+// TODO: try to refactor the PAL copies down, the logic is equivalent...
 void primeTwo_PAL()
 {
+  u32 baseAddress = PowerPC::HostRead_U32(0x804ee738 + 0x14f4);
+  if (!mem_check(baseAddress))
+  {
+    return;
+  }
+  if (PowerPC::HostRead_U8(0x804efd9f))
+  {
+    PowerPC::HostWrite_U32(0, baseAddress + 0x178);
+    return;
+  }
+
   static float yAngle = 0;
 
   int dx = InputExternal::g_mouse_input.GetDeltaHorizontalAxis(),
@@ -1297,7 +1348,6 @@ void primeTwo_PAL()
   yAngle += (float)dy * -vSensitivity;
   yAngle = clamp(-1.04f, 1.04f, yAngle);
 
-  u32 baseAddress = PowerPC::HostRead_U32(0x804ee738 + 0x14f4);
 
   // Modify this, see if we can check game state or something somehow (what writes to baseAddress?)
   // Makes sure the baaseaddress is within the valid range of memoryaddresses for GamCube/Wii
@@ -1314,6 +1364,24 @@ void primeTwo_PAL()
     // Write the data to the addresses we want
     PowerPC::HostWrite_U32(verticalAngle, baseAddress + 0x5f0);
     PowerPC::HostWrite_U32(horizontalSpeed, baseAddress + 0x178);
+
+    int beam_id = getBeamSwitch(prime_two_beams);
+    if (beam_id != -1)
+    {
+      PowerPC::HostWrite_U32(beam_id, 0x804cd254);
+      PowerPC::HostWrite_U32(1, 0x804cd250);
+    }
+    int visor_id, visor_off;
+    std::tie(visor_id, visor_off) = getVisorSwitch(prime_two_visors);
+    if (visor_id != -1)
+    {
+      u32 visor_base = PowerPC::HostRead_U32(baseAddress + 0x12ec);
+      // check if we have the visor
+      if (PowerPC::HostRead_U32(visor_base + (visor_off * 12) + 0x5c) != 0)
+      {
+        PowerPC::HostWrite_U32(visor_id, visor_base + 0x34);
+      }
+    }
   }
 }
 
@@ -1322,21 +1390,39 @@ void primeTwo_PAL()
 //*****************************************************************************************
 void primeThree() {}
 
-void beamChangeCode(std::vector<ARCode>& code_vec, u32 base_offset)
+void beamChangeCode_mp1(std::vector<ARCode>& code_vec, u32 base_offset)
 {
   ARCode c1;
   c1.active = c1.user_defined = true;
 
-  c1.ops.push_back(AREntry(0x0418e544, 0x3c80804a));
-  c1.ops.push_back(AREntry(0x0418e548, 0x388479f0));
-  c1.ops.push_back(AREntry(0x0418e54c, 0x80640000));
-  c1.ops.push_back(AREntry(0x0418e550, 0x2c030000));
-  c1.ops.push_back(AREntry(0x0418e554, 0x41820058));
-  c1.ops.push_back(AREntry(0x0418e558, 0x83440004));
-  c1.ops.push_back(AREntry(0x0418e55c, 0x7f59d378));
-  c1.ops.push_back(AREntry(0x0418e560, 0x38600000));
-  c1.ops.push_back(AREntry(0x0418e564, 0x90640000));
-  c1.ops.push_back(AREntry(0x0418e568, 0x48000044));
+  c1.ops.push_back(AREntry(base_offset + 0x00, 0x3c80804a));
+  c1.ops.push_back(AREntry(base_offset + 0x04, 0x388479f0));
+  c1.ops.push_back(AREntry(base_offset + 0x08, 0x80640000));
+  c1.ops.push_back(AREntry(base_offset + 0x0c, 0x2c030000));
+  c1.ops.push_back(AREntry(base_offset + 0x10, 0x41820058));
+  c1.ops.push_back(AREntry(base_offset + 0x14, 0x83440004));
+  c1.ops.push_back(AREntry(base_offset + 0x18, 0x7f59d378));
+  c1.ops.push_back(AREntry(base_offset + 0x1c, 0x38600000));
+  c1.ops.push_back(AREntry(base_offset + 0x20, 0x90640000));
+  c1.ops.push_back(AREntry(base_offset + 0x24, 0x48000044));
+  code_vec.push_back(c1);
+}
+
+void beamChangeCode_mp2(std::vector<ARCode>& code_vec, u32 base_offset)
+{
+  ARCode c1;
+  c1.active = c1.user_defined = true;
+
+  c1.ops.push_back(AREntry(base_offset + 0x00, 0x3c80804d));
+  c1.ops.push_back(AREntry(base_offset + 0x04, 0x3884d250));
+  c1.ops.push_back(AREntry(base_offset + 0x08, 0x80640000));
+  c1.ops.push_back(AREntry(base_offset + 0x0c, 0x2c030000));
+  c1.ops.push_back(AREntry(base_offset + 0x10, 0x4182005c));
+  c1.ops.push_back(AREntry(base_offset + 0x14, 0x83e40004));
+  c1.ops.push_back(AREntry(base_offset + 0x18, 0x7ffefb78));
+  c1.ops.push_back(AREntry(base_offset + 0x1c, 0x38600000));
+  c1.ops.push_back(AREntry(base_offset + 0x20, 0x90640000));
+  c1.ops.push_back(AREntry(base_offset + 0x24, 0x48000048));
   code_vec.push_back(c1);
 }
 
@@ -1368,14 +1454,15 @@ void ActivateARCodesFor(int game, int region)
       codes.push_back(c5);
       codes.push_back(c6);
 
-      beamChangeCode(codes, 0x0418e544);
+      beamChangeCode_mp1(codes, 0x0418e544);
     }
     else if (game == 2)
     {
-      ARCode c1, c2, c3, c4, c5, c6, c7;
-      c1.active = c2.active = c3.active = c4.active = c5.active = c6.active = c7.active = true;
+      ARCode c1, c2, c3, c4, c5, c6, c7, c8;
+      c1.active = c2.active = c3.active = c4.active = c5.active = c6.active = c7.active =
+          c8.active = true;
       c1.user_defined = c2.user_defined = c3.user_defined = c4.user_defined = c5.user_defined =
-          c6.user_defined = c7.user_defined = true;
+          c6.user_defined = c7.user_defined = c8.user_defined = true;
 
       c1.ops.push_back(AREntry(0x0408ccc8, 0xc0430184));
       c2.ops.push_back(AREntry(0x0408cd1c, 0x60000000));
@@ -1384,6 +1471,7 @@ void ActivateARCodesFor(int game, int region)
       c5.ops.push_back(AREntry(0x04135b20, 0x60000000));
       c6.ops.push_back(AREntry(0x0408bb48, 0x60000000));
       c7.ops.push_back(AREntry(0x0408bb18, 0x60000000));
+      c8.ops.push_back(AREntry(0x043054a0, 0xd23f009c));
 
       codes.push_back(c1);
       codes.push_back(c2);
@@ -1392,6 +1480,9 @@ void ActivateARCodesFor(int game, int region)
       codes.push_back(c5);
       codes.push_back(c6);
       codes.push_back(c7);
+      codes.push_back(c8);
+
+      beamChangeCode_mp2(codes, 0x0418cc88);
     }
   }
   else if (region == 1)
@@ -1415,15 +1506,17 @@ void ActivateARCodesFor(int game, int region)
       codes.push_back(c3);
       codes.push_back(c4);
       codes.push_back(c5);
+      codes.push_back(c6);
 
-      beamChangeCode(codes, 0x0418E7DC);
+      beamChangeCode_mp1(codes, 0x0418e7dc);
     }
     if (game == 2)
     {
-      ARCode c1, c2, c3, c4, c5, c6, c7;
-      c1.active = c2.active = c3.active = c4.active = c5.active = c6.active = c7.active = true;
+      ARCode c1, c2, c3, c4, c5, c6, c7, c8;
+      c1.active = c2.active = c3.active = c4.active = c5.active = c6.active = c7.active =
+          c8.active = true;
       c1.user_defined = c2.user_defined = c3.user_defined = c4.user_defined = c5.user_defined =
-          c6.user_defined = c7.user_defined = true;
+          c6.user_defined = c7.user_defined = c8.user_defined = true;
 
       c1.ops.push_back(AREntry(0x0408e30C, 0xc0430184));
       c2.ops.push_back(AREntry(0x0408E360, 0x60000000));
@@ -1432,6 +1525,7 @@ void ActivateARCodesFor(int game, int region)
       c5.ops.push_back(AREntry(0x04137240, 0x60000000));
       c6.ops.push_back(AREntry(0x0408D18C, 0x60000000));
       c7.ops.push_back(AREntry(0x0408D15C, 0x60000000));
+      c8.ops.push_back(AREntry(0x04307d2c, 0xd23f009c));
 
       codes.push_back(c1);
       codes.push_back(c2);
@@ -1440,6 +1534,9 @@ void ActivateARCodesFor(int game, int region)
       codes.push_back(c5);
       codes.push_back(c6);
       codes.push_back(c7);
+      codes.push_back(c8);
+
+      beamChangeCode_mp2(codes, 0x0418e41c);
     }
   }
   ApplyCodes(codes);
