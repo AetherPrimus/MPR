@@ -34,6 +34,9 @@
     <Filter Include="GUI\ISOProperties">
       <UniqueIdentifier>{d72aa7f0-ed24-4fed-9d3a-38b82d1b753c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="GUI\PrimeHack">
+      <UniqueIdentifier>{1cd7b56a-af8b-4ed5-911e-0928fad3dcb6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp" />
@@ -265,8 +268,8 @@
     <ClCompile Include="DolphinSlider.cpp">
       <Filter>GUI\Widgets</Filter>
     </ClCompile>
-    <ClCompile Include="SensitivitySelector.cpp">
-      <Filter>GUI</Filter>
+    <ClCompile Include="HackConfigDiag.cpp">
+      <Filter>GUI\PrimeHack</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -492,8 +495,8 @@
     <ClInclude Include="DolphinSlider.h">
       <Filter>GUI\Widgets</Filter>
     </ClInclude>
-    <ClInclude Include="SensitivitySelector.h">
-      <Filter>GUI</Filter>
+    <ClInclude Include="HackConfigDiag.h">
+      <Filter>GUI\PrimeHack</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

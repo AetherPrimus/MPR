@@ -42,8 +42,8 @@ public:
 protected:
   ControlReference();
   std::string m_expression;
-  std::unique_ptr<ciface::ExpressionParser::Expression> m_parsed_expression;
   ciface::ExpressionParser::ParseStatus m_parse_status;
+  std::unique_ptr<ciface::ExpressionParser::Expression> m_parsed_expression;
 };
 
 //

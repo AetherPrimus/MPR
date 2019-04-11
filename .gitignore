@@ -36,3 +36,4 @@ CMakeLists.txt.user
 /.idea/
 # Ignore generated sensitivity file
 config_sensitivity.ini
+hack_config.ini

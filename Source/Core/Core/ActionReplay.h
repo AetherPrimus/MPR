@@ -8,6 +8,8 @@
 #include <vector>
 #include "Common/CommonTypes.h"
 
+#include "InputCommon/ControlReference/ControlReference.h"
+
 class IniFile;
 
 namespace ActionReplay
@@ -46,8 +48,6 @@ std::vector<std::string> GetSelfLog();
 void ClearSelfLog();
 bool IsSelfLogging();
 
-void SetSensitivity(float sens);
-float GetSensitivity();
-
 void SetActiveGame(int game);
-}  // namespace
+
+}  // namespace ActionReplay

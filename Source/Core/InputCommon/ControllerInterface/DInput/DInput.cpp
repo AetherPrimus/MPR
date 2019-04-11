@@ -11,7 +11,7 @@
 
 #include "InputCommon/DInputMouseAbsolute.h"
 
-#include "Common/IniFile.h"
+#include "Core/HackConfig.h"
 #include "Core/ActionReplay.h"
 
 #pragma comment(lib, "Dinput8.lib")
@@ -57,18 +57,6 @@ void PopulateDevices(HWND hwnd)
   {
     return;
   }
-  IniFile sens_file;
-  sens_file.Load("config_sensitivity.ini", true);
-  float sensitivity;
-  if (!sens_file.GetIfExists<float>("mouse", "PrimeHack_Sensitivity", &sensitivity))
-  {
-    auto* section = sens_file.GetOrCreateSection("mouse");
-    section->Set("PrimeHack_Sensitivity", 7.5f);
-    sensitivity = 7.5f;
-    sens_file.Save("config_sensitivity.ini");
-  }
-
-  ActionReplay::SetSensitivity(sensitivity);
 
   // MODIFICATION: Initialize external mouse device, keep it separate from Dolphin's keyboardmouse
   // devices
@@ -78,6 +66,8 @@ void PopulateDevices(HWND hwnd)
   InitJoystick(idi8, hwnd);
 
   idi8->Release();
+
+  prime::InitializeHack();
 }
 }  // namespace DInput
 }  // namespace ciface

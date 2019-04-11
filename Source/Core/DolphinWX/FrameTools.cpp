@@ -101,7 +101,8 @@
 #include "InputCommon\DInputMouseAbsolute.h"
 
 #include "Core/ActionReplay.h"
-#include "DolphinWX/SensitivitySelector.h"
+
+#include "HackConfigDiag.h"
 
 class InputConfig;
 class wxFrame;
@@ -124,9 +125,9 @@ wxMenuBar* CFrame::GetMenuBar() const
 wxMenuBar* CFrame::CreateMenuBar() const
 {
   const auto menu_type =
-    m_use_debugger ? MainMenuBar::MenuType::Debug : MainMenuBar::MenuType::Regular;
+      m_use_debugger ? MainMenuBar::MenuType::Debug : MainMenuBar::MenuType::Regular;
 
-  return new MainMenuBar{ menu_type };
+  return new MainMenuBar{menu_type};
 }
 
 void CFrame::BindMenuBarEvents()
@@ -195,8 +196,8 @@ void CFrame::BindMenuBarEvents()
   Bind(wxEVT_MENU, &CFrame::OnCheckNAND, this, IDM_CHECK_NAND);
   Bind(wxEVT_MENU, &CFrame::OnExtractCertificates, this, IDM_EXTRACT_CERTIFICATES);
   for (const int idm : {IDM_PERFORM_ONLINE_UPDATE_CURRENT, IDM_PERFORM_ONLINE_UPDATE_EUR,
-    IDM_PERFORM_ONLINE_UPDATE_JPN, IDM_PERFORM_ONLINE_UPDATE_KOR,
-    IDM_PERFORM_ONLINE_UPDATE_USA})
+                        IDM_PERFORM_ONLINE_UPDATE_JPN, IDM_PERFORM_ONLINE_UPDATE_KOR,
+                        IDM_PERFORM_ONLINE_UPDATE_USA})
   {
     Bind(wxEVT_MENU, &CFrame::OnPerformOnlineWiiUpdate, this, idm);
   }
@@ -286,9 +287,9 @@ void CFrame::BindDebuggerMenuBarUpdateEvents()
 wxToolBar* CFrame::OnCreateToolBar(long style, wxWindowID id, const wxString& name)
 {
   const auto type =
-    m_use_debugger ? MainToolBar::ToolBarType::Debug : MainToolBar::ToolBarType::Regular;
+      m_use_debugger ? MainToolBar::ToolBarType::Debug : MainToolBar::ToolBarType::Regular;
 
-  return new MainToolBar{ type, this, id, wxDefaultPosition, wxDefaultSize, style };
+  return new MainToolBar{type, this, id, wxDefaultPosition, wxDefaultSize, style};
 }
 
 void CFrame::OpenGeneralConfiguration(wxWindowID tab_id)
@@ -355,11 +356,11 @@ void CFrame::DoOpen(bool Boot)
   std::string currentDir = File::GetCurrentDir();
 
   wxString path = wxFileSelector(
-    _("Select the file to load"), wxEmptyString, wxEmptyString, wxEmptyString,
-    _("All GC/Wii files (elf, dol, gcm, iso, tgc, wbfs, ciso, gcz, wad, dff)") +
-    wxString::Format("|*.elf;*.dol;*.gcm;*.iso;*.tgc;*.wbfs;*.ciso;*.gcz;*.wad;*.dff|%s",
-      wxGetTranslation(wxALL_FILES)),
-    wxFD_OPEN | wxFD_FILE_MUST_EXIST, this);
+      _("Select the file to load"), wxEmptyString, wxEmptyString, wxEmptyString,
+      _("All GC/Wii files (elf, dol, gcm, iso, tgc, wbfs, ciso, gcz, wad, dff)") +
+          wxString::Format("|*.elf;*.dol;*.gcm;*.iso;*.tgc;*.wbfs;*.ciso;*.gcz;*.wad;*.dff|%s",
+                           wxGetTranslation(wxALL_FILES)),
+      wxFD_OPEN | wxFD_FILE_MUST_EXIST, this);
 
   if (path.IsEmpty())
     return;
@@ -369,7 +370,7 @@ void CFrame::DoOpen(bool Boot)
   if (currentDir != currentDir2)
   {
     PanicAlertT("Current directory changed from %s to %s after wxFileSelector!", currentDir.c_str(),
-      currentDir2.c_str());
+                currentDir2.c_str());
     File::SetCurrentDir(currentDir);
   }
 
@@ -394,16 +395,16 @@ void CFrame::OnTASInput(wxCommandEvent& event)
   for (int i = 0; i < 4; ++i)
   {
     if (SConfig::GetInstance().m_SIDevice[i] != SerialInterface::SIDEVICE_NONE &&
-      SConfig::GetInstance().m_SIDevice[i] != SerialInterface::SIDEVICE_GC_GBA)
+        SConfig::GetInstance().m_SIDevice[i] != SerialInterface::SIDEVICE_GC_GBA)
     {
       m_tas_input_dialogs[i]->CreateGCLayout();
       m_tas_input_dialogs[i]->Show();
       m_tas_input_dialogs[i]->SetTitle(
-        wxString::Format(_("TAS Input - GameCube Controller %d"), i + 1));
+          wxString::Format(_("TAS Input - GameCube Controller %d"), i + 1));
     }
 
     if (g_wiimote_sources[i] == WIIMOTE_SRC_EMU &&
-      !(Core::IsRunning() && !SConfig::GetInstance().bWii))
+        !(Core::IsRunning() && !SConfig::GetInstance().bWii))
     {
       m_tas_input_dialogs[i + 4]->CreateWiiLayout(i);
       m_tas_input_dialogs[i + 4]->Show();
@@ -478,7 +479,7 @@ void CFrame::OnEjectDisc(wxCommandEvent& WXUNUSED(event))
 void CFrame::OnRecord(wxCommandEvent& WXUNUSED(event))
 {
   if ((!Core::IsRunningAndStarted() && Core::IsRunning()) || Movie::IsRecordingInput() ||
-    Movie::IsPlayingInput())
+      Movie::IsPlayingInput())
     return;
 
   int controllers = 0;
@@ -506,10 +507,10 @@ void CFrame::OnRecord(wxCommandEvent& WXUNUSED(event))
 void CFrame::OnPlayRecording(wxCommandEvent& WXUNUSED(event))
 {
   wxString path =
-    wxFileSelector(_("Select the Recording File"), wxEmptyString, wxEmptyString, wxEmptyString,
-      _("Dolphin TAS Movies (*.dtm)") +
-      wxString::Format("|*.dtm|%s", wxGetTranslation(wxALL_FILES)),
-      wxFD_OPEN | wxFD_PREVIEW | wxFD_FILE_MUST_EXIST, this);
+      wxFileSelector(_("Select the Recording File"), wxEmptyString, wxEmptyString, wxEmptyString,
+                     _("Dolphin TAS Movies (*.dtm)") +
+                         wxString::Format("|*.dtm|%s", wxGetTranslation(wxALL_FILES)),
+                     wxFD_OPEN | wxFD_PREVIEW | wxFD_FILE_MUST_EXIST, this);
 
   if (path.IsEmpty())
     return;
@@ -597,7 +598,7 @@ void CFrame::OnRenderParentClose(wxCloseEvent& event)
 void CFrame::OnRenderParentMove(wxMoveEvent& event)
 {
   if (Core::GetState() != Core::State::Uninitialized && !RendererIsFullscreen() &&
-    !m_render_frame->IsMaximized() && !m_render_frame->IsIconized())
+      !m_render_frame->IsMaximized() && !m_render_frame->IsIconized())
   {
     SConfig::GetInstance().iRenderWindowXPos = m_render_frame->GetPosition().x;
     SConfig::GetInstance().iRenderWindowYPos = m_render_frame->GetPosition().y;
@@ -611,7 +612,7 @@ void CFrame::OnRenderParentResize(wxSizeEvent& event)
   {
     int width, height;
     if (!SConfig::GetInstance().bRenderToMain && !RendererIsFullscreen() &&
-      !m_render_frame->IsMaximized() && !m_render_frame->IsIconized())
+        !m_render_frame->IsMaximized() && !m_render_frame->IsIconized())
     {
       m_render_frame->GetClientSize(&width, &height);
       SConfig::GetInstance().iRenderWindowWidth = width;
@@ -638,7 +639,7 @@ void CFrame::ToggleDisplayMode(bool bFullscreen)
     memset(&dmScreenSettings, 0, sizeof(dmScreenSettings));
     dmScreenSettings.dmSize = sizeof(dmScreenSettings);
     sscanf(SConfig::GetInstance().strFullscreenResolution.c_str(), "%dx%d",
-      &dmScreenSettings.dmPelsWidth, &dmScreenSettings.dmPelsHeight);
+           &dmScreenSettings.dmPelsWidth, &dmScreenSettings.dmPelsHeight);
     dmScreenSettings.dmBitsPerPel = 32;
     dmScreenSettings.dmFields = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
 
@@ -662,7 +663,7 @@ void CFrame::StartGame(std::unique_ptr<BootParameters> boot)
   if (m_is_game_loading)
     return;
   m_is_game_loading = true;
-  wxPostEvent(GetMenuBar(), wxCommandEvent{ DOLPHIN_EVT_UPDATE_LOAD_WII_MENU_ITEM });
+  wxPostEvent(GetMenuBar(), wxCommandEvent{DOLPHIN_EVT_UPDATE_LOAD_WII_MENU_ITEM});
   GetToolBar()->EnableTool(IDM_PLAY, false);
   GetMenuBar()->FindItem(IDM_PLAY)->Enable(false);
 
@@ -689,13 +690,13 @@ void CFrame::StartGame(std::unique_ptr<BootParameters> boot)
   else
   {
     wxRect window_geometry(
-      SConfig::GetInstance().iRenderWindowXPos, SConfig::GetInstance().iRenderWindowYPos,
-      SConfig::GetInstance().iRenderWindowWidth, SConfig::GetInstance().iRenderWindowHeight);
+        SConfig::GetInstance().iRenderWindowXPos, SConfig::GetInstance().iRenderWindowYPos,
+        SConfig::GetInstance().iRenderWindowWidth, SConfig::GetInstance().iRenderWindowHeight);
     // Set window size in framebuffer pixels since the 3D rendering will be operating at
     // that level.
-    wxSize default_size{ wxSize(640, 480) * (1.0 / GetContentScaleFactor()) };
+    wxSize default_size{wxSize(640, 480) * (1.0 / GetContentScaleFactor())};
     m_render_frame =
-      new CRenderFrame(nullptr, wxID_ANY, _("Dolphin"), wxDefaultPosition, default_size);
+        new CRenderFrame(nullptr, wxID_ANY, _("Dolphin"), wxDefaultPosition, default_size);
 
     // Convert ClientSize coordinates to frame sizes.
     wxSize decoration_fudge = m_render_frame->GetSize() - m_render_frame->GetClientSize();
@@ -704,7 +705,7 @@ void CFrame::StartGame(std::unique_ptr<BootParameters> boot)
       window_geometry.SetSize(window_geometry.GetSize() + decoration_fudge);
 
     WxUtils::SetWindowSizeAndFitToScreen(m_render_frame, window_geometry.GetPosition(),
-      window_geometry.GetSize(), default_size);
+                                         window_geometry.GetSize(), default_size);
 
     if (SConfig::GetInstance().bKeepWindowOnTop)
       m_render_frame->SetWindowStyle(m_render_frame->GetWindowStyle() | wxSTAY_ON_TOP);
@@ -773,7 +774,8 @@ void CFrame::StartGame(std::unique_ptr<BootParameters> boot)
     m_render_parent->Bind(wxEVT_SIZE, &CFrame::OnRenderParentResize, this);
     m_render_parent->SetCursor(wxCURSOR_BLANK);
 
-    wxTheApp->Bind(wxEVT_LEFT_DOWN, &InputExternal::DInputMouse::OnWindowClick, &InputExternal::g_mouse_input);
+    wxTheApp->Bind(wxEVT_LEFT_DOWN, &InputExternal::DInputMouse::OnWindowClick,
+                   &InputExternal::g_mouse_input);
   }
 }
 
@@ -871,11 +873,12 @@ void CFrame::DoStop()
       }
 
       wxMessageDialog m_StopDlg(
-        this, !m_tried_graceful_shutdown ? _("Do you want to stop the current emulation?") :
-        _("A shutdown is already in progress. Unsaved data "
-          "may be lost if you stop the current emulation "
-          "before it completes. Force stop?"),
-        _("Please confirm..."), wxYES_NO | wxSTAY_ON_TOP | wxICON_EXCLAMATION, wxDefaultPosition);
+          this,
+          !m_tried_graceful_shutdown ? _("Do you want to stop the current emulation?") :
+                                       _("A shutdown is already in progress. Unsaved data "
+                                         "may be lost if you stop the current emulation "
+                                         "before it completes. Force stop?"),
+          _("Please confirm..."), wxYES_NO | wxSTAY_ON_TOP | wxICON_EXCLAMATION, wxDefaultPosition);
 
       HotkeyManagerEmu::Enable(false);
       int Ret = m_StopDlg.ShowModal();
@@ -937,7 +940,7 @@ void CFrame::OnStopped()
   m_confirm_stop = false;
   m_is_game_loading = false;
   m_tried_graceful_shutdown = false;
-  wxPostEvent(GetMenuBar(), wxCommandEvent{ DOLPHIN_EVT_UPDATE_LOAD_WII_MENU_ITEM });
+  wxPostEvent(GetMenuBar(), wxCommandEvent{DOLPHIN_EVT_UPDATE_LOAD_WII_MENU_ITEM});
   EnableScreenSaver(true);
 
   m_render_frame->SetTitle(StrToWxStr(Common::scm_rev_str));
@@ -1003,10 +1006,10 @@ void CFrame::DoRecordingSave()
     DoPause();
 
   wxString path =
-    wxFileSelector(_("Select the Recording File"), wxEmptyString, wxEmptyString, wxEmptyString,
-      _("Dolphin TAS Movies (*.dtm)") +
-      wxString::Format("|*.dtm|%s", wxGetTranslation(wxALL_FILES)),
-      wxFD_SAVE | wxFD_PREVIEW | wxFD_OVERWRITE_PROMPT, this);
+      wxFileSelector(_("Select the Recording File"), wxEmptyString, wxEmptyString, wxEmptyString,
+                     _("Dolphin TAS Movies (*.dtm)") +
+                         wxString::Format("|*.dtm|%s", wxGetTranslation(wxALL_FILES)),
+                     wxFD_SAVE | wxFD_PREVIEW | wxFD_OVERWRITE_PROMPT, this);
 
   if (path.IsEmpty())
     return;
@@ -1120,9 +1123,10 @@ void CFrame::OnPrimeSettings(wxCommandEvent& event)
   {
   case IDM_SENSITIVITY:
   {
-    SensitivitySelector frame(this);
+    HackConfigDialog frame(this);
     HotkeyManagerEmu::Enable(false);
     frame.ShowModal();
+    frame.Destroy();
     HotkeyManagerEmu::Enable(true);
   }
   break;
@@ -1131,7 +1135,7 @@ void CFrame::OnPrimeSettings(wxCommandEvent& event)
 
 void CFrame::OnReloadThemeBitmaps(wxCommandEvent& WXUNUSED(event))
 {
-  wxCommandEvent reload_event{ DOLPHIN_EVT_RELOAD_TOOLBAR_BITMAPS };
+  wxCommandEvent reload_event{DOLPHIN_EVT_RELOAD_TOOLBAR_BITMAPS};
   reload_event.SetEventObject(this);
   wxPostEvent(GetToolBar(), reload_event);
 
@@ -1207,17 +1211,17 @@ void CFrame::OnMemcard(wxCommandEvent& WXUNUSED(event))
 
 void CFrame::OnLoadGameCubeIPLJAP(wxCommandEvent&)
 {
-  StartGame(std::make_unique<BootParameters>(BootParameters::IPL{ DiscIO::Region::NTSC_J }));
+  StartGame(std::make_unique<BootParameters>(BootParameters::IPL{DiscIO::Region::NTSC_J}));
 }
 
 void CFrame::OnLoadGameCubeIPLUSA(wxCommandEvent&)
 {
-  StartGame(std::make_unique<BootParameters>(BootParameters::IPL{ DiscIO::Region::NTSC_U }));
+  StartGame(std::make_unique<BootParameters>(BootParameters::IPL{DiscIO::Region::NTSC_U}));
 }
 
 void CFrame::OnLoadGameCubeIPLEUR(wxCommandEvent&)
 {
-  StartGame(std::make_unique<BootParameters>(BootParameters::IPL{ DiscIO::Region::PAL }));
+  StartGame(std::make_unique<BootParameters>(BootParameters::IPL{DiscIO::Region::PAL}));
 }
 
 void CFrame::OnExportAllSaves(wxCommandEvent& WXUNUSED(event))
@@ -1228,9 +1232,9 @@ void CFrame::OnExportAllSaves(wxCommandEvent& WXUNUSED(event))
 void CFrame::OnImportSave(wxCommandEvent& WXUNUSED(event))
 {
   wxString path =
-    wxFileSelector(_("Select the save file"), wxEmptyString, wxEmptyString, wxEmptyString,
-      _("Wii save files (*.bin)") + "|*.bin|" + wxGetTranslation(wxALL_FILES),
-      wxFD_OPEN | wxFD_PREVIEW | wxFD_FILE_MUST_EXIST, this);
+      wxFileSelector(_("Select the save file"), wxEmptyString, wxEmptyString, wxEmptyString,
+                     _("Wii save files (*.bin)") + "|*.bin|" + wxGetTranslation(wxALL_FILES),
+                     wxFD_OPEN | wxFD_PREVIEW | wxFD_FILE_MUST_EXIST, this);
 
   if (!path.IsEmpty())
     CWiiSaveCrypted::ImportWiiSave(WxStrToStr(path));
@@ -1247,7 +1251,7 @@ void CFrame::OnShowCheatsWindow(wxCommandEvent& WXUNUSED(event))
 
 void CFrame::OnLoadWiiMenu(wxCommandEvent& WXUNUSED(event))
 {
-  StartGame(std::make_unique<BootParameters>(BootParameters::NANDTitle{ Titles::SYSTEM_MENU }));
+  StartGame(std::make_unique<BootParameters>(BootParameters::NANDTitle{Titles::SYSTEM_MENU}));
 }
 
 void CFrame::OnInstallWAD(wxCommandEvent& event)
@@ -1267,9 +1271,9 @@ void CFrame::OnInstallWAD(wxCommandEvent& event)
   case IDM_MENU_INSTALL_WAD:
   {
     wxString path = wxFileSelector(
-      _("Select a Wii WAD file to install"), wxEmptyString, wxEmptyString, wxEmptyString,
-      _("Wii WAD files (*.wad)") + "|*.wad|" + wxGetTranslation(wxALL_FILES),
-      wxFD_OPEN | wxFD_PREVIEW | wxFD_FILE_MUST_EXIST, this);
+        _("Select a Wii WAD file to install"), wxEmptyString, wxEmptyString, wxEmptyString,
+        _("Wii WAD files (*.wad)") + "|*.wad|" + wxGetTranslation(wxALL_FILES),
+        wxFD_OPEN | wxFD_PREVIEW | wxFD_FILE_MUST_EXIST, this);
     fileName = WxStrToStr(path);
     break;
   }
@@ -1278,11 +1282,11 @@ void CFrame::OnInstallWAD(wxCommandEvent& event)
   }
 
   wxProgressDialog dialog(_("Installing WAD..."), _("Working..."), 1000, this,
-    wxPD_APP_MODAL | wxPD_ELAPSED_TIME | wxPD_ESTIMATED_TIME |
-    wxPD_REMAINING_TIME | wxPD_SMOOTH);
+                          wxPD_APP_MODAL | wxPD_ELAPSED_TIME | wxPD_ESTIMATED_TIME |
+                              wxPD_REMAINING_TIME | wxPD_SMOOTH);
 
   if (WiiUtils::InstallWAD(fileName))
-    wxPostEvent(GetMenuBar(), wxCommandEvent{ DOLPHIN_EVT_UPDATE_LOAD_WII_MENU_ITEM });
+    wxPostEvent(GetMenuBar(), wxCommandEvent{DOLPHIN_EVT_UPDATE_LOAD_WII_MENU_ITEM});
 }
 
 void CFrame::OnUninstallWAD(wxCommandEvent&)
@@ -1292,7 +1296,7 @@ void CFrame::OnUninstallWAD(wxCommandEvent&)
     return;
 
   if (!AskYesNoT("Uninstalling the WAD will remove the currently installed version "
-    "of this title from the NAND without deleting its save data. Continue?"))
+                 "of this title from the NAND without deleting its save data. Continue?"))
   {
     return;
   }
@@ -1305,37 +1309,37 @@ void CFrame::OnUninstallWAD(wxCommandEvent&)
   }
 
   if (title_id == Titles::SYSTEM_MENU)
-    wxPostEvent(GetMenuBar(), wxCommandEvent{ DOLPHIN_EVT_UPDATE_LOAD_WII_MENU_ITEM });
+    wxPostEvent(GetMenuBar(), wxCommandEvent{DOLPHIN_EVT_UPDATE_LOAD_WII_MENU_ITEM});
 }
 
 void CFrame::OnImportBootMiiBackup(wxCommandEvent& WXUNUSED(event))
 {
   if (!AskYesNoT("Merging a new NAND over your currently selected NAND will overwrite any channels "
-    "and savegames that already exist. This process is not reversible, so it is "
-    "recommended that you keep backups of both NANDs. Are you sure you want to "
-    "continue?"))
+                 "and savegames that already exist. This process is not reversible, so it is "
+                 "recommended that you keep backups of both NANDs. Are you sure you want to "
+                 "continue?"))
     return;
 
   wxString path = wxFileSelector(
-    _("Select a BootMii NAND backup to import"), wxEmptyString, wxEmptyString, wxEmptyString,
-    _("BootMii NAND backup file (*.bin)") + "|*.bin|" + wxGetTranslation(wxALL_FILES),
-    wxFD_OPEN | wxFD_PREVIEW | wxFD_FILE_MUST_EXIST, this);
+      _("Select a BootMii NAND backup to import"), wxEmptyString, wxEmptyString, wxEmptyString,
+      _("BootMii NAND backup file (*.bin)") + "|*.bin|" + wxGetTranslation(wxALL_FILES),
+      wxFD_OPEN | wxFD_PREVIEW | wxFD_FILE_MUST_EXIST, this);
   const std::string file_name = WxStrToStr(path);
   if (file_name.empty())
     return;
 
   wxProgressDialog dialog(_("Importing NAND backup"), _("Working..."), 100, this,
-    wxPD_APP_MODAL | wxPD_ELAPSED_TIME | wxPD_SMOOTH);
+                          wxPD_APP_MODAL | wxPD_ELAPSED_TIME | wxPD_SMOOTH);
   DiscIO::NANDImporter().ImportNANDBin(
-    file_name, [&dialog] { dialog.Pulse(); },
-    [this] {
-    return WxStrToStr(wxFileSelector(_("Select the keys file (OTP/SEEPROM dump)"),
-      wxEmptyString, wxEmptyString, wxEmptyString,
-      _("BootMii keys file (*.bin)") + "|*.bin|" +
-      wxGetTranslation(wxALL_FILES),
-      wxFD_OPEN | wxFD_PREVIEW | wxFD_FILE_MUST_EXIST, this));
-  });
-  wxPostEvent(GetMenuBar(), wxCommandEvent{ DOLPHIN_EVT_UPDATE_LOAD_WII_MENU_ITEM });
+      file_name, [&dialog] { dialog.Pulse(); },
+      [this] {
+        return WxStrToStr(wxFileSelector(_("Select the keys file (OTP/SEEPROM dump)"),
+                                         wxEmptyString, wxEmptyString, wxEmptyString,
+                                         _("BootMii keys file (*.bin)") + "|*.bin|" +
+                                             wxGetTranslation(wxALL_FILES),
+                                         wxFD_OPEN | wxFD_PREVIEW | wxFD_FILE_MUST_EXIST, this));
+      });
+  wxPostEvent(GetMenuBar(), wxCommandEvent{DOLPHIN_EVT_UPDATE_LOAD_WII_MENU_ITEM});
 }
 
 void CFrame::OnCheckNAND(wxCommandEvent&)
@@ -1349,8 +1353,8 @@ void CFrame::OnCheckNAND(wxCommandEvent&)
   }
 
   wxString message = _("The emulated NAND is damaged. System titles such as the Wii Menu and "
-    "the Wii Shop Channel may not work correctly.\n\n"
-    "Do you want to try to repair the NAND?");
+                       "the Wii Shop Channel may not work correctly.\n\n"
+                       "Do you want to try to repair the NAND?");
   if (!result.titles_to_remove.empty())
   {
     std::string title_listings;
@@ -1380,12 +1384,12 @@ void CFrame::OnCheckNAND(wxCommandEvent&)
     }
 
     message += wxString::Format(
-      _("\n\nWARNING: Fixing this NAND requires the deletion of titles that have "
-        "incomplete data on the NAND, including all associated save data. "
-        "By continuing, the following title(s) will be removed:\n\n"
-        "%s"
-        "\nLaunching these titles may also fix the issues."),
-      StrToWxStr(title_listings));
+        _("\n\nWARNING: Fixing this NAND requires the deletion of titles that have "
+          "incomplete data on the NAND, including all associated save data. "
+          "By continuing, the following title(s) will be removed:\n\n"
+          "%s"
+          "\nLaunching these titles may also fix the issues."),
+        StrToWxStr(title_listings));
   }
 
   if (wxMessageBox(message, _("NAND Check"), wxYES_NO) != wxYES)
@@ -1398,8 +1402,8 @@ void CFrame::OnCheckNAND(wxCommandEvent&)
   }
 
   wxMessageBox(_("The NAND could not be repaired. It is recommended to back up "
-    "your current data and start over with a fresh NAND."),
-    _("NAND Check"), wxOK | wxICON_ERROR);
+                 "your current data and start over with a fresh NAND."),
+               _("NAND Check"), wxOK | wxICON_ERROR);
 }
 
 void CFrame::OnExtractCertificates(wxCommandEvent& WXUNUSED(event))
@@ -1431,44 +1435,44 @@ static void ShowUpdateResult(WiiUtils::UpdateResult result)
   {
   case WiiUtils::UpdateResult::Succeeded:
     wxMessageBox(_("The emulated Wii console has been updated."), _("Update completed"),
-      wxOK | wxICON_INFORMATION);
+                 wxOK | wxICON_INFORMATION);
     DiscIO::NANDImporter().ExtractCertificates(File::GetUserPath(D_WIIROOT_IDX));
     break;
   case WiiUtils::UpdateResult::AlreadyUpToDate:
     wxMessageBox(_("The emulated Wii console is already up-to-date."), _("Update completed"),
-      wxOK | wxICON_INFORMATION);
+                 wxOK | wxICON_INFORMATION);
     DiscIO::NANDImporter().ExtractCertificates(File::GetUserPath(D_WIIROOT_IDX));
     break;
   case WiiUtils::UpdateResult::ServerFailed:
     wxMessageBox(_("Could not download update information from Nintendo. "
-      "Please check your Internet connection and try again."),
-      _("Update failed"), wxOK | wxICON_ERROR);
+                   "Please check your Internet connection and try again."),
+                 _("Update failed"), wxOK | wxICON_ERROR);
     break;
   case WiiUtils::UpdateResult::DownloadFailed:
     wxMessageBox(_("Could not download update files from Nintendo. "
-      "Please check your Internet connection and try again."),
-      _("Update failed"), wxOK | wxICON_ERROR);
+                   "Please check your Internet connection and try again."),
+                 _("Update failed"), wxOK | wxICON_ERROR);
     break;
   case WiiUtils::UpdateResult::ImportFailed:
     wxMessageBox(_("Could not install an update to the Wii system memory. "
-      "Please refer to logs for more information."),
-      _("Update failed"), wxOK | wxICON_ERROR);
+                   "Please refer to logs for more information."),
+                 _("Update failed"), wxOK | wxICON_ERROR);
     break;
   case WiiUtils::UpdateResult::Cancelled:
     wxMessageBox(_("The update has been cancelled. It is strongly recommended to "
-      "finish it in order to avoid inconsistent system software versions."),
-      _("Update cancelled"), wxOK | wxICON_WARNING);
+                   "finish it in order to avoid inconsistent system software versions."),
+                 _("Update cancelled"), wxOK | wxICON_WARNING);
     break;
   case WiiUtils::UpdateResult::RegionMismatch:
     wxMessageBox(_("The game's region does not match your console's. "
-      "To avoid issues with the system menu, it is not possible to update "
-      "the emulated console using this disc."),
-      _("Update failed"), wxOK | wxICON_ERROR);
+                   "To avoid issues with the system menu, it is not possible to update "
+                   "the emulated console using this disc."),
+                 _("Update failed"), wxOK | wxICON_ERROR);
     break;
   case WiiUtils::UpdateResult::MissingUpdatePartition:
   case WiiUtils::UpdateResult::DiscReadFailed:
     wxMessageBox(_("The game disc does not contain any usable update information."),
-      _("Update failed"), wxOK | wxICON_ERROR);
+                 _("Update failed"), wxOK | wxICON_ERROR);
     break;
   }
 }
@@ -1477,23 +1481,23 @@ template <typename Callable, typename... Args>
 static WiiUtils::UpdateResult ShowUpdateProgress(CFrame* frame, Callable function, Args&&... args)
 {
   wxProgressDialog dialog(_("Updating"), _("Preparing to update...\nThis can take a while."), 1,
-    frame, wxPD_APP_MODAL | wxPD_AUTO_HIDE | wxPD_SMOOTH | wxPD_CAN_ABORT);
+                          frame, wxPD_APP_MODAL | wxPD_AUTO_HIDE | wxPD_SMOOTH | wxPD_CAN_ABORT);
 
   std::future<WiiUtils::UpdateResult> result = std::async(std::launch::async, [&] {
     const WiiUtils::UpdateResult res = function(
-      [&](size_t processed, size_t total, u64 title_id) {
-      Core::QueueHostJob(
-        [&dialog, processed, total, title_id] {
-        dialog.SetRange(total);
-        dialog.Update(processed, wxString::Format(_("Updating title %016" PRIx64 "...\n"
-          "This can take a while."),
-          title_id));
-        dialog.Fit();
-      },
-        true);
-      return !dialog.WasCancelled();
-    },
-      std::forward<Args>(args)...);
+        [&](size_t processed, size_t total, u64 title_id) {
+          Core::QueueHostJob(
+              [&dialog, processed, total, title_id] {
+                dialog.SetRange(total);
+                dialog.Update(processed, wxString::Format(_("Updating title %016" PRIx64 "...\n"
+                                                            "This can take a while."),
+                                                          title_id));
+                dialog.Fit();
+              },
+              true);
+          return !dialog.WasCancelled();
+        },
+        std::forward<Args>(args)...);
     Core::QueueHostJob([&dialog] { dialog.EndModal(0); }, true);
     return res;
   });
@@ -1505,7 +1509,7 @@ static WiiUtils::UpdateResult ShowUpdateProgress(CFrame* frame, Callable functio
 void CFrame::OnPerformOnlineWiiUpdate(wxCommandEvent& event)
 {
   int confirm = wxMessageBox(_("Connect to the Internet and perform an online system update?"),
-    _("System Update"), wxYES_NO, this);
+                             _("System Update"), wxYES_NO, this);
   if (confirm != wxYES)
     return;
 
@@ -1513,7 +1517,7 @@ void CFrame::OnPerformOnlineWiiUpdate(wxCommandEvent& event)
 
   const WiiUtils::UpdateResult result = ShowUpdateProgress(this, WiiUtils::DoOnlineUpdate, region);
   ShowUpdateResult(result);
-  wxPostEvent(GetMenuBar(), wxCommandEvent{ DOLPHIN_EVT_UPDATE_LOAD_WII_MENU_ITEM });
+  wxPostEvent(GetMenuBar(), wxCommandEvent{DOLPHIN_EVT_UPDATE_LOAD_WII_MENU_ITEM});
 }
 
 void CFrame::OnPerformDiscWiiUpdate(wxCommandEvent&)
@@ -1526,7 +1530,7 @@ void CFrame::OnPerformDiscWiiUpdate(wxCommandEvent&)
 
   const WiiUtils::UpdateResult result = ShowUpdateProgress(this, WiiUtils::DoDiscUpdate, file_name);
   ShowUpdateResult(result);
-  wxPostEvent(GetMenuBar(), wxCommandEvent{ DOLPHIN_EVT_UPDATE_LOAD_WII_MENU_ITEM });
+  wxPostEvent(GetMenuBar(), wxCommandEvent{DOLPHIN_EVT_UPDATE_LOAD_WII_MENU_ITEM});
 }
 
 void CFrame::OnFifoPlayer(wxCommandEvent& WXUNUSED(event))
@@ -1549,7 +1553,7 @@ void CFrame::OnConnectWiimote(wxCommandEvent& event)
     return;
   Core::RunAsCPUThread([&] {
     const auto bt = std::static_pointer_cast<IOS::HLE::Device::BluetoothEmu>(
-      ios->GetDeviceByName("/dev/usb/oh1/57e/305"));
+        ios->GetDeviceByName("/dev/usb/oh1/57e/305"));
     const unsigned int wiimote_index = event.GetId() - IDM_CONNECT_WIIMOTE1;
     const bool is_connected = bt && bt->AccessWiiMote(wiimote_index | 0x100)->IsConnected();
     Wiimote::Connect(wiimote_index, !is_connected);
@@ -1566,10 +1570,10 @@ void CFrame::OnToggleFullscreen(wxCommandEvent& WXUNUSED(event))
 void CFrame::OnLoadStateFromFile(wxCommandEvent& WXUNUSED(event))
 {
   wxString path =
-    wxFileSelector(_("Select the state to load"), wxEmptyString, wxEmptyString, wxEmptyString,
-      _("All Save States (sav, s##)") +
-      wxString::Format("|*.sav;*.s??|%s", wxGetTranslation(wxALL_FILES)),
-      wxFD_OPEN | wxFD_PREVIEW | wxFD_FILE_MUST_EXIST, this);
+      wxFileSelector(_("Select the state to load"), wxEmptyString, wxEmptyString, wxEmptyString,
+                     _("All Save States (sav, s##)") +
+                         wxString::Format("|*.sav;*.s??|%s", wxGetTranslation(wxALL_FILES)),
+                     wxFD_OPEN | wxFD_PREVIEW | wxFD_FILE_MUST_EXIST, this);
 
   if (!path.IsEmpty())
     State::LoadAs(WxStrToStr(path));
@@ -1578,10 +1582,10 @@ void CFrame::OnLoadStateFromFile(wxCommandEvent& WXUNUSED(event))
 void CFrame::OnSaveStateToFile(wxCommandEvent& WXUNUSED(event))
 {
   wxString path =
-    wxFileSelector(_("Select the state to save"), wxEmptyString, wxEmptyString, wxEmptyString,
-      _("All Save States (sav, s##)") +
-      wxString::Format("|*.sav;*.s??|%s", wxGetTranslation(wxALL_FILES)),
-      wxFD_SAVE, this);
+      wxFileSelector(_("Select the state to save"), wxEmptyString, wxEmptyString, wxEmptyString,
+                     _("All Save States (sav, s##)") +
+                         wxString::Format("|*.sav;*.s??|%s", wxGetTranslation(wxALL_FILES)),
+                     wxFD_SAVE, this);
 
   if (!path.IsEmpty())
     State::SaveAs(WxStrToStr(path));
@@ -1639,8 +1643,8 @@ void CFrame::OnSelectSlot(wxCommandEvent& event)
 {
   m_save_slot = event.GetId() - IDM_SELECT_SLOT_1 + 1;
   Core::DisplayMessage(StringFromFormat("Selected slot %d - %s", m_save_slot,
-    State::GetInfoStringOfSlot(m_save_slot, false).c_str()),
-    2500);
+                                        State::GetInfoStringOfSlot(m_save_slot, false).c_str()),
+                       2500);
 }
 
 void CFrame::OnLoadCurrentSlot(wxCommandEvent& event)
@@ -1695,22 +1699,22 @@ void CFrame::UpdateGUI()
   GetMenuBar()->FindItem(IDM_CHANGE_DISC)->Enable(Initialized);
   GetMenuBar()->FindItem(IDM_EJECT_DISC)->Enable(Initialized);
   GetMenuBar()
-    ->FindItem(IDM_LOAD_GC_IPL_JAP)
-    ->Enable(!Initialized && File::Exists(SConfig::GetInstance().GetBootROMPath(JAP_DIR)));
+      ->FindItem(IDM_LOAD_GC_IPL_JAP)
+      ->Enable(!Initialized && File::Exists(SConfig::GetInstance().GetBootROMPath(JAP_DIR)));
   GetMenuBar()
-    ->FindItem(IDM_LOAD_GC_IPL_USA)
-    ->Enable(!Initialized && File::Exists(SConfig::GetInstance().GetBootROMPath(USA_DIR)));
+      ->FindItem(IDM_LOAD_GC_IPL_USA)
+      ->Enable(!Initialized && File::Exists(SConfig::GetInstance().GetBootROMPath(USA_DIR)));
   GetMenuBar()
-    ->FindItem(IDM_LOAD_GC_IPL_EUR)
-    ->Enable(!Initialized && File::Exists(SConfig::GetInstance().GetBootROMPath(EUR_DIR)));
+      ->FindItem(IDM_LOAD_GC_IPL_EUR)
+      ->Enable(!Initialized && File::Exists(SConfig::GetInstance().GetBootROMPath(EUR_DIR)));
 
   // Tools
   GetMenuBar()->FindItem(IDM_CHEATS)->Enable(SConfig::GetInstance().bEnableCheats);
 
   const auto ios = IOS::HLE::GetIOS();
   const auto bt = ios ? std::static_pointer_cast<IOS::HLE::Device::BluetoothEmu>(
-    ios->GetDeviceByName("/dev/usb/oh1/57e/305")) :
-    nullptr;
+                            ios->GetDeviceByName("/dev/usb/oh1/57e/305")) :
+                        nullptr;
   bool ShouldEnableWiimotes = Running && bt && !SConfig::GetInstance().m_bt_passthrough_enabled;
   GetMenuBar()->FindItem(IDM_CONNECT_WIIMOTE1)->Enable(ShouldEnableWiimotes);
   GetMenuBar()->FindItem(IDM_CONNECT_WIIMOTE2)->Enable(ShouldEnableWiimotes);
@@ -1725,8 +1729,8 @@ void CFrame::UpdateGUI()
       GetMenuBar()->FindItem(IDM_CONNECT_WIIMOTE3)->Check(bt->AccessWiiMote(0x0102)->IsConnected());
       GetMenuBar()->FindItem(IDM_CONNECT_WIIMOTE4)->Check(bt->AccessWiiMote(0x0103)->IsConnected());
       GetMenuBar()
-        ->FindItem(IDM_CONNECT_BALANCEBOARD)
-        ->Check(bt->AccessWiiMote(0x0104)->IsConnected());
+          ->FindItem(IDM_CONNECT_BALANCEBOARD)
+          ->Check(bt->AccessWiiMote(0x0104)->IsConnected());
     });
   }
 
@@ -1883,7 +1887,7 @@ void CFrame::GameListChanged(wxCommandEvent& event)
     break;
   case IDM_PURGE_GAME_LIST_CACHE:
     std::vector<std::string> filenames =
-      Common::DoFileSearch({ File::GetUserPath(D_CACHE_IDX) }, { ".cache" });
+        Common::DoFileSearch({File::GetUserPath(D_CACHE_IDX)}, {".cache"});
 
     for (const std::string& filename : filenames)
     {

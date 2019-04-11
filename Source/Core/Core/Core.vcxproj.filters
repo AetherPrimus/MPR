@@ -888,6 +888,7 @@
     <ClCompile Include="DSP\Jit\x64\DSPJitUtil.cpp">
       <Filter>DSPCore\Jit</Filter>
     </ClCompile>
+    <ClCompile Include="HackConfig.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BootManager.h" />
@@ -1556,6 +1557,7 @@
     <ClInclude Include="DSP\Jit\x64\DSPJitRegCache.h">
       <Filter>DSPCore\Jit</Filter>
     </ClInclude>
+    <ClInclude Include="HackConfig.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="CMakeLists.txt" />

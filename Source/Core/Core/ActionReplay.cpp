@@ -44,6 +44,7 @@
 
 #include "Core/Host.h"
 #include "DolphinWX/Frame.h"
+#include "HackConfig.h"
 #include "InputCommon/ControllerInterface/ControllerInterface.h"
 #include "InputCommon/DInputMouseAbsolute.h"
 #include "VideoCommon/RenderBase.h"
@@ -99,7 +100,6 @@ static std::mutex s_lock;
 static std::vector<ARCode> s_active_codes;
 static std::vector<std::string> s_internal_log;
 static std::atomic<bool> s_use_internal_log{false};
-static float sensitivity = 7.5f;
 static int active_game = 1;
 // pointer to the code currently being run, (used by log messages that include the code name)
 static const ARCode* s_current_code = nullptr;
@@ -1025,14 +1025,7 @@ void primeMenu_PAL()
 std::tuple<int, int> getVisorSwitch(std::array<std::tuple<int, int>, 4> const& visors)
 {
   static bool pressing_button = false;
-  const auto dev = g_controller_interface.FindDevice(
-      ciface::Core::DeviceQualifier("DInput", 0, "Keyboard Mouse"));
-  if (!(dev->FindInput("LCONTROL")->GetState() > 0.5))
-  {
-    return std::make_tuple(-1, 0);
-  }
-
-  if ((dev->FindInput("1")->GetState() > 0.5))
+  if (prime::CheckVisorCtl(0))
   {
     if (!pressing_button)
     {
@@ -1040,7 +1033,7 @@ std::tuple<int, int> getVisorSwitch(std::array<std::tuple<int, int>, 4> const& v
       return visors[0];
     }
   }
-  else if ((dev->FindInput("2")->GetState() > 0.5))
+  else if (prime::CheckVisorCtl(1))
   {
     if (!pressing_button)
     {
@@ -1048,7 +1041,7 @@ std::tuple<int, int> getVisorSwitch(std::array<std::tuple<int, int>, 4> const& v
       return visors[1];
     }
   }
-  else if ((dev->FindInput("3")->GetState() > 0.5))
+  else if (prime::CheckVisorCtl(2))
   {
     if (!pressing_button)
     {
@@ -1056,7 +1049,7 @@ std::tuple<int, int> getVisorSwitch(std::array<std::tuple<int, int>, 4> const& v
       return visors[2];
     }
   }
-  else if ((dev->FindInput("4")->GetState() > 0.5))
+  else if (prime::CheckVisorCtl(3))
   {
     if (!pressing_button)
     {
@@ -1074,14 +1067,7 @@ std::tuple<int, int> getVisorSwitch(std::array<std::tuple<int, int>, 4> const& v
 int getBeamSwitch(std::array<int, 4> const& beams)
 {
   static bool pressing_button = false;
-  const auto dev = g_controller_interface.FindDevice(
-      ciface::Core::DeviceQualifier("DInput", 0, "Keyboard Mouse"));
-  if (dev->FindInput("LCONTROL")->GetState() > 0.5)
-  {
-    return -1;
-  }
-
-  if ((dev->FindInput("1")->GetState() > 0.5))
+  if (prime::CheckBeamCtl(0))
   {
     if (!pressing_button)
     {
@@ -1089,7 +1075,7 @@ int getBeamSwitch(std::array<int, 4> const& beams)
       return beams[0];
     }
   }
-  else if ((dev->FindInput("2")->GetState() > 0.5))
+  else if (prime::CheckBeamCtl(1))
   {
     if (!pressing_button)
     {
@@ -1097,7 +1083,7 @@ int getBeamSwitch(std::array<int, 4> const& beams)
       return beams[1];
     }
   }
-  else if ((dev->FindInput("3")->GetState() > 0.5))
+  else if (prime::CheckBeamCtl(2))
   {
     if (!pressing_button)
     {
@@ -1105,7 +1091,7 @@ int getBeamSwitch(std::array<int, 4> const& beams)
       return beams[2];
     }
   }
-  else if ((dev->FindInput("4")->GetState() > 0.5))
+  else if (prime::CheckBeamCtl(3))
   {
     if (!pressing_button)
     {
@@ -1161,9 +1147,9 @@ void primeOne_NTSC()
   int dx = InputExternal::g_mouse_input.GetDeltaHorizontalAxis(),
       dy = InputExternal::g_mouse_input.GetDeltaVerticalAxis();
 
-  float vSensitivity = (sensitivity * TURNRATE_RATIO) / (60.0f);
+  float vSensitivity = (prime::GetSensitivity() * TURNRATE_RATIO) / (60.0f);
 
-  float dfx = dx * -sensitivity;
+  float dfx = dx * -prime::GetSensitivity();
   yAngle += ((float)dy * -vSensitivity);
   yAngle = clamp(-1.22f, 1.22f, yAngle);
 
@@ -1173,6 +1159,7 @@ void primeOne_NTSC()
 
   //  Provide the destination vertical angle
   PowerPC::HostWrite_U32(verticalAngle, 0x804D3FFC);
+  PowerPC::HostWrite_U32(verticalAngle, 0x804c10ec);
 
   //  I didn't investigate why, but this has to be 0
   //  it also has to do with horizontal turning, but is limited to a certain speed
@@ -1210,16 +1197,16 @@ void primeOne_PAL()
   }
 
   // for vertical angle control, we need to send the actual direction to look
-  // this is a quaternion LOL, clamping between ~[-1.22, 1.22] seems most effective
-  // TODO FUTURE ME: use quaternion math to write immediate look directions
+  // this is a matrix LOL, clamping between ~[-1.22, 1.22] seems most effective
+  // TODO FUTURE ME: use matrix math to write immediate look directions
   static float yAngle = 0;
 
   int dx = InputExternal::g_mouse_input.GetDeltaHorizontalAxis(),
       dy = InputExternal::g_mouse_input.GetDeltaVerticalAxis();
 
-  float vSensitivity = (sensitivity * TURNRATE_RATIO) / (60.0f);
+  float vSensitivity = (prime::GetSensitivity() * TURNRATE_RATIO) / (60.0f);
 
-  float dfx = dx * -sensitivity;
+  float dfx = dx * -prime::GetSensitivity();
   yAngle += ((float)dy * -vSensitivity);
   yAngle = clamp(-1.22f, 1.22f, yAngle);
 
@@ -1229,6 +1216,7 @@ void primeOne_PAL()
 
   //  Provide the destination vertical angle
   PowerPC::HostWrite_U32(verticalAngle, 0x804D7F3C);
+  PowerPC::HostWrite_U32(verticalAngle, 0x804c502c);
 
   //  provide the speed to turn horizontally
   PowerPC::HostWrite_U32(horizontalSpeed, 0x804D7C78);
@@ -1282,14 +1270,16 @@ void primeTwo_NTSC()
 
   // hSensitivity - Horizontal axis sensitivity
   // vSensitivity - Vertical axis sensitivity
-  float vSensitivity = (sensitivity * TURNRATE_RATIO) / (60.0f);
+  float vSensitivity = (prime::GetSensitivity() * TURNRATE_RATIO) / (60.0f);
 
   // Rate at which we will turn by multiplying the change in x by hSensitivity.
-  float dfx = dx * -sensitivity;
+  float dfx = dx * -prime::GetSensitivity();
 
   // Scale mouse movement by sensitivity
   yAngle += (float)dy * -vSensitivity;
   yAngle = clamp(-1.04f, 1.04f, yAngle);
+
+  u32 arm_cannon_model_matrix = PowerPC::HostRead_U32(baseAddress + 0xea8) + 0x3b0;
 
   // HorizontalSpeed and Vertical angle to store values, used as buffers for memcpy reference
   // variables
@@ -1301,6 +1291,7 @@ void primeTwo_NTSC()
 
   // Write the data to the addresses we want
   PowerPC::HostWrite_U32(verticalAngle, baseAddress + 0x5f0);
+  PowerPC::HostWrite_U32(verticalAngle, arm_cannon_model_matrix + 0x24);
   PowerPC::HostWrite_U32(horizontalSpeed, baseAddress + 0x178);
 
   int beam_id = getBeamSwitch(prime_two_beams);
@@ -1341,46 +1332,37 @@ void primeTwo_PAL()
   int dx = InputExternal::g_mouse_input.GetDeltaHorizontalAxis(),
       dy = InputExternal::g_mouse_input.GetDeltaVerticalAxis();
 
-  float vSensitivity = (sensitivity * TURNRATE_RATIO) / (60.0f);
+  float vSensitivity = (prime::GetSensitivity() * TURNRATE_RATIO) / (60.0f);
 
-  float dfx = dx * -sensitivity;
+  float dfx = dx * -prime::GetSensitivity();
 
   yAngle += (float)dy * -vSensitivity;
   yAngle = clamp(-1.04f, 1.04f, yAngle);
 
+  u32 arm_cannon_model_matrix = PowerPC::HostRead_U32(baseAddress + 0xea8) + 0x3b0;
+  u32 horizontalSpeed, verticalAngle;
 
-  // Modify this, see if we can check game state or something somehow (what writes to baseAddress?)
-  // Makes sure the baaseaddress is within the valid range of memoryaddresses for GamCube/Wii
-  if (baseAddress > 0x80000000 && baseAddress < 0x81800000)
+  memcpy(&horizontalSpeed, &dfx, 4);
+  memcpy(&verticalAngle, &yAngle, 4);
+
+  PowerPC::HostWrite_U32(verticalAngle, baseAddress + 0x5f0);
+  PowerPC::HostWrite_U32(verticalAngle, arm_cannon_model_matrix + 0x24);
+  PowerPC::HostWrite_U32(horizontalSpeed, baseAddress + 0x178);
+
+  int beam_id = getBeamSwitch(prime_two_beams);
+  if (beam_id != -1)
   {
-    // HorizontalSpeed and Vertical angle to store values, used as buffers for memcpy reference
-    // variables
-    u32 horizontalSpeed, verticalAngle;
-
-    // Copying values representing floating point data into integers
-    memcpy(&horizontalSpeed, &dfx, 4);
-    memcpy(&verticalAngle, &yAngle, 4);
-
-    // Write the data to the addresses we want
-    PowerPC::HostWrite_U32(verticalAngle, baseAddress + 0x5f0);
-    PowerPC::HostWrite_U32(horizontalSpeed, baseAddress + 0x178);
-
-    int beam_id = getBeamSwitch(prime_two_beams);
-    if (beam_id != -1)
+    PowerPC::HostWrite_U32(beam_id, 0x804cd254);
+    PowerPC::HostWrite_U32(1, 0x804cd250);
+  }
+  int visor_id, visor_off;
+  std::tie(visor_id, visor_off) = getVisorSwitch(prime_two_visors);
+  if (visor_id != -1)
+  {
+    u32 visor_base = PowerPC::HostRead_U32(baseAddress + 0x12ec);
+    if (PowerPC::HostRead_U32(visor_base + (visor_off * 12) + 0x5c) != 0)
     {
-      PowerPC::HostWrite_U32(beam_id, 0x804cd254);
-      PowerPC::HostWrite_U32(1, 0x804cd250);
-    }
-    int visor_id, visor_off;
-    std::tie(visor_id, visor_off) = getVisorSwitch(prime_two_visors);
-    if (visor_id != -1)
-    {
-      u32 visor_base = PowerPC::HostRead_U32(baseAddress + 0x12ec);
-      // check if we have the visor
-      if (PowerPC::HostRead_U32(visor_base + (visor_off * 12) + 0x5c) != 0)
-      {
-        PowerPC::HostWrite_U32(visor_id, visor_base + 0x34);
-      }
+      PowerPC::HostWrite_U32(visor_id, visor_base + 0x34);
     }
   }
 }
@@ -1592,6 +1574,7 @@ void RunAllActive()
   {
     if (last_game_running != 1)
     {
+      prime::RefreshControlDevices();
       last_game_running = 1;
       ActivateARCodesFor(1, region_id);
     }
@@ -1608,6 +1591,7 @@ void RunAllActive()
   {
     if (last_game_running != 2)
     {
+      prime::RefreshControlDevices();
       last_game_running = 2;
       ActivateARCodesFor(2, region_id);
     }
@@ -1633,14 +1617,11 @@ void RunAllActive()
     }
     if (last_game_running != -1)
     {
+      prime::RefreshControlDevices();
       last_game_running = -1;
       ActivateARCodesFor(-1, region_id);
     }
   }
-  /*else if (active_game == 3)
-  {
-  primeThree();
-  }*/
 
   InputExternal::g_mouse_input.ResetDeltas();
 
@@ -1653,16 +1634,6 @@ void RunAllActive()
                                       }),
                        s_active_codes.end());
   s_disable_logging = true;
-}
-
-void SetSensitivity(float sens)
-{
-  sensitivity = sens;
-}
-
-float GetSensitivity()
-{
-  return sensitivity;
 }
 
 void SetActiveGame(int game)

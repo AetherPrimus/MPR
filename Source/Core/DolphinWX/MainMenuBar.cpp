@@ -60,7 +60,7 @@ void MainMenuBar::AddMenus()
   }
 
   Append(CreateHelpMenu(), _("&Help"));
-  Append(CreatePrimeSettingsMenu(), _("&Metroid Prime Settings"));
+  Append(CreatePrimeSettingsMenu(), _("&PrimeHack Settings"));
 }
 
 void MainMenuBar::BindEvents()
@@ -533,7 +533,7 @@ wxMenu* MainMenuBar::CreateHelpMenu() const
 wxMenu* MainMenuBar::CreatePrimeSettingsMenu() const
 {
   auto* const prime_settings_menu = new wxMenu;
-  prime_settings_menu->Append(IDM_SENSITIVITY, _("&Sensitivity"));
+  prime_settings_menu->Append(IDM_SENSITIVITY, _("&All Settings"));
   
   return prime_settings_menu;
 }
