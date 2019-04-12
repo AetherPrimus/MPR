@@ -1114,7 +1114,7 @@ int getBeamSwitch(std::array<int, 4> const& beams)
  * Prime two visor IDs: 0 = combat, 1 = echo, 2 = scan, 3 = dark
  * ADDITIONAL INFO: Equipment have-status offsets:
  * Beams can be ignored (for now) as the existing code handles that for us
- * Prime one visor offsets: combat = 0x11, scan = 0x05, thermal = 0x0d, xray = 0x09
+ * Prime one visor offsets: combat = 0x11, scan = 0x05, thermal = 0x09, xray = 0x0d
  * Prime two visor offsets: combat = 0x08, scan = 0x09, dark = 0x0d, echo = 0x0b
  */
 static std::array<int, 4> prime_one_beams = {0, 2, 1, 3};
@@ -1122,7 +1122,7 @@ static std::array<int, 4> prime_two_beams = {0, 1, 2, 3};
 // it can not be explained why combat->xray->scan->thermal is the ordering...
 static std::array<std::tuple<int, int>, 4> prime_one_visors = {
     std::make_tuple<int, int>(0, 0x11), std::make_tuple<int, int>(2, 0x05),
-    std::make_tuple<int, int>(3, 0x0d), std::make_tuple<int, int>(1, 0x09)};
+    std::make_tuple<int, int>(3, 0x09), std::make_tuple<int, int>(1, 0x0d)};
 static std::array<std::tuple<int, int>, 4> prime_two_visors = {
     std::make_tuple<int, int>(0, 0x08), std::make_tuple<int, int>(2, 0x09),
     std::make_tuple<int, int>(3, 0x0d), std::make_tuple<int, int>(1, 0x0b)};
