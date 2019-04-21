@@ -49,6 +49,9 @@
 #include "InputCommon/DInputMouseAbsolute.h"
 #include "VideoCommon/RenderBase.h"
 
+#include "core/hw/CPU.h"
+#include "Common/GekkoDisassembler.h"
+
 namespace ActionReplay
 {
 #define clamp(min, max, v) ((v) > (max) ? (max) : ((v) < (min) ? (min) : (v)))
@@ -960,6 +963,11 @@ bool mem_check(u32 address)
   return (address >= 0x80000000) && (address < 0x81800000);
 }
 
+float sgn(float val)
+{
+  return static_cast<float>((val > 0.f) - (val < 0.f));
+}
+
 void OnMouseClick(wxMouseEvent& event)
 {
   s_window_focused = true;
@@ -973,53 +981,42 @@ float getAspectRatio()
   return sW / sH;
 }
 
-void primeMenu_NTSC()
+static float cursor_xPosition = 0;
+static float cursor_yPosition = 0;
+
+void handleCursor(u32 x_address, u32 y_address, float rbound, float bbound)
 {
-  static float xPosition = 0;
-  static float yPosition = 0;
   int dx = InputExternal::g_mouse_input.GetDeltaHorizontalAxis(),
-      dy = InputExternal::g_mouse_input.GetDeltaVerticalAxis();
+    dy = InputExternal::g_mouse_input.GetDeltaVerticalAxis();
 
   float aspect_ratio = getAspectRatio();
   if (isnan(aspect_ratio))
     return;
 
-  xPosition += ((float)dx / 500.f);
-  yPosition += ((float)dy * aspect_ratio / (500.f));
+  cursor_xPosition += ((float)dx / (prime::GetSensitivity() * 250.f));
+  cursor_yPosition += ((float)dy * aspect_ratio / (prime::GetSensitivity() * 250.f));
 
-  xPosition = clamp(-1, 0.95f, xPosition);
-  yPosition = clamp(-1, 0.90f, yPosition);
+  cursor_xPosition = clamp(-1, rbound, cursor_xPosition);
+  cursor_yPosition = clamp(-1, bbound, cursor_yPosition);
 
   u32 xp, yp;
 
-  memcpy(&xp, &xPosition, sizeof(u32));
-  memcpy(&yp, &yPosition, sizeof(u32));
+  memcpy(&xp, &cursor_xPosition, sizeof(u32));
+  memcpy(&yp, &cursor_yPosition, sizeof(u32));
 
-  PowerPC::HostWrite_U32(xp, 0x80913c9c);
-  PowerPC::HostWrite_U32(yp, 0x80913d5c);
+  PowerPC::HostWrite_U32(xp, x_address);
+  PowerPC::HostWrite_U32(yp, y_address);
+}
+
+void primeMenu_NTSC()
+{
+  handleCursor(0x80913c9c, 0x80913d5c, 0.95f, 0.90f);
 }
 
 void primeMenu_PAL()
 {
-  static rawfloat xPosition = {0};
-  static rawfloat yPosition = {0};
-  int dx = InputExternal::g_mouse_input.GetDeltaHorizontalAxis(),
-      dy = InputExternal::g_mouse_input.GetDeltaVerticalAxis();
-
-  float aspect_ratio = getAspectRatio();
-  if (isnan(aspect_ratio))
-    return;
-
-  xPosition.f += ((float)dx / 500.f);
-  yPosition.f += ((float)dy * aspect_ratio / (500.f));
-
-  xPosition.f = clamp(-1, 0.95f, xPosition.f);
-  yPosition.f = clamp(-1, 0.90f, yPosition.f);
-
   u32 cursorBaseAddr = PowerPC::HostRead_U32(0x80621ffc);
-
-  PowerPC::HostWrite_U32(xPosition.i, cursorBaseAddr + 0xDC);
-  PowerPC::HostWrite_U32(yPosition.i, cursorBaseAddr + 0x19C);
+  handleCursor(cursorBaseAddr + 0xdc, cursorBaseAddr + 0x19c, 0.95f, 0.90f);
 }
 
 std::tuple<int, int> getVisorSwitch(std::array<std::tuple<int, int>, 4> const& visors)
@@ -1122,10 +1119,13 @@ static std::array<int, 4> prime_two_beams = {0, 1, 2, 3};
 // it can not be explained why combat->xray->scan->thermal is the ordering...
 static std::array<std::tuple<int, int>, 4> prime_one_visors = {
     std::make_tuple<int, int>(0, 0x11), std::make_tuple<int, int>(2, 0x05),
-    std::make_tuple<int, int>(3, 0x09), std::make_tuple<int, int>(1, 0x0d)};
+    std::make_tuple<int, int>(3, 0x09), std::make_tuple<int, int>(1, 0x0d) };
 static std::array<std::tuple<int, int>, 4> prime_two_visors = {
     std::make_tuple<int, int>(0, 0x08), std::make_tuple<int, int>(2, 0x09),
-    std::make_tuple<int, int>(3, 0x0d), std::make_tuple<int, int>(1, 0x0b)};
+    std::make_tuple<int, int>(3, 0x0d), std::make_tuple<int, int>(1, 0x0b) };
+static std::array<std::tuple<int, int>, 4> prime_three_visors = {
+    std::make_tuple<int, int>(0, 0x0b), std::make_tuple<int, int>(1, 0x0c),
+    std::make_tuple<int, int>(2, 0x0d), std::make_tuple<int, int>(3, 0x0e) };
 
 //*****************************************************************************************
 // Metroid Prime 1
@@ -1370,7 +1370,113 @@ void primeTwo_PAL()
 //*****************************************************************************************
 // Metroid Prime 3
 //*****************************************************************************************
-void primeThree() {}
+#pragma region copy
+
+void CTransformFromEditorEuler(const float eulerVec[3], float out[3][3])
+{
+  double ti, tj, th, ci, cj, ch, si, sj, sh, cc, cs, sc, ss;
+
+  ti = eulerVec[0];
+  tj = eulerVec[1];
+  th = eulerVec[2];
+
+  ci = std::cos(ti);
+  cj = std::cos(tj);
+  ch = std::cos(th);
+  si = std::sin(ti);
+  sj = std::sin(tj);
+  sh = std::sin(th);
+
+  cc = ci * ch;
+  cs = ci * sh;
+  sc = si * ch;
+  ss = si * sh;
+
+  out[0][0] = float(cj * ch);
+  out[0][1] = float(sj * sc - cs);
+  out[0][2] = float(sj * cc + ss);
+  out[0][0] = float(cj * sh);
+  out[1][1] = float(sj * ss + cc);
+  out[1][2] = float(sj * cs - sc);
+  out[2][0] = float(-sj);
+  out[2][1] = float(cj * si);
+  out[2][2] = float(cj * ci);
+}
+
+#pragma endregion
+
+#pragma optimize("", off)
+void primeThree_NTSC()
+{
+  static float yAngle = 0;
+
+  u32 baseAddressTurnRate = PowerPC::HostRead_U32(PowerPC::HostRead_U32(PowerPC::HostRead_U32(0x805c6c40 + 0x2c) + 0x04) + 0x2184);
+  u32 baseAddressPitch = PowerPC::HostRead_U32(PowerPC::HostRead_U32(PowerPC::HostRead_U32(0x805c6c40 + 0x28) + 0x1018) + 0x04);
+  u32 baseAddressVisor = PowerPC::HostRead_U32(baseAddressPitch + 0x35a8);
+  if (!mem_check(baseAddressTurnRate) || !mem_check(baseAddressPitch) || !mem_check(baseAddressVisor))
+  {
+    return;
+  }
+
+  if (PowerPC::HostRead_U8(0x805c8d77) || PowerPC::HostRead_U8(baseAddressTurnRate + 0x378))
+  {
+    u32 off1 = PowerPC::HostRead_U32(0x8066fd08);
+    u32 off2 = PowerPC::HostRead_U32(off1 + 0xc54);
+    handleCursor(off2 + 0x9c, off2 + 0x15c, 0.95f, 0.90f);
+    return;
+  }
+  else
+  {
+    u32 off1 = PowerPC::HostRead_U32(0x8066fd08);
+    u32 off2 = PowerPC::HostRead_U32(off1 + 0xc54);
+    PowerPC::HostWrite_U32(0, off2 + 0x9c);
+    PowerPC::HostWrite_U32(0, off2 + 0x15c);
+    cursor_xPosition = 0;
+    cursor_yPosition = 0;
+  }
+
+
+
+  if (PowerPC::HostRead_U8(0x805c6db7))
+  {
+    return;
+  }
+  //[[[0x2c+805c6c40]+4]+0x2184]+0x174
+
+
+  int dx = InputExternal::g_mouse_input.GetDeltaHorizontalAxis(),
+    dy = InputExternal::g_mouse_input.GetDeltaVerticalAxis();
+
+  float vSensitivity = (prime::GetSensitivity() * TURNRATE_RATIO) / (60.0f);
+
+  float dfx = dx * -prime::GetSensitivity();
+  float dfy = (float)dy * -vSensitivity;
+
+  yAngle += dfy;
+  yAngle = clamp(-1.5f, 1.5f, yAngle);
+
+
+  u32 horizontalSpeed, verticalAngle;
+
+  memcpy(&horizontalSpeed, &dfx, 4);
+  memcpy(&verticalAngle, &yAngle, 4);
+
+  PowerPC::HostWrite_U32(horizontalSpeed, baseAddressTurnRate + 0x174);
+  PowerPC::HostWrite_U32(0, baseAddressTurnRate + 0x174 + 0x18);
+  u32 rtoc_min_turn_rate = GPR(2) - 0x5FF0;
+  PowerPC::HostWrite_U32(0, rtoc_min_turn_rate);
+  PowerPC::HostWrite_U32(verticalAngle, baseAddressPitch + 0x784);
+
+  int visor_id, visor_off;
+  std::tie(visor_id, visor_off) = getVisorSwitch(prime_three_visors);
+  if (visor_id != -1)
+  {
+    if (PowerPC::HostRead_U32(baseAddressVisor + (visor_off * 12) + 0x58) != 0)
+    {
+      PowerPC::HostWrite_U32(visor_id, baseAddressVisor + 0x34);
+    }
+  }
+}
 
 void beamChangeCode_mp1(std::vector<ARCode>& code_vec, u32 base_offset)
 {
@@ -1405,6 +1511,24 @@ void beamChangeCode_mp2(std::vector<ARCode>& code_vec, u32 base_offset)
   c1.ops.push_back(AREntry(base_offset + 0x1c, 0x38600000));
   c1.ops.push_back(AREntry(base_offset + 0x20, 0x90640000));
   c1.ops.push_back(AREntry(base_offset + 0x24, 0x48000048));
+  code_vec.push_back(c1);
+}
+
+void controlStateHook_mp3(std::vector<ARCode>& code_vec, u32 base_offset)
+{
+  ARCode c1;
+  c1.active = c1.user_defined = true;
+
+  c1.ops.push_back(AREntry(base_offset + 0x00, 0x3C60805C));
+  c1.ops.push_back(AREntry(base_offset + 0x04, 0x38636C40));
+  c1.ops.push_back(AREntry(base_offset + 0x08, 0x8063002C));
+  c1.ops.push_back(AREntry(base_offset + 0x0c, 0x80630004));
+  c1.ops.push_back(AREntry(base_offset + 0x10, 0x80632184));
+  c1.ops.push_back(AREntry(base_offset + 0x14, 0x7C03F800));
+  c1.ops.push_back(AREntry(base_offset + 0x18, 0x4D820020));
+  c1.ops.push_back(AREntry(base_offset + 0x1c, 0x7FE3FB78));
+  c1.ops.push_back(AREntry(base_offset + 0x20, 0x90C30078));
+  c1.ops.push_back(AREntry(base_offset + 0x24, 0x4E800020));
   code_vec.push_back(c1);
 }
 
@@ -1466,6 +1590,25 @@ void ActivateARCodesFor(int game, int region)
 
       beamChangeCode_mp2(codes, 0x0418cc88);
     }
+    else if (game == 3)
+    {
+      ARCode c1, c2, c3;
+      c1.active = c2.active = c3.active = true;
+      c1.user_defined = c2.user_defined = c3.user_defined = true;
+
+      c1.ops.push_back(AREntry(0x04080ac0, 0xec010072));
+      c1.ops.push_back(AREntry(0x0414e094, 0x60000000));
+      c1.ops.push_back(AREntry(0x0414e06c, 0x60000000));
+      c1.ops.push_back(AREntry(0x04134328, 0x60000000));
+      c1.ops.push_back(AREntry(0x04133970, 0x60000000));
+      c1.ops.push_back(AREntry(0x0400ab58, 0x4bffad29));
+      c1.ops.push_back(AREntry(0x04080D44, 0x60000000));
+      controlStateHook_mp3(codes, 0x04005880);
+
+      codes.push_back(c1);
+      codes.push_back(c2);
+      codes.push_back(c3);
+    }
   }
   else if (region == 1)
   {
@@ -1524,8 +1667,139 @@ void ActivateARCodesFor(int game, int region)
   ApplyCodes(codes);
 }
 
+//void my_debugger()
+//{
+//  int cur_key = -1;
+//  printf("Starting debugger\n");
+//  while (1)
+//  {
+//    if (GetAsyncKeyState(VK_HOME))
+//    {
+//      if (cur_key != VK_HOME)
+//      {
+//        u32 addr;
+//        printf("Enter address to breakpoint: "); scanf("%X", &addr);
+//        PowerPC::debug_interface.SetBreakpoint(addr);
+//        cur_key = VK_HOME;
+//      }
+//    }
+//    else if (GetAsyncKeyState(VK_END))
+//    {
+//      if (cur_key != VK_END)
+//      {
+//        printf("Stepping... ");
+//        Common::Event sync_event;
+//        PowerPC::CoreMode old_mode = PowerPC::GetMode();
+//        PowerPC::SetMode(PowerPC::CoreMode::Interpreter);
+//        PowerPC::breakpoints.ClearAllTemporary();
+//        CPU::StepOpcode(&sync_event);
+//        sync_event.WaitFor(std::chrono::milliseconds(20));
+//        PowerPC::SetMode(old_mode);
+//        printf("Current PC: %08X\n", PC);
+//        cur_key = VK_END;
+//      }
+//    }
+//    else if (GetAsyncKeyState(VK_NUMPAD8))
+//    {
+//      if (cur_key != VK_NUMPAD8)
+//      {
+//        u32 addr;
+//        printf("Enter address to MEMbreakpoint: "); scanf("%X", &addr);
+//        PowerPC::debug_interface.ToggleMemCheck(addr, true, true, true);
+//        cur_key = VK_NUMPAD8;
+//      }
+//    }
+//    else if (GetAsyncKeyState(VK_NUMPAD9))
+//    {
+//      if (cur_key != VK_NUMPAD9)
+//      {
+//        printf("Getting r3... %08X\n", GPR(3));
+//        cur_key = VK_NUMPAD9;
+//      }
+//    }
+//    else if (GetAsyncKeyState(VK_NUMLOCK))
+//    {
+//      if (cur_key != VK_NUMLOCK)
+//      {
+//        u32 addr, val;
+//        printf("Enter address to change: "); scanf("%X", &addr);
+//        printf("Enter opcode: "); scanf("%X", &val);
+//
+//        PowerPC::HostWrite_U32(val, addr);
+//        PowerPC::ScheduleInvalidateCacheThreadSafe(addr);
+//        cur_key = VK_NUMLOCK;
+//      }
+//    }
+//    else if (GetAsyncKeyState(0x50))
+//    {
+//      if (cur_key != 0x50)
+//      {
+//        printf("Instruction Dump:\n");
+//        u32 inst = PowerPC::HostRead_Instruction(PC - 4);
+//        printf("Previous Address %08x: %s\n", PC - 4, GekkoDisassembler::Disassemble(inst, PC - 4).c_str());
+//        inst = PowerPC::HostRead_Instruction(PC);
+//        printf("Current Address %08x: %s\n", PC, GekkoDisassembler::Disassemble(inst, PC).c_str());
+//        inst = PowerPC::HostRead_Instruction(PC + 4);
+//        printf("Next Address %08x: %s\n", PC + 4, GekkoDisassembler::Disassemble(inst, PC + 4).c_str());
+//        cur_key = 0x50;
+//        printf("\n\n");
+//      }
+//    }
+//    else if (GetAsyncKeyState(0x52))
+//    {
+//      if (cur_key != 0x52)
+//      {
+//        printf("Register Dump:\n");
+//        for (int i = 0; i < 32; i++)
+//        {
+//          printf("r%d: %08x\tf%d: %f\n", i, GPR(i), i, rPS0(i));
+//        }
+//        cur_key = 0x52;
+//        printf("\n\n");
+//      }
+//    }
+//    else if (GetAsyncKeyState(0x4d))
+//    {
+//      if (cur_key != 0x4d)
+//      {
+//        u32 addr;
+//        printf("Display value at address: "); scanf("%X", &addr);
+//        u32 val = PowerPC::HostRead_U32(addr);
+//        printf("Float: %f\t Hex: %08X\n", *((float*)&val), val);
+//        printf("\n\n");
+//        cur_key = 0x4d;
+//      }
+//    }
+//    else if (GetAsyncKeyState(0x43))
+//    {
+//      if (cur_key != 0x43)
+//      {
+//        printf("Continuing...");
+//        CPU::EnableStepping(false);
+//        cur_key = 0x43;
+//      }
+//    }
+//    else
+//    {
+//      cur_key = -1;
+//    }
+//    Sleep(5);
+//  }
+//}
+
 void RunAllActive()
 {
+  //static bool b0 = false;
+  //if (!b0)
+  //{
+  //  b0 = true;
+  //  AllocConsole();
+  //  freopen("CONOUT$", "w", stdout);
+  //  freopen("CONIN$", "r", stdin);
+  //  std::thread t = std::thread(my_debugger);
+  //  t.detach();
+  //}
+
   if (!SConfig::GetInstance().bEnableCheats)
     return;
 
@@ -1565,6 +1839,10 @@ void RunAllActive()
     game_id = 1;
     region_id = 1;
     break;
+  case 0x90010020:
+    game_id = 2;
+    region_id = 0;
+    break;
   default:
     game_id = -1;
     region_id = -1;
@@ -1603,6 +1881,19 @@ void RunAllActive()
     else
     {
       primeTwo_PAL();
+    }
+  }
+  else if (game_id == 2)
+  {
+    if (last_game_running != 3)
+    {
+      last_game_running = 3;
+      ActivateARCodesFor(3, region_id);
+    }
+
+    if (region_id == 0)
+    {
+      primeThree_NTSC();
     }
   }
   else if (game_id == 3)
