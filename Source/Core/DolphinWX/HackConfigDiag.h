@@ -29,6 +29,7 @@ private:
   bool DetectButton(wxButton* button, ControlReference* ref);
 
   void CreateExpression(wxEvent&);
+  void ClearExpression(wxEvent&);
 
   wxBoxSizer* CreateInputButton(std::string const& label, std::string const& name,
     std::string const& text);

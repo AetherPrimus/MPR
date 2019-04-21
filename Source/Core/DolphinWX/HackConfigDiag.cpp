@@ -113,7 +113,9 @@ wxBoxSizer* HackConfigDialog::CreateInputButton(std::string const& label,
 
   button->Bind(wxEVT_BUTTON, &HackConfigDialog::DetectControl, this);
   button->Bind(wxEVT_RIGHT_UP, &HackConfigDialog::CreateExpression, this);
+  button->Bind(wxEVT_MIDDLE_DOWN, &HackConfigDialog::ClearExpression, this);
   button->SetName(name);
+  button->SetToolTip("Left-click to detect input.\nMiddle-click to clear.\nRight-click for more options.");
 
   return button_box;
 }
@@ -130,6 +132,16 @@ void HackConfigDialog::CreateExpression(wxEvent& event)
   tid.ShowModal();
   btn->SetLabel(FormatLabelString(expr));
   controls[index]->SetExpression(expr);
+}
+
+void HackConfigDialog::ClearExpression(wxEvent& event)
+{
+  auto& controls = prime::GetMutableControls();
+  wxButton* btn = (wxButton*)event.GetEventObject();
+  int index = btn->GetName()[0] - '1';
+  if (index > 7 || index < 0) return;
+  controls[index]->SetExpression("");
+  btn->SetLabel("");
 }
 
 // ~~~~PASTE~~~~~
@@ -286,7 +298,7 @@ HackConfigDialog::HackConfigDialog(wxWindow* const parent)
   buttons_sizer->Add(visor_sizer);
 
 
-  auto* const enter_button = new wxButton(this, wxID_ANY, "Ok");
+  auto* const enter_button = new wxButton(this, wxID_ANY, "OK");
   auto* const cancel_button = new wxButton(this, wxID_ANY, "Cancel");
   auto* const szr_dlgbuttons = new wxBoxSizer(wxHORIZONTAL);
   szr_dlgbuttons->Add(enter_button);
