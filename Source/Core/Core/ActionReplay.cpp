@@ -993,8 +993,10 @@ void handleCursor(u32 x_address, u32 y_address, float rbound, float bbound)
   if (isnan(aspect_ratio))
     return;
 
-  cursor_xPosition += ((float)dx / (prime::GetSensitivity() * 250.f));
-  cursor_yPosition += ((float)dy * aspect_ratio / (prime::GetSensitivity() * 250.f));
+  float cursor_sensitivity_conv = prime::GetCursorSensitivity() / 50.f;
+
+  cursor_xPosition += ((float)dx * cursor_sensitivity_conv / 200.f);
+  cursor_yPosition += ((float)dy * aspect_ratio * cursor_sensitivity_conv / 200.f);
 
   cursor_xPosition = clamp(-1, rbound, cursor_xPosition);
   cursor_yPosition = clamp(-1, bbound, cursor_yPosition);

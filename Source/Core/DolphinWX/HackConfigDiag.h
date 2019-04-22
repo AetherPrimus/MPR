@@ -19,11 +19,16 @@ private:
   bool do_save = true;
   wxSlider* sensitivity_slider;
   wxTextCtrl* sensitivity_box;
+  wxSlider* cursor_sensitivity_slider;
+  wxTextCtrl* cursor_sensitivity_box;
+
 private:
   void OnSensitivitySliderChanged(wxCommandEvent&);
+  void OnCursorSensitivitySliderChanged(wxCommandEvent&);
   void OnOk(wxCommandEvent&);
   void OnCancel(wxCommandEvent&);
   void OnEnter(wxKeyEvent&);
+  void OnEnter2(wxKeyEvent&);
 
   void DetectControl(wxCommandEvent&);
   bool DetectButton(wxButton* button, ControlReference* ref);
@@ -38,23 +43,3 @@ public:
   HackConfigDialog(wxWindow* parent);
   ~HackConfigDialog();
 };
-
-/*
-#pragma once
-
-#include <wx/dialog.h>
-#include <wx/textctrl.h>
-
-class SensitivitySelector : public wxDialog
-{
-public:
-  SensitivitySelector(wxWindow* parent, wxWindowID id = wxID_ANY,
-    const wxString& title = _("Sensitivity Slider"), const wxPoint& pos = wxDefaultPosition,
-    const wxSize& size = wxDefaultSize, long style = wxDEFAULT_DIALOG_STYLE);
-
-  void OnOK(wxCommandEvent&);
-
-private:
-  wxTextCtrl * m_text_entry;
-};
-*/

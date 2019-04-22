@@ -229,6 +229,14 @@ void HackConfigDialog::OnSensitivitySliderChanged(wxCommandEvent& event)
     RemoveTrailingZero(std::to_string(prime::GetSensitivity())));
 }
 
+void HackConfigDialog::OnCursorSensitivitySliderChanged(wxCommandEvent& event)
+{
+  wxSlider* slider = (wxSlider*)event.GetEventObject();
+  prime::SetCursorSensitivity(slider->GetValue());
+  cursor_sensitivity_box->SetValue(
+    RemoveTrailingZero(std::to_string(prime::GetCursorSensitivity())));
+}
+
 void HackConfigDialog::OnOk(wxCommandEvent& event)
 {
   do_save = true;
@@ -257,24 +265,57 @@ void HackConfigDialog::OnEnter(wxKeyEvent& event)
   event.Skip();
 }
 
+void HackConfigDialog::OnEnter2(wxKeyEvent& event)
+{
+  try
+  {
+    float sens = std::stof(cursor_sensitivity_box->GetValue().ToStdString());
+    prime::SetCursorSensitivity(sens);
+  }
+  catch (...)
+  {
+    event.Skip();
+    return;
+  }
+
+  cursor_sensitivity_slider->SetValue(std::round(prime::GetSensitivity()));
+  event.Skip();
+}
+
 HackConfigDialog::HackConfigDialog(wxWindow* const parent)
     : wxDialog(parent, wxID_ANY, "Hack Settings", wxDefaultPosition, wxDefaultSize,
                wxDEFAULT_DIALOG_STYLE)
 {
   float sensitivity = prime::GetSensitivity();
+  float cursor_sensitivity = prime::GetCursorSensitivity();
   auto& controls = prime::GetMutableControls();
 
   const int space5 = FromDIP(5);
   const int space3 = FromDIP(3);
 
-  auto* const sensitivity_sizer = new wxStaticBoxSizer(wxVERTICAL, this, "Sensitivity");
+  auto* const sensitivity_label = new wxStaticText(this, wxID_ANY, "Camera Sensitivity");
+  auto* const cursor_sensitivity_label = new wxStaticText(this, wxID_ANY, "Cursor Sensitivity");
+  auto* const sensitivity_sizer = new wxStaticBoxSizer(wxVERTICAL, this, "");
   sensitivity_slider = new wxSlider(this, wxID_ANY, std::round(sensitivity),
-    1, 200, wxDefaultPosition);
+    1, 100, wxDefaultPosition);
   sensitivity_box = new wxTextCtrl(this, wxID_ANY,
     RemoveTrailingZero(std::to_string(sensitivity)));
+  cursor_sensitivity_slider = new wxSlider(this, wxID_ANY, std::round(cursor_sensitivity),
+    1, 100, wxDefaultPosition);
+  cursor_sensitivity_box = new wxTextCtrl(this, wxID_ANY,
+    RemoveTrailingZero(std::to_string(cursor_sensitivity)));
+
+  sensitivity_sizer->Add(sensitivity_label, 0, wxEXPAND | wxLEFT | wxRIGHT);
+  sensitivity_sizer->AddSpacer(space3);
   sensitivity_sizer->Add(sensitivity_slider, 0, wxEXPAND | wxLEFT | wxRIGHT);
   sensitivity_sizer->AddSpacer(space3);
   sensitivity_sizer->Add(sensitivity_box, 0, wxEXPAND | wxLEFT | wxRIGHT, space3);
+  sensitivity_sizer->AddSpacer(space3);
+  sensitivity_sizer->Add(cursor_sensitivity_label, 0, wxEXPAND | wxLEFT | wxRIGHT);
+  sensitivity_sizer->AddSpacer(space3);
+  sensitivity_sizer->Add(cursor_sensitivity_slider, 0, wxEXPAND | wxLEFT | wxRIGHT);
+  sensitivity_sizer->AddSpacer(space3);
+  sensitivity_sizer->Add(cursor_sensitivity_box, 0, wxEXPAND | wxLEFT | wxRIGHT, space3);
 
   auto* const buttons_sizer = new wxStaticBoxSizer(wxHORIZONTAL, this, "Buttons");
   auto* const beam_sizer = new wxBoxSizer(wxVERTICAL);
@@ -316,10 +357,12 @@ HackConfigDialog::HackConfigDialog(wxWindow* const parent)
 
   sensitivity_slider->Bind(wxEVT_SLIDER, &HackConfigDialog::OnSensitivitySliderChanged,
     this);
+  cursor_sensitivity_slider->Bind(wxEVT_SLIDER, &HackConfigDialog::OnCursorSensitivitySliderChanged,
+    this);
   enter_button->Bind(wxEVT_BUTTON, &HackConfigDialog::OnOk, this);
   cancel_button->Bind(wxEVT_BUTTON, &HackConfigDialog::OnCancel, this);
   sensitivity_box->Bind(wxEVT_KEY_UP, &HackConfigDialog::OnEnter, this);
-
+  cursor_sensitivity_box->Bind(wxEVT_KEY_UP, &HackConfigDialog::OnEnter2, this);
 
   SetSizerAndFit(szr_main);
   Center();

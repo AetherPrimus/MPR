@@ -19,4 +19,6 @@ bool CheckVisorCtl(int visor_num);
 
 float GetSensitivity();
 void SetSensitivity(float sensitivity);
+float GetCursorSensitivity();
+void SetCursorSensitivity(float sensitivity);
 }

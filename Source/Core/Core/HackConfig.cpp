@@ -10,6 +10,7 @@ namespace prime
 {
   static std::vector<std::unique_ptr<ControlReference>> control_list;
   static float sensitivity;
+  static float cursor_sensitivity;
   static const std::string config_path = "hack_config.ini";
 
   void InitializeHack()
@@ -21,6 +22,13 @@ namespace prime
       auto* section = cfg_file.GetOrCreateSection("mouse");
       section->Set("sensitivity", 7.5f);
       sensitivity = 7.5f;
+    }
+
+    if (!cfg_file.GetIfExists<float>("mouse", "cursor_sensitivity", &cursor_sensitivity))
+    {
+      auto* section = cfg_file.GetOrCreateSection("mouse");
+      section->Set("cursor_sensitivity", 50.f);
+      cursor_sensitivity = 50.f;
     }
 
     control_list.resize(8);
@@ -70,6 +78,7 @@ namespace prime
 
     auto* sens_section = cfg_file.GetOrCreateSection("mouse");
     sens_section->Set("sensitivity", sensitivity);
+    sens_section->Set("cursor_sensitivity", cursor_sensitivity);
     auto* beam_section = cfg_file.GetOrCreateSection("beam");
     auto* visor_section = cfg_file.GetOrCreateSection("visor");
 
@@ -89,6 +98,7 @@ namespace prime
 
     auto* sens_section = cfg_file.GetOrCreateSection("mouse");
     sens_section->Get("sensitivity", &sensitivity);
+    sens_section->Get("cursor_sensitivity", &cursor_sensitivity);
     auto* beam_section = cfg_file.GetOrCreateSection("beam");
     auto* visor_section = cfg_file.GetOrCreateSection("visor");
 
@@ -127,5 +137,15 @@ namespace prime
   void SetSensitivity(float sens)
   {
     sensitivity = sens;
+  }
+
+  float GetCursorSensitivity()
+  {
+    return cursor_sensitivity;
+  }
+
+  void SetCursorSensitivity(float sens)
+  {
+    cursor_sensitivity = sens;
   }
 }
