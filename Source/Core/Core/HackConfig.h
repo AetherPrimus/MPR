@@ -21,4 +21,6 @@ float GetSensitivity();
 void SetSensitivity(float sensitivity);
 float GetCursorSensitivity();
 void SetCursorSensitivity(float sensitivity);
+float GetFov();
+void SetFov(float fov);
 }

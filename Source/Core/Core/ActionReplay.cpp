@@ -1132,7 +1132,6 @@ static std::array<std::tuple<int, int>, 4> prime_three_visors = {
 //*****************************************************************************************
 // Metroid Prime 1
 //*****************************************************************************************
-
 void primeOne_NTSC()
 {
   // Flag which indicates lock-on
@@ -1187,6 +1186,15 @@ void primeOne_NTSC()
       PowerPC::HostWrite_U32(visor_id, visor_base + 0x1c);
     }
   }
+  {
+    u32 camera_ptr = PowerPC::HostRead_U32(0x804bf420 + 0x810);
+    u32 camera_offset = ((PowerPC::HostRead_U32(0x804c4a08) >> 16) & 0x3ff) << 3;
+    u32 camera_base = PowerPC::HostRead_U32(camera_ptr + camera_offset + 4);
+    float fov = prime::GetFov();
+    PowerPC::HostWrite_U32(*((u32*)&fov), camera_base + 0x164);
+    PowerPC::HostWrite_U32(*((u32*)&fov), 0x805c0e38);
+    PowerPC::HostWrite_U32(*((u32*)&fov), 0x805c0e3c);
+  }
 }
 
 void primeOne_PAL()
@@ -1240,6 +1248,15 @@ void primeOne_PAL()
     {
       PowerPC::HostWrite_U32(visor_id, visor_base + 0x1c);
     }
+  }
+  {
+    u32 camera_ptr = PowerPC::HostRead_U32(0x804c3360 + 0x810);
+    u32 camera_offset = ((PowerPC::HostRead_U32(0x804c8948) >> 16) & 0x3ff) << 3;
+    u32 camera_base = PowerPC::HostRead_U32(camera_ptr + camera_offset + 4);
+    float fov = prime::GetFov();
+    PowerPC::HostWrite_U32(*((u32*)&fov), camera_base + 0x164);
+    PowerPC::HostWrite_U32(*((u32*)&fov), 0x805c5178);
+    PowerPC::HostWrite_U32(*((u32*)&fov), 0x805c517c);
   }
 }
 
@@ -1313,6 +1330,16 @@ void primeTwo_NTSC()
       PowerPC::HostWrite_U32(visor_id, visor_base + 0x34);
     }
   }
+  {
+    u32 camera_ptr = PowerPC::HostRead_U32(0x804e72e8 + 0x810);
+    u32 camera_offset = ((PowerPC::HostRead_U32(PowerPC::HostRead_U32(0x804eb9ac)) >> 16) & 0x3ff) << 3;
+    u32 camera_offset_tp = ((PowerPC::HostRead_U32(PowerPC::HostRead_U32(0x804eb9ac) + 0xa) >> 16) & 0x3ff) << 3;
+    u32 camera_base = PowerPC::HostRead_U32(camera_ptr + camera_offset + 4);
+    u32 camera_base_tp = PowerPC::HostRead_U32(camera_ptr + camera_offset_tp + 4);
+    float fov = prime::GetFov();
+    PowerPC::HostWrite_U32(*((u32*)&fov), camera_base + 0x1e8);
+    PowerPC::HostWrite_U32(*((u32*)&fov), camera_base_tp + 0x1e8);
+  }
 }
 
 // TODO: try to refactor the PAL copies down, the logic is equivalent...
@@ -1367,60 +1394,34 @@ void primeTwo_PAL()
       PowerPC::HostWrite_U32(visor_id, visor_base + 0x34);
     }
   }
+  {
+    u32 camera_ptr = PowerPC::HostRead_U32(0x804ee738 + 0x810);
+    u32 camera_offset = ((PowerPC::HostRead_U32(PowerPC::HostRead_U32(0x804f2f4c)) >> 16) & 0x3ff) << 3;
+    u32 camera_offset_tp = ((PowerPC::HostRead_U32(PowerPC::HostRead_U32(0x804f2f4c) + 0xa) >> 16) & 0x3ff) << 3;
+    u32 camera_base = PowerPC::HostRead_U32(camera_ptr + camera_offset + 4);
+    u32 camera_base_tp = PowerPC::HostRead_U32(camera_ptr + camera_offset_tp + 4);
+    float fov = prime::GetFov();
+    PowerPC::HostWrite_U32(*((u32*)&fov), camera_base + 0x1e8);
+    PowerPC::HostWrite_U32(*((u32*)&fov), camera_base_tp + 0x1e8);
+  }
 }
 
 //*****************************************************************************************
 // Metroid Prime 3
 //*****************************************************************************************
-#pragma region copy
-
-void CTransformFromEditorEuler(const float eulerVec[3], float out[3][3])
-{
-  double ti, tj, th, ci, cj, ch, si, sj, sh, cc, cs, sc, ss;
-
-  ti = eulerVec[0];
-  tj = eulerVec[1];
-  th = eulerVec[2];
-
-  ci = std::cos(ti);
-  cj = std::cos(tj);
-  ch = std::cos(th);
-  si = std::sin(ti);
-  sj = std::sin(tj);
-  sh = std::sin(th);
-
-  cc = ci * ch;
-  cs = ci * sh;
-  sc = si * ch;
-  ss = si * sh;
-
-  out[0][0] = float(cj * ch);
-  out[0][1] = float(sj * sc - cs);
-  out[0][2] = float(sj * cc + ss);
-  out[0][0] = float(cj * sh);
-  out[1][1] = float(sj * ss + cc);
-  out[1][2] = float(sj * cs - sc);
-  out[2][0] = float(-sj);
-  out[2][1] = float(cj * si);
-  out[2][2] = float(cj * ci);
-}
-
-#pragma endregion
-
 #pragma optimize("", off)
 void primeThree_NTSC()
 {
   static float yAngle = 0;
 
-  u32 baseAddressTurnRate = PowerPC::HostRead_U32(PowerPC::HostRead_U32(PowerPC::HostRead_U32(0x805c6c40 + 0x2c) + 0x04) + 0x2184);
-  u32 baseAddressPitch = PowerPC::HostRead_U32(PowerPC::HostRead_U32(PowerPC::HostRead_U32(0x805c6c40 + 0x28) + 0x1018) + 0x04);
-  u32 baseAddressVisor = PowerPC::HostRead_U32(baseAddressPitch + 0x35a8);
-  if (!mem_check(baseAddressTurnRate) || !mem_check(baseAddressPitch) || !mem_check(baseAddressVisor))
+  u32 baseAddressSelf = PowerPC::HostRead_U32(PowerPC::HostRead_U32(PowerPC::HostRead_U32(0x805c6c40 + 0x2c) + 0x04) + 0x2184);
+  u32 baseAddressVisor = PowerPC::HostRead_U32(baseAddressSelf + 0x35a8);
+  if (!mem_check(baseAddressSelf) || !mem_check(baseAddressVisor))
   {
     return;
   }
 
-  if (PowerPC::HostRead_U8(0x805c8d77) || PowerPC::HostRead_U8(baseAddressTurnRate + 0x378))
+  if (PowerPC::HostRead_U8(0x805c8d77) || PowerPC::HostRead_U8(baseAddressSelf + 0x378))
   {
     u32 off1 = PowerPC::HostRead_U32(0x8066fd08);
     u32 off2 = PowerPC::HostRead_U32(off1 + 0xc54);
@@ -1436,8 +1437,6 @@ void primeThree_NTSC()
     cursor_xPosition = 0;
     cursor_yPosition = 0;
   }
-
-
 
   if (PowerPC::HostRead_U8(0x805c6db7))
   {
@@ -1463,11 +1462,11 @@ void primeThree_NTSC()
   memcpy(&horizontalSpeed, &dfx, 4);
   memcpy(&verticalAngle, &yAngle, 4);
 
-  PowerPC::HostWrite_U32(horizontalSpeed, baseAddressTurnRate + 0x174);
-  PowerPC::HostWrite_U32(0, baseAddressTurnRate + 0x174 + 0x18);
+  PowerPC::HostWrite_U32(horizontalSpeed, baseAddressSelf + 0x174);
+  PowerPC::HostWrite_U32(0, baseAddressSelf + 0x174 + 0x18);
   u32 rtoc_min_turn_rate = GPR(2) - 0x5FF0;
   PowerPC::HostWrite_U32(0, rtoc_min_turn_rate);
-  PowerPC::HostWrite_U32(verticalAngle, baseAddressPitch + 0x784);
+  PowerPC::HostWrite_U32(verticalAngle, baseAddressSelf + 0x784);
 
   int visor_id, visor_off;
   std::tie(visor_id, visor_off) = getVisorSwitch(prime_three_visors);
@@ -1477,6 +1476,92 @@ void primeThree_NTSC()
     {
       PowerPC::HostWrite_U32(visor_id, baseAddressVisor + 0x34);
     }
+  }
+
+  {
+    u32 camera_fov = PowerPC::HostRead_U32(PowerPC::HostRead_U32(PowerPC::HostRead_U32(PowerPC::HostRead_U32(0x805c6c40 + 0x28) + 0x1010) + 0x1c) + 0x178);
+    u32 camera_fov_tp = PowerPC::HostRead_U32(PowerPC::HostRead_U32(PowerPC::HostRead_U32(PowerPC::HostRead_U32(0x805c6c40 + 0x28) + 0x1010) + 0x24) + 0x178);
+    float fov = prime::GetFov();
+    PowerPC::HostWrite_U32(*((u32*)&fov), camera_fov + 0x1c);
+    PowerPC::HostWrite_U32(*((u32*)&fov), camera_fov_tp + 0x1c);
+    PowerPC::HostWrite_U32(*((u32*)&fov), camera_fov + 0x18);
+    PowerPC::HostWrite_U32(*((u32*)&fov), camera_fov_tp + 0x18);
+  }
+}
+#pragma optimize("", on)
+void primeThree_PAL()
+{
+  static float yAngle = 0;
+
+  u32 baseAddressSelf = PowerPC::HostRead_U32(PowerPC::HostRead_U32(PowerPC::HostRead_U32(0x805ca0c0 + 0x2c) + 0x04) + 0x2184);
+  u32 baseAddressVisor = PowerPC::HostRead_U32(baseAddressSelf + 0x35a8);
+  if (!mem_check(baseAddressSelf) || !mem_check(baseAddressVisor))
+  {
+    return;
+  }
+
+  if (PowerPC::HostRead_U8(0x805cc1d7) || PowerPC::HostRead_U8(baseAddressSelf + 0x378))
+  {
+    u32 off1 = PowerPC::HostRead_U32(0x80673588);
+    u32 off2 = PowerPC::HostRead_U32(off1 + 0xd04);
+    handleCursor(off2 + 0x9c, off2 + 0x15c, 0.95f, 0.90f);
+    return;
+  }
+  else
+  {
+    u32 off1 = PowerPC::HostRead_U32(0x80673588);
+    u32 off2 = PowerPC::HostRead_U32(off1 + 0xd04);
+    PowerPC::HostWrite_U32(0, off2 + 0x9c);
+    PowerPC::HostWrite_U32(0, off2 + 0x15c);
+    cursor_xPosition = 0;
+    cursor_yPosition = 0;
+  }
+
+  if (PowerPC::HostRead_U8(0x805ca237))
+  {
+    return;
+  }
+
+  int dx = InputExternal::g_mouse_input.GetDeltaHorizontalAxis(),
+    dy = InputExternal::g_mouse_input.GetDeltaVerticalAxis();
+
+  float vSensitivity = (prime::GetSensitivity() * TURNRATE_RATIO) / (60.0f);
+
+  float dfx = dx * -prime::GetSensitivity();
+  float dfy = (float)dy * -vSensitivity;
+
+  yAngle += dfy;
+  yAngle = clamp(-1.5f, 1.5f, yAngle);
+
+
+  u32 horizontalSpeed, verticalAngle;
+
+  memcpy(&horizontalSpeed, &dfx, 4);
+  memcpy(&verticalAngle, &yAngle, 4);
+
+  PowerPC::HostWrite_U32(horizontalSpeed, baseAddressSelf + 0x174);
+  PowerPC::HostWrite_U32(0, baseAddressSelf + 0x174 + 0x18);
+  u32 rtoc_min_turn_rate = GPR(2) - 0x6000;
+  PowerPC::HostWrite_U32(0, rtoc_min_turn_rate);
+  PowerPC::HostWrite_U32(verticalAngle, baseAddressSelf + 0x784);
+
+  int visor_id, visor_off;
+  std::tie(visor_id, visor_off) = getVisorSwitch(prime_three_visors);
+  if (visor_id != -1)
+  {
+    if (PowerPC::HostRead_U32(baseAddressVisor + (visor_off * 12) + 0x58) != 0)
+    {
+      PowerPC::HostWrite_U32(visor_id, baseAddressVisor + 0x34);
+    }
+  }
+  {
+    u32 camera_fov = PowerPC::HostRead_U32(PowerPC::HostRead_U32(PowerPC::HostRead_U32(PowerPC::HostRead_U32(0x805ca0c0 + 0x28) + 0x1010) + 0x1c) + 0x178);
+    u32 camera_fov_tp = PowerPC::HostRead_U32(PowerPC::HostRead_U32(PowerPC::HostRead_U32(PowerPC::HostRead_U32(0x805ca0c0 + 0x28) + 0x1010) + 0x24) + 0x178);
+    float fov = prime::GetFov();
+    PowerPC::HostWrite_U32(*((u32*)&fov), camera_fov + 0x1c);
+    PowerPC::HostWrite_U32(*((u32*)&fov), camera_fov_tp + 0x1c);
+    PowerPC::HostWrite_U32(*((u32*)&fov), camera_fov + 0x18);
+    PowerPC::HostWrite_U32(*((u32*)&fov), camera_fov_tp + 0x18);
   }
 }
 
@@ -1516,13 +1601,20 @@ void beamChangeCode_mp2(std::vector<ARCode>& code_vec, u32 base_offset)
   code_vec.push_back(c1);
 }
 
-void controlStateHook_mp3(std::vector<ARCode>& code_vec, u32 base_offset)
+void controlStateHook_mp3(std::vector<ARCode>& code_vec, u32 base_offset, bool ntsc)
 {
   ARCode c1;
   c1.active = c1.user_defined = true;
-
-  c1.ops.push_back(AREntry(base_offset + 0x00, 0x3C60805C));
-  c1.ops.push_back(AREntry(base_offset + 0x04, 0x38636C40));
+  if (ntsc)
+  {
+    c1.ops.push_back(AREntry(base_offset + 0x00, 0x3C60805C));
+    c1.ops.push_back(AREntry(base_offset + 0x04, 0x38636C40));
+  }
+  else
+  {
+    c1.ops.push_back(AREntry(base_offset + 0x00, 0x3C60805D));
+    c1.ops.push_back(AREntry(base_offset + 0x04, 0x3863A0C0));
+  }
   c1.ops.push_back(AREntry(base_offset + 0x08, 0x8063002C));
   c1.ops.push_back(AREntry(base_offset + 0x0c, 0x80630004));
   c1.ops.push_back(AREntry(base_offset + 0x10, 0x80632184));
@@ -1543,60 +1635,45 @@ void ActivateARCodesFor(int game, int region)
   {
     if (game == 1)
     {
-      ARCode c1, c2, c3, c4, c5, c6;
-      c1.active = c2.active = c3.active = c4.active = c5.active = c6.active = true;
-      c1.user_defined = c2.user_defined = c3.user_defined = c4.user_defined = c5.user_defined =
-          c6.user_defined = true;
+      ARCode c1;
+      c1.active = true;
+      c1.user_defined = true;
 
       c1.ops.push_back(AREntry(0x04098ee4, 0xec010072));
-      c2.ops.push_back(AREntry(0x04099138, 0x60000000));
-      c3.ops.push_back(AREntry(0x04183a8c, 0x60000000));
-      c4.ops.push_back(AREntry(0x04183a64, 0x60000000));
-      c5.ops.push_back(AREntry(0x0417661c, 0x60000000));
-      c6.ops.push_back(AREntry(0x042fb5b4, 0xd23f009c));
+      c1.ops.push_back(AREntry(0x04099138, 0x60000000));
+      c1.ops.push_back(AREntry(0x04183a8c, 0x60000000));
+      c1.ops.push_back(AREntry(0x04183a64, 0x60000000));
+      c1.ops.push_back(AREntry(0x0417661c, 0x60000000));
+      c1.ops.push_back(AREntry(0x042fb5b4, 0xd23f009c));
 
       codes.push_back(c1);
-      codes.push_back(c2);
-      codes.push_back(c3);
-      codes.push_back(c4);
-      codes.push_back(c5);
-      codes.push_back(c6);
 
       beamChangeCode_mp1(codes, 0x0418e544);
     }
     else if (game == 2)
     {
-      ARCode c1, c2, c3, c4, c5, c6, c7, c8;
-      c1.active = c2.active = c3.active = c4.active = c5.active = c6.active = c7.active =
-          c8.active = true;
-      c1.user_defined = c2.user_defined = c3.user_defined = c4.user_defined = c5.user_defined =
-          c6.user_defined = c7.user_defined = c8.user_defined = true;
+      ARCode c1;
+      c1.active = true;
+      c1.user_defined = true;
 
       c1.ops.push_back(AREntry(0x0408ccc8, 0xc0430184));
-      c2.ops.push_back(AREntry(0x0408cd1c, 0x60000000));
-      c3.ops.push_back(AREntry(0x04147f70, 0x60000000));
-      c4.ops.push_back(AREntry(0x04147f98, 0x60000000));
-      c5.ops.push_back(AREntry(0x04135b20, 0x60000000));
-      c6.ops.push_back(AREntry(0x0408bb48, 0x60000000));
-      c7.ops.push_back(AREntry(0x0408bb18, 0x60000000));
-      c8.ops.push_back(AREntry(0x043054a0, 0xd23f009c));
+      c1.ops.push_back(AREntry(0x0408cd1c, 0x60000000));
+      c1.ops.push_back(AREntry(0x04147f70, 0x60000000));
+      c1.ops.push_back(AREntry(0x04147f98, 0x60000000));
+      c1.ops.push_back(AREntry(0x04135b20, 0x60000000));
+      c1.ops.push_back(AREntry(0x0408bb48, 0x60000000));
+      c1.ops.push_back(AREntry(0x0408bb18, 0x60000000));
+      c1.ops.push_back(AREntry(0x043054a0, 0xd23f009c));
 
       codes.push_back(c1);
-      codes.push_back(c2);
-      codes.push_back(c3);
-      codes.push_back(c4);
-      codes.push_back(c5);
-      codes.push_back(c6);
-      codes.push_back(c7);
-      codes.push_back(c8);
 
       beamChangeCode_mp2(codes, 0x0418cc88);
     }
     else if (game == 3)
     {
-      ARCode c1, c2, c3;
-      c1.active = c2.active = c3.active = true;
-      c1.user_defined = c2.user_defined = c3.user_defined = true;
+      ARCode c1;
+      c1.active = true;
+      c1.user_defined = true;
 
       c1.ops.push_back(AREntry(0x04080ac0, 0xec010072));
       c1.ops.push_back(AREntry(0x0414e094, 0x60000000));
@@ -1605,202 +1682,74 @@ void ActivateARCodesFor(int game, int region)
       c1.ops.push_back(AREntry(0x04133970, 0x60000000));
       c1.ops.push_back(AREntry(0x0400ab58, 0x4bffad29));
       c1.ops.push_back(AREntry(0x04080D44, 0x60000000));
-      controlStateHook_mp3(codes, 0x04005880);
 
       codes.push_back(c1);
-      codes.push_back(c2);
-      codes.push_back(c3);
+
+      controlStateHook_mp3(codes, 0x04005880, true);
     }
   }
   else if (region == 1)
   {
     if (game == 1)
     {
-      ARCode c1, c2, c3, c4, c5, c6;
-      c1.active = c2.active = c3.active = c4.active = c5.active = c6.active = true;
-      c1.user_defined = c2.user_defined = c3.user_defined = c4.user_defined = c5.user_defined =
-          c6.user_defined = true;
+      ARCode c1;
+      c1.active = true;
+      c1.user_defined = true;
 
-      c1.ops.push_back(AREntry(0x04099068, 0xec010072));  // PAL: 04099068
-      c2.ops.push_back(AREntry(0x040992C4, 0x60000000));
-      c3.ops.push_back(AREntry(0x04183CFC, 0x60000000));
-      c4.ops.push_back(AREntry(0x04183D24, 0x60000000));
-      c5.ops.push_back(AREntry(0x041768B4, 0x60000000));
-      c6.ops.push_back(AREntry(0x042FB84C, 0xd23f009c));
+      c1.ops.push_back(AREntry(0x04099068, 0xec010072));
+      c1.ops.push_back(AREntry(0x040992C4, 0x60000000));
+      c1.ops.push_back(AREntry(0x04183CFC, 0x60000000));
+      c1.ops.push_back(AREntry(0x04183D24, 0x60000000));
+      c1.ops.push_back(AREntry(0x041768B4, 0x60000000));
+      c1.ops.push_back(AREntry(0x042FB84C, 0xd23f009c));
 
       codes.push_back(c1);
-      codes.push_back(c2);
-      codes.push_back(c3);
-      codes.push_back(c4);
-      codes.push_back(c5);
-      codes.push_back(c6);
 
       beamChangeCode_mp1(codes, 0x0418e7dc);
     }
     if (game == 2)
     {
-      ARCode c1, c2, c3, c4, c5, c6, c7, c8;
-      c1.active = c2.active = c3.active = c4.active = c5.active = c6.active = c7.active =
-          c8.active = true;
-      c1.user_defined = c2.user_defined = c3.user_defined = c4.user_defined = c5.user_defined =
-          c6.user_defined = c7.user_defined = c8.user_defined = true;
+      ARCode c1;
+      c1.active = true;
+      c1.user_defined = true;
 
       c1.ops.push_back(AREntry(0x0408e30C, 0xc0430184));
-      c2.ops.push_back(AREntry(0x0408E360, 0x60000000));
-      c3.ops.push_back(AREntry(0x041496E4, 0x60000000));
-      c4.ops.push_back(AREntry(0x0414970C, 0x60000000));
-      c5.ops.push_back(AREntry(0x04137240, 0x60000000));
-      c6.ops.push_back(AREntry(0x0408D18C, 0x60000000));
-      c7.ops.push_back(AREntry(0x0408D15C, 0x60000000));
-      c8.ops.push_back(AREntry(0x04307d2c, 0xd23f009c));
+      c1.ops.push_back(AREntry(0x0408E360, 0x60000000));
+      c1.ops.push_back(AREntry(0x041496E4, 0x60000000));
+      c1.ops.push_back(AREntry(0x0414970C, 0x60000000));
+      c1.ops.push_back(AREntry(0x04137240, 0x60000000));
+      c1.ops.push_back(AREntry(0x0408D18C, 0x60000000));
+      c1.ops.push_back(AREntry(0x0408D15C, 0x60000000));
+      c1.ops.push_back(AREntry(0x04307d2c, 0xd23f009c));
 
       codes.push_back(c1);
-      codes.push_back(c2);
-      codes.push_back(c3);
-      codes.push_back(c4);
-      codes.push_back(c5);
-      codes.push_back(c6);
-      codes.push_back(c7);
-      codes.push_back(c8);
 
       beamChangeCode_mp2(codes, 0x0418e41c);
+    }
+    if (game == 3)
+    {
+      ARCode c1;
+      c1.active = true;
+      c1.user_defined = true;
+
+      c1.ops.push_back(AREntry(0x04080AB8, 0xec010072));
+      c1.ops.push_back(AREntry(0x0414D9E0, 0x60000000));
+      c1.ops.push_back(AREntry(0x0414D9B8, 0x60000000));
+      c1.ops.push_back(AREntry(0x04133C74, 0x60000000));
+      c1.ops.push_back(AREntry(0x041332BC, 0x60000000));
+      c1.ops.push_back(AREntry(0x0400ab58, 0x4bffad29));
+      c1.ops.push_back(AREntry(0x04080D44, 0x60000000));
+
+      codes.push_back(c1);
+
+      controlStateHook_mp3(codes, 0x04005880, false);
     }
   }
   ApplyCodes(codes);
 }
 
-//void my_debugger()
-//{
-//  int cur_key = -1;
-//  printf("Starting debugger\n");
-//  while (1)
-//  {
-//    if (GetAsyncKeyState(VK_HOME))
-//    {
-//      if (cur_key != VK_HOME)
-//      {
-//        u32 addr;
-//        printf("Enter address to breakpoint: "); scanf("%X", &addr);
-//        PowerPC::debug_interface.SetBreakpoint(addr);
-//        cur_key = VK_HOME;
-//      }
-//    }
-//    else if (GetAsyncKeyState(VK_END))
-//    {
-//      if (cur_key != VK_END)
-//      {
-//        printf("Stepping... ");
-//        Common::Event sync_event;
-//        PowerPC::CoreMode old_mode = PowerPC::GetMode();
-//        PowerPC::SetMode(PowerPC::CoreMode::Interpreter);
-//        PowerPC::breakpoints.ClearAllTemporary();
-//        CPU::StepOpcode(&sync_event);
-//        sync_event.WaitFor(std::chrono::milliseconds(20));
-//        PowerPC::SetMode(old_mode);
-//        printf("Current PC: %08X\n", PC);
-//        cur_key = VK_END;
-//      }
-//    }
-//    else if (GetAsyncKeyState(VK_NUMPAD8))
-//    {
-//      if (cur_key != VK_NUMPAD8)
-//      {
-//        u32 addr;
-//        printf("Enter address to MEMbreakpoint: "); scanf("%X", &addr);
-//        PowerPC::debug_interface.ToggleMemCheck(addr, true, true, true);
-//        cur_key = VK_NUMPAD8;
-//      }
-//    }
-//    else if (GetAsyncKeyState(VK_NUMPAD9))
-//    {
-//      if (cur_key != VK_NUMPAD9)
-//      {
-//        printf("Getting r3... %08X\n", GPR(3));
-//        cur_key = VK_NUMPAD9;
-//      }
-//    }
-//    else if (GetAsyncKeyState(VK_NUMLOCK))
-//    {
-//      if (cur_key != VK_NUMLOCK)
-//      {
-//        u32 addr, val;
-//        printf("Enter address to change: "); scanf("%X", &addr);
-//        printf("Enter opcode: "); scanf("%X", &val);
-//
-//        PowerPC::HostWrite_U32(val, addr);
-//        PowerPC::ScheduleInvalidateCacheThreadSafe(addr);
-//        cur_key = VK_NUMLOCK;
-//      }
-//    }
-//    else if (GetAsyncKeyState(0x50))
-//    {
-//      if (cur_key != 0x50)
-//      {
-//        printf("Instruction Dump:\n");
-//        u32 inst = PowerPC::HostRead_Instruction(PC - 4);
-//        printf("Previous Address %08x: %s\n", PC - 4, GekkoDisassembler::Disassemble(inst, PC - 4).c_str());
-//        inst = PowerPC::HostRead_Instruction(PC);
-//        printf("Current Address %08x: %s\n", PC, GekkoDisassembler::Disassemble(inst, PC).c_str());
-//        inst = PowerPC::HostRead_Instruction(PC + 4);
-//        printf("Next Address %08x: %s\n", PC + 4, GekkoDisassembler::Disassemble(inst, PC + 4).c_str());
-//        cur_key = 0x50;
-//        printf("\n\n");
-//      }
-//    }
-//    else if (GetAsyncKeyState(0x52))
-//    {
-//      if (cur_key != 0x52)
-//      {
-//        printf("Register Dump:\n");
-//        for (int i = 0; i < 32; i++)
-//        {
-//          printf("r%d: %08x\tf%d: %f\n", i, GPR(i), i, rPS0(i));
-//        }
-//        cur_key = 0x52;
-//        printf("\n\n");
-//      }
-//    }
-//    else if (GetAsyncKeyState(0x4d))
-//    {
-//      if (cur_key != 0x4d)
-//      {
-//        u32 addr;
-//        printf("Display value at address: "); scanf("%X", &addr);
-//        u32 val = PowerPC::HostRead_U32(addr);
-//        printf("Float: %f\t Hex: %08X\n", *((float*)&val), val);
-//        printf("\n\n");
-//        cur_key = 0x4d;
-//      }
-//    }
-//    else if (GetAsyncKeyState(0x43))
-//    {
-//      if (cur_key != 0x43)
-//      {
-//        printf("Continuing...");
-//        CPU::EnableStepping(false);
-//        cur_key = 0x43;
-//      }
-//    }
-//    else
-//    {
-//      cur_key = -1;
-//    }
-//    Sleep(5);
-//  }
-//}
-
 void RunAllActive()
 {
-  //static bool b0 = false;
-  //if (!b0)
-  //{
-  //  b0 = true;
-  //  AllocConsole();
-  //  freopen("CONOUT$", "w", stdout);
-  //  freopen("CONIN$", "r", stdin);
-  //  std::thread t = std::thread(my_debugger);
-  //  t.detach();
-  //}
 
   if (!SConfig::GetInstance().bEnableCheats)
     return;
@@ -1843,7 +1792,22 @@ void RunAllActive()
     break;
   case 0x90010020:
     game_id = 2;
-    region_id = 0;
+    {
+      u32 region_diff = PowerPC::HostRead_U32(0x800CC000);
+      if (region_diff == 0x981D005E)
+      {
+        region_id = 0;
+      }
+      else if (region_diff == 0x8803005D)
+      {
+        region_id = 1;
+      }
+      else
+      {
+        game_id = -1;
+        region_id = -1;
+      }
+    }
     break;
   default:
     game_id = -1;
@@ -1897,6 +1861,10 @@ void RunAllActive()
     {
       primeThree_NTSC();
     }
+    else if (region_id == 1)
+    {
+      primeThree_PAL();
+    }
   }
   else if (game_id == 3)
   {
@@ -1933,5 +1901,4 @@ void SetActiveGame(int game)
 {
   active_game = game;
 }
-
 }  // namespace ActionReplay

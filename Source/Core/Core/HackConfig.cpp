@@ -11,6 +11,7 @@ namespace prime
   static std::vector<std::unique_ptr<ControlReference>> control_list;
   static float sensitivity;
   static float cursor_sensitivity;
+  static float camera_fov;
   static const std::string config_path = "hack_config.ini";
 
   void InitializeHack()
@@ -29,6 +30,13 @@ namespace prime
       auto* section = cfg_file.GetOrCreateSection("mouse");
       section->Set("cursor_sensitivity", 50.f);
       cursor_sensitivity = 50.f;
+    }
+
+    if (!cfg_file.GetIfExists<float>("misc", "fov", &camera_fov))
+    {
+      auto* section = cfg_file.GetOrCreateSection("misc");
+      section->Set("fov", 60.f);
+      cursor_sensitivity = 60.f;
     }
 
     control_list.resize(8);
@@ -79,6 +87,8 @@ namespace prime
     auto* sens_section = cfg_file.GetOrCreateSection("mouse");
     sens_section->Set("sensitivity", sensitivity);
     sens_section->Set("cursor_sensitivity", cursor_sensitivity);
+    auto* misc_section = cfg_file.GetOrCreateSection("misc");
+    misc_section->Set("fov", camera_fov);
     auto* beam_section = cfg_file.GetOrCreateSection("beam");
     auto* visor_section = cfg_file.GetOrCreateSection("visor");
 
@@ -99,6 +109,8 @@ namespace prime
     auto* sens_section = cfg_file.GetOrCreateSection("mouse");
     sens_section->Get("sensitivity", &sensitivity);
     sens_section->Get("cursor_sensitivity", &cursor_sensitivity);
+    auto* misc_section = cfg_file.GetOrCreateSection("misc");
+    misc_section->Get("fov", &camera_fov);
     auto* beam_section = cfg_file.GetOrCreateSection("beam");
     auto* visor_section = cfg_file.GetOrCreateSection("visor");
 
@@ -147,5 +159,15 @@ namespace prime
   void SetCursorSensitivity(float sens)
   {
     cursor_sensitivity = sens;
+  }
+
+  float GetFov()
+  {
+    return camera_fov;
+  }
+
+  void SetFov(float fov)
+  {
+    camera_fov = fov;
   }
 }

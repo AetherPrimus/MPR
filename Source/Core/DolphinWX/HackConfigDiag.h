@@ -21,14 +21,18 @@ private:
   wxTextCtrl* sensitivity_box;
   wxSlider* cursor_sensitivity_slider;
   wxTextCtrl* cursor_sensitivity_box;
+  wxSlider* fov_slider;
+  wxTextCtrl* fov_box;
 
 private:
   void OnSensitivitySliderChanged(wxCommandEvent&);
   void OnCursorSensitivitySliderChanged(wxCommandEvent&);
+  void OnFovSliderChanged(wxCommandEvent&);
   void OnOk(wxCommandEvent&);
   void OnCancel(wxCommandEvent&);
   void OnEnter(wxKeyEvent&);
   void OnEnter2(wxKeyEvent&);
+  void OnEnter3(wxKeyEvent&);
 
   void DetectControl(wxCommandEvent&);
   bool DetectButton(wxButton* button, ControlReference* ref);
