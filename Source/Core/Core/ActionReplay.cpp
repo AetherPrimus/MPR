@@ -42,15 +42,9 @@
 #include "Core/ConfigManager.h"
 #include "Core/PowerPC/PowerPC.h"
 
-#include "Core/Host.h"
-#include "DolphinWX/Frame.h"
 #include "HackConfig.h"
-#include "InputCommon/ControllerInterface/ControllerInterface.h"
-#include "InputCommon/DInputMouseAbsolute.h"
+#include "InputCommon/GenericMouse.h"
 #include "VideoCommon/RenderBase.h"
-
-#include "core/hw/CPU.h"
-#include "Common/GekkoDisassembler.h"
 
 namespace ActionReplay
 {
@@ -986,8 +980,8 @@ static float cursor_yPosition = 0;
 
 void handleCursor(u32 x_address, u32 y_address, float rbound, float bbound)
 {
-  int dx = InputExternal::g_mouse_input.GetDeltaHorizontalAxis(),
-    dy = InputExternal::g_mouse_input.GetDeltaVerticalAxis();
+  int dx = prime::g_mouse_input->GetDeltaHorizontalAxis(),
+    dy = prime::g_mouse_input->GetDeltaVerticalAxis();
 
   float aspect_ratio = getAspectRatio();
   if (isnan(aspect_ratio))
@@ -1145,8 +1139,8 @@ void primeOne_NTSC()
   // i believe the angle is measured in radians, clamped ~[-1.22, 1.22]
   static float yAngle = 0;
 
-  int dx = InputExternal::g_mouse_input.GetDeltaHorizontalAxis(),
-      dy = InputExternal::g_mouse_input.GetDeltaVerticalAxis();
+  int dx = prime::g_mouse_input->GetDeltaHorizontalAxis(),
+      dy = prime::g_mouse_input->GetDeltaVerticalAxis();
 
   float vSensitivity = (prime::GetSensitivity() * TURNRATE_RATIO) / (60.0f);
 
@@ -1211,8 +1205,8 @@ void primeOne_PAL()
   // TODO FUTURE ME: use matrix math to write immediate look directions
   static float yAngle = 0;
 
-  int dx = InputExternal::g_mouse_input.GetDeltaHorizontalAxis(),
-      dy = InputExternal::g_mouse_input.GetDeltaVerticalAxis();
+  int dx = prime::g_mouse_input->GetDeltaHorizontalAxis(),
+      dy = prime::g_mouse_input->GetDeltaVerticalAxis();
 
   float vSensitivity = (prime::GetSensitivity() * TURNRATE_RATIO) / (60.0f);
 
@@ -1284,8 +1278,8 @@ void primeTwo_NTSC()
   static float yAngle = 0;
 
   // Create values for Change in X and Y mouse position
-  int dx = InputExternal::g_mouse_input.GetDeltaHorizontalAxis(),
-      dy = InputExternal::g_mouse_input.GetDeltaVerticalAxis();
+  int dx = prime::g_mouse_input->GetDeltaHorizontalAxis(),
+      dy = prime::g_mouse_input->GetDeltaVerticalAxis();
 
   // hSensitivity - Horizontal axis sensitivity
   // vSensitivity - Vertical axis sensitivity
@@ -1358,8 +1352,8 @@ void primeTwo_PAL()
 
   static float yAngle = 0;
 
-  int dx = InputExternal::g_mouse_input.GetDeltaHorizontalAxis(),
-      dy = InputExternal::g_mouse_input.GetDeltaVerticalAxis();
+  int dx = prime::g_mouse_input->GetDeltaHorizontalAxis(),
+      dy = prime::g_mouse_input->GetDeltaVerticalAxis();
 
   float vSensitivity = (prime::GetSensitivity() * TURNRATE_RATIO) / (60.0f);
 
@@ -1445,8 +1439,8 @@ void primeThree_NTSC()
   //[[[0x2c+805c6c40]+4]+0x2184]+0x174
 
 
-  int dx = InputExternal::g_mouse_input.GetDeltaHorizontalAxis(),
-    dy = InputExternal::g_mouse_input.GetDeltaVerticalAxis();
+  int dx = prime::g_mouse_input->GetDeltaHorizontalAxis(),
+    dy = prime::g_mouse_input->GetDeltaVerticalAxis();
 
   float vSensitivity = (prime::GetSensitivity() * TURNRATE_RATIO) / (60.0f);
 
@@ -1522,8 +1516,8 @@ void primeThree_PAL()
     return;
   }
 
-  int dx = InputExternal::g_mouse_input.GetDeltaHorizontalAxis(),
-    dy = InputExternal::g_mouse_input.GetDeltaVerticalAxis();
+  int dx = prime::g_mouse_input->GetDeltaHorizontalAxis(),
+    dy = prime::g_mouse_input->GetDeltaVerticalAxis();
 
   float vSensitivity = (prime::GetSensitivity() * TURNRATE_RATIO) / (60.0f);
 
@@ -1884,7 +1878,7 @@ void RunAllActive()
     }
   }
 
-  InputExternal::g_mouse_input.ResetDeltas();
+  prime::g_mouse_input->ResetDeltas();
 
   std::lock_guard<std::mutex> guard(s_lock);
   s_active_codes.erase(std::remove_if(s_active_codes.begin(), s_active_codes.end(),

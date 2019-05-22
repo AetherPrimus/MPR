@@ -113,6 +113,9 @@
     <ClCompile Include="DInputMouseAbsolute.cpp">
       <Filter>ControllerInterface\DInput</Filter>
     </ClCompile>
+    <ClCompile Include="GenericMouse.cpp">
+      <Filter>ControllerInterface</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GCAdapter.h" />
@@ -207,6 +210,9 @@
     </ClInclude>
     <ClInclude Include="DInputMouseAbsolute.h">
       <Filter>ControllerInterface\DInput</Filter>
+    </ClInclude>
+    <ClInclude Include="GenericMouse.h">
+      <Filter>ControllerInterface</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

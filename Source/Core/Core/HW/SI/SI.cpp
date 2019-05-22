@@ -573,7 +573,7 @@ void UpdateDevices()
   g_controller_interface.UpdateInput();
 
   // MODIFICATION: update our custom higher-def input device
-  InputExternal::g_mouse_input.UpdateInput();
+  prime::g_mouse_input->UpdateInput();
 
   // Update channels and set the status bit if there's new data
   s_status_reg.RDST0 =

@@ -60,7 +60,7 @@ void PopulateDevices(HWND hwnd)
 
   // MODIFICATION: Initialize external mouse device, keep it separate from Dolphin's keyboardmouse
   // devices
-  InputExternal::InitMouse(idi8);
+  prime::InitMouse(idi8);
 
   InitKeyboardMouse(idi8, hwnd);
   InitJoystick(idi8, hwnd);

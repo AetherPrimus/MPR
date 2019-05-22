@@ -98,7 +98,7 @@
 #include "VideoCommon/VideoBackendBase.h"
 #include "VideoCommon/VideoConfig.h"
 
-#include "InputCommon\DInputMouseAbsolute.h"
+#include "InputCommon\GenericMouse.h"
 
 #include "Core/ActionReplay.h"
 
@@ -774,8 +774,8 @@ void CFrame::StartGame(std::unique_ptr<BootParameters> boot)
     m_render_parent->Bind(wxEVT_SIZE, &CFrame::OnRenderParentResize, this);
     m_render_parent->SetCursor(wxCURSOR_BLANK);
 
-    wxTheApp->Bind(wxEVT_LEFT_DOWN, &InputExternal::DInputMouse::OnWindowClick,
-                   &InputExternal::g_mouse_input);
+    wxTheApp->Bind(wxEVT_LEFT_DOWN, &prime::GenericMouse::OnWindowClick,
+                   prime::g_mouse_input);
   }
 }
 
