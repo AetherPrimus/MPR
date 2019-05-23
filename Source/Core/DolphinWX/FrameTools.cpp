@@ -98,7 +98,7 @@
 #include "VideoCommon/VideoBackendBase.h"
 #include "VideoCommon/VideoConfig.h"
 
-#include "InputCommon\GenericMouse.h"
+#include "InputCommon/GenericMouse.h"
 
 #include "Core/ActionReplay.h"
 

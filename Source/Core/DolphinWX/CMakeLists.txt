@@ -67,6 +67,7 @@ set(SRCS
   FrameAui.cpp
   FrameTools.cpp
   GameListCtrl.cpp
+  HackConfigDiag.cpp
   LogConfigWindow.cpp
   LogWindow.cpp
   Main.cpp
@@ -85,6 +86,7 @@ set(SRCS
 
 set(LIBS
   core
+  inputcommon
   uicommon
   cpp-optparse
   wxWidgets::wxWidgets

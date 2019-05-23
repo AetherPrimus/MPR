@@ -9,6 +9,7 @@ add_library(core
   DSPEmulator.cpp
   GeckoCodeConfig.cpp
   GeckoCode.cpp
+  HackConfig.cpp
   HotkeyManager.cpp
   MemTools.cpp
   Movie.cpp
@@ -287,6 +288,7 @@ PUBLIC
   sfml-system
   videoogl
   videosoftware
+  wxWidgets::wxWidgets
   z
 )
 

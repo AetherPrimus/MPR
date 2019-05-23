@@ -257,16 +257,14 @@ void HackConfigDialog::OnCancel(wxCommandEvent& event)
 
 void HackConfigDialog::OnEnter(wxKeyEvent& event)
 {
-  try
-  {
-    float sens = std::stof(sensitivity_box->GetValue().ToStdString());
-    prime::SetSensitivity(sens);
-  }
-  catch (...)
+  char* end = nullptr;
+  float sens = strtod(sensitivity_box->GetValue().ToStdString().c_str(), &end);
+  if (*end)
   {
     event.Skip();
     return;
   }
+  prime::SetSensitivity(sens);
 
   sensitivity_slider->SetValue(std::round(prime::GetSensitivity()));
   event.Skip();
@@ -274,16 +272,14 @@ void HackConfigDialog::OnEnter(wxKeyEvent& event)
 
 void HackConfigDialog::OnEnter2(wxKeyEvent& event)
 {
-  try
-  {
-    float sens = std::stof(cursor_sensitivity_box->GetValue().ToStdString());
-    prime::SetCursorSensitivity(sens);
-  }
-  catch (...)
+  char* end = nullptr;
+  float sens = strtod(cursor_sensitivity_box->GetValue().ToStdString().c_str(), &end);
+  if (*end)
   {
     event.Skip();
     return;
   }
+  prime::SetCursorSensitivity(sens);
 
   cursor_sensitivity_slider->SetValue(std::round(prime::GetSensitivity()));
   event.Skip();
@@ -291,16 +287,14 @@ void HackConfigDialog::OnEnter2(wxKeyEvent& event)
 
 void HackConfigDialog::OnEnter3(wxKeyEvent& event)
 {
-  try
-  {
-    float fov = std::stof(fov_box->GetValue().ToStdString());
-    prime::SetFov(fov);
-  }
-  catch (...)
+  char* end = nullptr;
+  float sens = strtod(fov_box->GetValue().ToStdString().c_str(), &end);
+  if (*end)
   {
     event.Skip();
     return;
   }
+  prime::SetFov(sens);
 
   fov_slider->SetValue(std::round(prime::GetFov()));
   event.Skip();

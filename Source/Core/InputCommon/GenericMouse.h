@@ -1,6 +1,6 @@
 #pragma once
 
-#include "wxWidgets3\include\wx\event.h"
+#include <wx/event.h>
 
 namespace prime
 {

@@ -22,7 +22,7 @@
 
 #include "InputCommon/ControllerInterface/ControllerInterface.h"
 
-#include "InputCommon/DInputMouseAbsolute.h"
+#include "InputCommon/GenericMouse.h"
 
 namespace SerialInterface
 {

@@ -1,7 +1,6 @@
 #include "HackConfig.h"
 
 #include <string>
-#include <Windows.h>
 
 #include "Common/IniFile.h"
 #include "InputCommon/ControllerInterface/ControllerInterface.h"
