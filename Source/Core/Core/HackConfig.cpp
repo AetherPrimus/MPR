@@ -12,9 +12,12 @@ namespace prime
   static float cursor_sensitivity;
   static float camera_fov;
   static const std::string config_path = "hack_config.ini";
+  static std::string device_name, device_source;
 
-  void InitializeHack()
+  void InitializeHack(std::string const& mkb_device_name, std::string const& mkb_device_source)
   {
+    device_name = mkb_device_name;
+    device_source = mkb_device_source;
     IniFile cfg_file;
     cfg_file.Load(config_path, true);
     if (!cfg_file.GetIfExists<float>("mouse", "sensitivity", &sensitivity))
@@ -52,7 +55,7 @@ namespace prime
       }
       control_list[i] = std::make_unique<InputReference>();
       control_list[i]->UpdateReference(g_controller_interface,
-        ciface::Core::DeviceQualifier("DInput", 0, "Keyboard Mouse"));
+        ciface::Core::DeviceQualifier(mkb_device_source.c_str(), 0, mkb_device_name.c_str()));
       control_list[i]->SetExpression(control_expr);
 
       if (!cfg_file.GetIfExists<std::string>("visor", control.c_str(), &control_expr))
@@ -64,7 +67,7 @@ namespace prime
       control_list[i + 4] = std::make_unique<InputReference>();
       control_list[i + 4]->SetExpression(control_expr);
       control_list[i + 4]->UpdateReference(g_controller_interface,
-        ciface::Core::DeviceQualifier("DInput", 0, "Keyboard Mouse"));
+        ciface::Core::DeviceQualifier(mkb_device_source.c_str(), 0, mkb_device_name.c_str()));
     }
     cfg_file.Save(config_path);
   }
@@ -74,7 +77,7 @@ namespace prime
     for (int i = 0; i < control_list.size(); i++)
     {
       control_list[i]->UpdateReference(g_controller_interface,
-        ciface::Core::DeviceQualifier("DInput", 0, "Keyboard Mouse"));
+        ciface::Core::DeviceQualifier(device_source.c_str(), 0, device_name.c_str()));
     }
   }
 
@@ -168,5 +171,15 @@ namespace prime
   void SetFov(float fov)
   {
     camera_fov = fov;
+  }
+
+  std::string const& GetCtlDeviceName()
+  {
+    return device_name;
+  }
+  
+  std::string const& GetCtlDeviceSource()
+  {
+    return device_source;
   }
 }

@@ -7,7 +7,7 @@
 
 namespace prime
 {
-void InitializeHack();
+void InitializeHack(std::string const& mkb_device_name, std::string const& mkb_device_source);
 
 // PRECONDITION:  For all following functions, InitializeHack has been called
 std::vector<std::unique_ptr<ControlReference>>& GetMutableControls();
@@ -23,4 +23,7 @@ float GetCursorSensitivity();
 void SetCursorSensitivity(float sensitivity);
 float GetFov();
 void SetFov(float fov);
+
+std::string const& GetCtlDeviceName();
+std::string const& GetCtlDeviceSource();
 }

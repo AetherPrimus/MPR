@@ -7,6 +7,7 @@
 #include <algorithm>
 
 #include "Common/Logging/Log.h"
+#include "Core/HackConfig.h"
 
 #ifdef CIFACE_USE_XINPUT
 #include "InputCommon/ControllerInterface/XInput/XInput.h"
@@ -93,12 +94,16 @@ void ControllerInterface::RefreshDevices()
 
 #ifdef CIFACE_USE_DINPUT
   ciface::DInput::PopulateDevices(reinterpret_cast<HWND>(m_hwnd));
+
+  prime::InitializeHack("Keyboard Mouse", "DInput");
 #endif
 #ifdef CIFACE_USE_XINPUT
   ciface::XInput::PopulateDevices();
 #endif
 #ifdef CIFACE_USE_XLIB
   ciface::XInput2::PopulateDevices(m_hwnd);
+
+  prime::InitializeHack("Virtual core pointer", "XInput2");
 #endif
 #ifdef CIFACE_USE_OSX
   ciface::OSX::PopulateDevices(m_hwnd);

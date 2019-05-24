@@ -1,6 +1,7 @@
 add_library(inputcommon
   InputConfig.cpp
   GenericMouse.cpp
+  XInput2Mouse.cpp
   ControllerEmu/ControllerEmu.cpp
   ControllerEmu/Control/Control.cpp
   ControllerEmu/Control/Input.cpp

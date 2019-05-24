@@ -11,9 +11,6 @@
 
 #include "InputCommon/DInputMouseAbsolute.h"
 
-#include "Core/HackConfig.h"
-#include "Core/ActionReplay.h"
-
 #pragma comment(lib, "Dinput8.lib")
 #pragma comment(lib, "dxguid.lib")
 
@@ -66,8 +63,6 @@ void PopulateDevices(HWND hwnd)
   InitJoystick(idi8, hwnd);
 
   idi8->Release();
-
-  prime::InitializeHack();
 }
 }  // namespace DInput
 }  // namespace ciface

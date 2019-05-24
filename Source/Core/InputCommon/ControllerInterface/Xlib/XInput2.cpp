@@ -11,6 +11,7 @@
 #include <cstring>
 
 #include "InputCommon/ControllerInterface/Xlib/XInput2.h"
+#include "InputCommon/XInput2Mouse.h"
 
 // This is an input plugin using the XInput 2.0 extension to the X11 protocol,
 // loosely based on the old XLib plugin. (Has nothing to do with the XInput
@@ -51,6 +52,8 @@ namespace XInput2
 // This function will add zero or more KeyboardMouse objects to devices.
 void PopulateDevices(void* const hwnd)
 {
+  prime::InitXInput2Mouse(hwnd);
+  
   Display* dpy = XOpenDisplay(nullptr);
 
   // xi_opcode is important; it will be used to identify XInput events by

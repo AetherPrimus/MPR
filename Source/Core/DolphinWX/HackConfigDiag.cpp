@@ -177,9 +177,10 @@ inline void GetExpressionForControl(wxString& expr, wxString& control_name,
 
 bool HackConfigDialog::DetectButton(wxButton* button, ControlReference* ref)
 {
+  // mark down device name we are using in hack config
   bool success = false;
   const auto dev = g_controller_interface.FindDevice(
-      ciface::Core::DeviceQualifier("DInput", 0, "Keyboard Mouse"));
+      ciface::Core::DeviceQualifier(prime::GetCtlDeviceSource().c_str(), 0, prime::GetCtlDeviceName().c_str()));
 
   if (dev != nullptr)
   {

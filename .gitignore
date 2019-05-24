@@ -37,3 +37,9 @@ CMakeLists.txt.user
 # Ignore generated sensitivity file
 config_sensitivity.ini
 hack_config.ini
+
+# Ignore generated vscode folder
+.vscode/
+
+# Ignore cmake buildconfig
+.buildconfig
