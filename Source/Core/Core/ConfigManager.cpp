@@ -446,7 +446,8 @@ void SConfig::LoadInterfaceSettings(IniFile& ini)
   interface->Get("ConfirmStop", &bConfirmStop, true);
   interface->Get("UsePanicHandlers", &bUsePanicHandlers, true);
   interface->Get("OnScreenDisplayMessages", &bOnScreenDisplayMessages, true);
-  interface->Get("HideCursor", &bHideCursor, false);
+  //interface->Get("HideCursor", &bHideCursor, false);
+  bHideCursor = true;
   interface->Get("MainWindowPosX", &iPosX, INT_MIN);
   interface->Get("MainWindowPosY", &iPosY, INT_MIN);
   interface->Get("MainWindowWidth", &iWidth, -1);
@@ -538,7 +539,8 @@ void SConfig::LoadCoreSettings(IniFile& ini)
   core->Get("CPUThread", &bCPUThread, true);
   core->Get("SyncOnSkipIdle", &bSyncGPUOnSkipIdleHack, true);
   core->Get("DefaultISO", &m_strDefaultISO);
-  core->Get("EnableCheats", &bEnableCheats, false);
+  //core->Get("EnableCheats", &bEnableCheats, true);
+  bEnableCheats = true;
   core->Get("SelectedLanguage", &SelectedLanguage, 0);
   core->Get("OverrideGCLang", &bOverrideGCLanguage, false);
   core->Get("DPL2Decoder", &bDPL2Decoder, false);
