@@ -1,6 +1,6 @@
 # PrimeHack – A Dolphin Emulator fork for Metroid Prime Trilogy
 
-PrimeHack is a modified version of [Ishiiruka-Dolphin](https://forums.dolphin-emu.org/Thread-unofficial-ishiiruka-dolphin-custom-version) – in turn a variant of the original (Dolphin Emulator)[https://dolphin-emu.org] – solely for playing Metroid Prime Trilogy for Wii with keyboard and mouse on a PC.
+PrimeHack is a modified version of [Ishiiruka-Dolphin](https://forums.dolphin-emu.org/Thread-unofficial-ishiiruka-dolphin-custom-version) – in turn a variant of the original [Dolphin Emulator](https://dolphin-emu.org) – solely for playing Metroid Prime Trilogy for Wii with keyboard and mouse on a PC.
 
 The system requirements are similar to those listed below but neither Android nor ARM CPUs are currently supported.
 
