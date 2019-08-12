@@ -9,7 +9,6 @@ add_library(core
   DSPEmulator.cpp
   GeckoCodeConfig.cpp
   GeckoCode.cpp
-  HackConfig.cpp
   HotkeyManager.cpp
   MemTools.cpp
   Movie.cpp
@@ -226,6 +225,7 @@ add_library(core
   PowerPC/JitCommon/JitAsmCommon.cpp
   PowerPC/JitCommon/JitBase.cpp
   PowerPC/JitCommon/JitCache.cpp
+  Primehack/HackConfig.cpp
 )
 
 if(_M_X86)
