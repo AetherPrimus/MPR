@@ -100,7 +100,6 @@
     <ClCompile Include="FifoPlayer\FifoRecorder.cpp" />
     <ClCompile Include="GeckoCode.cpp" />
     <ClCompile Include="GeckoCodeConfig.cpp" />
-    <ClCompile Include="HackConfig.cpp" />
     <ClCompile Include="HLE\HLE.cpp" />
     <ClCompile Include="HLE\HLE_Misc.cpp" />
     <ClCompile Include="HLE\HLE_OS.cpp" />
@@ -290,6 +289,7 @@
     <ClCompile Include="PowerPC\PPCSymbolDB.cpp" />
     <ClCompile Include="PowerPC\PPCTables.cpp" />
     <ClCompile Include="PowerPC\Profiler.cpp" />
+    <ClCompile Include="Primehack\HackConfig.cpp" />
     <ClCompile Include="State.cpp" />
     <ClCompile Include="TitleDatabase.cpp" />
     <ClCompile Include="WiiRoot.cpp" />
@@ -351,7 +351,6 @@
     <ClInclude Include="FifoPlayer\FifoRecorder.h" />
     <ClInclude Include="GeckoCode.h" />
     <ClInclude Include="GeckoCodeConfig.h" />
-    <ClInclude Include="HackConfig.h" />
     <ClInclude Include="HLE\HLE.h" />
     <ClInclude Include="HLE\HLE_Misc.h" />
     <ClInclude Include="HLE\HLE_OS.h" />
@@ -526,6 +525,7 @@
     <ClInclude Include="PowerPC\PPCSymbolDB.h" />
     <ClInclude Include="PowerPC\PPCTables.h" />
     <ClInclude Include="PowerPC\Profiler.h" />
+    <ClInclude Include="Primehack\HackConfig.h" />
     <ClInclude Include="State.h" />
     <ClInclude Include="TitleDatabase.h" />
     <ClInclude Include="IOS\VersionInfo.h" />

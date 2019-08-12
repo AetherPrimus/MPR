@@ -42,7 +42,7 @@
 #include "Core/ConfigManager.h"
 #include "Core/PowerPC/PowerPC.h"
 
-#include "HackConfig.h"
+#include "Primehack/HackConfig.h"
 #include "InputCommon/GenericMouse.h"
 #include "VideoCommon/RenderBase.h"
 
@@ -1108,7 +1108,7 @@ int getBeamSwitch(std::array<int, 4> const& beams)
  * ADDITIONAL INFO: Equipment have-status offsets:
  * Beams can be ignored (for now) as the existing code handles that for us
  * Prime one visor offsets: combat = 0x11, scan = 0x05, thermal = 0x09, xray = 0x0d
- * Prime two visor offsets: combat = 0x08, scan = 0x09, dark = 0x0d, echo = 0x0b
+ * Prime two visor offsets: combat = 0x08, scan = 0x09, dark = 0x0a, echo = 0x0b
  */
 static std::array<int, 4> prime_one_beams = {0, 2, 1, 3};
 static std::array<int, 4> prime_two_beams = {0, 1, 2, 3};
@@ -1118,7 +1118,7 @@ static std::array<std::tuple<int, int>, 4> prime_one_visors = {
     std::make_tuple<int, int>(3, 0x09), std::make_tuple<int, int>(1, 0x0d) };
 static std::array<std::tuple<int, int>, 4> prime_two_visors = {
     std::make_tuple<int, int>(0, 0x08), std::make_tuple<int, int>(2, 0x09),
-    std::make_tuple<int, int>(3, 0x0d), std::make_tuple<int, int>(1, 0x0b) };
+    std::make_tuple<int, int>(3, 0x0a), std::make_tuple<int, int>(1, 0x0b) };
 static std::array<std::tuple<int, int>, 4> prime_three_visors = {
     std::make_tuple<int, int>(0, 0x0b), std::make_tuple<int, int>(1, 0x0c),
     std::make_tuple<int, int>(2, 0x0d), std::make_tuple<int, int>(3, 0x0e) };
@@ -1145,7 +1145,7 @@ void primeOne_NTSC()
   float vSensitivity = (prime::GetSensitivity() * TURNRATE_RATIO) / (60.0f);
 
   float dfx = dx * -prime::GetSensitivity();
-  yAngle += ((float)dy * -vSensitivity);
+  yAngle += ((float)dy * -vSensitivity * (prime::InvertedY() ? -1.f : 1.f));
   yAngle = clamp(-1.22f, 1.22f, yAngle);
 
   u32 horizontalSpeed, verticalAngle;
@@ -1211,7 +1211,7 @@ void primeOne_PAL()
   float vSensitivity = (prime::GetSensitivity() * TURNRATE_RATIO) / (60.0f);
 
   float dfx = dx * -prime::GetSensitivity();
-  yAngle += ((float)dy * -vSensitivity);
+  yAngle += ((float)dy * -vSensitivity * (prime::InvertedY() ? -1.f : 1.f));
   yAngle = clamp(-1.22f, 1.22f, yAngle);
 
   u32 horizontalSpeed, verticalAngle;
@@ -1289,7 +1289,7 @@ void primeTwo_NTSC()
   float dfx = dx * -prime::GetSensitivity();
 
   // Scale mouse movement by sensitivity
-  yAngle += (float)dy * -vSensitivity;
+  yAngle += (float)dy * -vSensitivity * (prime::InvertedY() ? -1.f : 1.f);
   yAngle = clamp(-1.04f, 1.04f, yAngle);
 
   u32 arm_cannon_model_matrix = PowerPC::HostRead_U32(baseAddress + 0xea8) + 0x3b0;
@@ -1359,7 +1359,7 @@ void primeTwo_PAL()
 
   float dfx = dx * -prime::GetSensitivity();
 
-  yAngle += (float)dy * -vSensitivity;
+  yAngle += (float)dy * -vSensitivity * (prime::InvertedY() ? -1.f : 1.f);
   yAngle = clamp(-1.04f, 1.04f, yAngle);
 
   u32 arm_cannon_model_matrix = PowerPC::HostRead_U32(baseAddress + 0xea8) + 0x3b0;
@@ -1445,7 +1445,7 @@ void primeThree_NTSC()
   float vSensitivity = (prime::GetSensitivity() * TURNRATE_RATIO) / (60.0f);
 
   float dfx = dx * -prime::GetSensitivity();
-  float dfy = (float)dy * -vSensitivity;
+  float dfy = (float)dy * -vSensitivity * (prime::InvertedY() ? -1.f : 1.f);
 
   yAngle += dfy;
   yAngle = clamp(-1.5f, 1.5f, yAngle);
@@ -1522,7 +1522,7 @@ void primeThree_PAL()
   float vSensitivity = (prime::GetSensitivity() * TURNRATE_RATIO) / (60.0f);
 
   float dfx = dx * -prime::GetSensitivity();
-  float dfy = (float)dy * -vSensitivity;
+  float dfy = (float)dy * -vSensitivity * (prime::InvertedY() ? -1.f : 1.f);
 
   yAngle += dfy;
   yAngle = clamp(-1.5f, 1.5f, yAngle);

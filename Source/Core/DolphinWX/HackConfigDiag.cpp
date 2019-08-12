@@ -5,7 +5,7 @@
 #include <wx/sizer.h>
 
 #include "Common/IniFile.h"
-#include "Core/HackConfig.h"
+#include "Core/Primehack/HackConfig.h"
 #include "InputCommon/ControllerInterface/ControllerInterface.h"
 #include "InputCommon/ControlReference/ControlReference.h"
 
@@ -301,6 +301,11 @@ void HackConfigDialog::OnEnter3(wxKeyEvent& event)
   event.Skip();
 }
 
+void HackConfigDialog::OnYAxisInvert(wxCommandEvent& event)
+{
+  prime::SetInvertedY(invert_y_box->IsChecked());
+}
+
 HackConfigDialog::HackConfigDialog(wxWindow* const parent)
     : wxDialog(parent, wxID_ANY, "Hack Settings", wxDefaultPosition, wxDefaultSize,
                wxDEFAULT_DIALOG_STYLE)
@@ -363,11 +368,16 @@ HackConfigDialog::HackConfigDialog(wxWindow* const parent)
   fov_slider = new wxSlider(this, wxID_ANY, std::round(fov),
     1, 180, wxDefaultPosition);
   fov_box = new wxTextCtrl(this, wxID_ANY, RemoveTrailingZero(std::to_string(fov)));
+  invert_y_box = new wxCheckBox(this, wxID_ANY, "Invert Y axis");
   misc_sizer->Add(fov_label);
   misc_sizer->AddSpacer(space3);
   misc_sizer->Add(fov_slider, 0, wxEXPAND | wxLEFT | wxRIGHT);
   misc_sizer->AddSpacer(space3);
   misc_sizer->Add(fov_box, 0, wxEXPAND | wxLEFT | wxRIGHT, space3);
+  misc_sizer->AddSpacer(space3);
+  misc_sizer->Add(invert_y_box);
+  misc_sizer->AddSpacer(space3);
+  invert_y_box->SetValue(prime::InvertedY());
 
   auto* const enter_button = new wxButton(this, wxID_ANY, "OK");
   auto* const cancel_button = new wxButton(this, wxID_ANY, "Cancel");
@@ -397,6 +407,7 @@ HackConfigDialog::HackConfigDialog(wxWindow* const parent)
   sensitivity_box->Bind(wxEVT_KEY_UP, &HackConfigDialog::OnEnter, this);
   cursor_sensitivity_box->Bind(wxEVT_KEY_UP, &HackConfigDialog::OnEnter2, this);
   fov_box->Bind(wxEVT_KEY_UP, &HackConfigDialog::OnEnter3, this);
+  invert_y_box->Bind(wxEVT_CHECKBOX, &HackConfigDialog::OnYAxisInvert, this);
 
   SetSizerAndFit(szr_main);
   Center();

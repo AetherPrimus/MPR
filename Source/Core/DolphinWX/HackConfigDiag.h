@@ -9,6 +9,7 @@
 #include <wx/slider.h>
 #include <wx/stattext.h>
 #include <wx/textctrl.h>
+#include <wx/checkbox.h>
 
 #include "InputCommon/ControlReference/ControlReference.h"
 constexpr int input_wait_time = 4000;
@@ -23,6 +24,7 @@ private:
   wxTextCtrl* cursor_sensitivity_box;
   wxSlider* fov_slider;
   wxTextCtrl* fov_box;
+  wxCheckBox* invert_y_box;
 
 private:
   void OnSensitivitySliderChanged(wxCommandEvent&);
@@ -33,6 +35,7 @@ private:
   void OnEnter(wxKeyEvent&);
   void OnEnter2(wxKeyEvent&);
   void OnEnter3(wxKeyEvent&);
+  void OnYAxisInvert(wxCommandEvent&);
 
   void DetectControl(wxCommandEvent&);
   bool DetectButton(wxButton* button, ControlReference* ref);

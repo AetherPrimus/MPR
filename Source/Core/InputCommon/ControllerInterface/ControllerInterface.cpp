@@ -7,7 +7,7 @@
 #include <algorithm>
 
 #include "Common/Logging/Log.h"
-#include "Core/HackConfig.h"
+#include "Core/Primehack/HackConfig.h"
 
 #ifdef CIFACE_USE_XINPUT
 #include "InputCommon/ControllerInterface/XInput/XInput.h"
