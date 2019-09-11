@@ -1267,7 +1267,9 @@ void primeTwo_NTSC()
   {
     return;
   }
-
+  if (PowerPC::HostRead_U32(0x804e8824) != 1) {
+    return;
+  }
   // static address representing if lockon pressed
   if (PowerPC::HostRead_U8(0x804e894f))
   {
@@ -1342,6 +1344,9 @@ void primeTwo_PAL()
   u32 baseAddress = PowerPC::HostRead_U32(0x804ee738 + 0x14f4);
   if (!mem_check(baseAddress))
   {
+    return;
+  }
+  if (PowerPC::HostRead_U32(0x804efc74) != 1) {
     return;
   }
   if (PowerPC::HostRead_U8(0x804efd9f))
