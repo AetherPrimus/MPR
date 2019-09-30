@@ -421,6 +421,7 @@ namespace prime {
       PowerPC::HostWrite_U32(0, cursor_base + 0x15c);
     }
     if (PowerPC::HostRead_U8(lockon_address())) {
+      PowerPC::HostWrite_U32(0, base_address + 0x174);
       return;
     }
 
