@@ -289,7 +289,9 @@
     <ClCompile Include="PowerPC\PPCSymbolDB.cpp" />
     <ClCompile Include="PowerPC\PPCTables.cpp" />
     <ClCompile Include="PowerPC\Profiler.cpp" />
+    <ClCompile Include="PrimeHack\AimMods.cpp" />
     <ClCompile Include="Primehack\HackConfig.cpp" />
+    <ClCompile Include="PrimeHack\HackManager.cpp" />
     <ClCompile Include="State.cpp" />
     <ClCompile Include="TitleDatabase.cpp" />
     <ClCompile Include="WiiRoot.cpp" />
@@ -525,7 +527,10 @@
     <ClInclude Include="PowerPC\PPCSymbolDB.h" />
     <ClInclude Include="PowerPC\PPCTables.h" />
     <ClInclude Include="PowerPC\Profiler.h" />
+    <ClInclude Include="PrimeHack\AimMods.h" />
     <ClInclude Include="Primehack\HackConfig.h" />
+    <ClInclude Include="Primehack\HackManager.h" />
+    <ClInclude Include="Primehack\PrimeMod.h" />
     <ClInclude Include="State.h" />
     <ClInclude Include="TitleDatabase.h" />
     <ClInclude Include="IOS\VersionInfo.h" />

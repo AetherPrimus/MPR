@@ -3,6 +3,7 @@
 #include <memory>
 #include <vector>
 
+#include "Core/PrimeHack/HackManager.h"
 #include "InputCommon/ControlReference/ControlReference.h"
 
 namespace prime
@@ -28,4 +29,6 @@ void SetInvertedY(bool inverted);
 
 std::string const& GetCtlDeviceName();
 std::string const& GetCtlDeviceSource();
+
+HackManager *GetHackManager();
 }

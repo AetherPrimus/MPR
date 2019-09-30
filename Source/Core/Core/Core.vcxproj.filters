@@ -894,6 +894,12 @@
     <ClCompile Include="Primehack\HackConfig.cpp">
       <Filter>PrimeHack</Filter>
     </ClCompile>
+    <ClCompile Include="PrimeHack\AimMods.cpp">
+      <Filter>PrimeHack</Filter>
+    </ClCompile>
+    <ClCompile Include="PrimeHack\HackManager.cpp">
+      <Filter>PrimeHack</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BootManager.h" />
@@ -1563,6 +1569,15 @@
       <Filter>DSPCore\Jit</Filter>
     </ClInclude>
     <ClInclude Include="Primehack\HackConfig.h">
+      <Filter>PrimeHack</Filter>
+    </ClInclude>
+    <ClInclude Include="Primehack\HackManager.h">
+      <Filter>PrimeHack</Filter>
+    </ClInclude>
+    <ClInclude Include="Primehack\PrimeMod.h">
+      <Filter>PrimeHack</Filter>
+    </ClInclude>
+    <ClInclude Include="PrimeHack\AimMods.h">
       <Filter>PrimeHack</Filter>
     </ClInclude>
   </ItemGroup>

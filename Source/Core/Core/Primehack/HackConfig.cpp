@@ -3,6 +3,7 @@
 #include <string>
 
 #include "Common/IniFile.h"
+#include "Core/PrimeHack/AimMods.h"
 #include "InputCommon/ControllerInterface/ControllerInterface.h"
 
 namespace prime
@@ -14,9 +15,20 @@ namespace prime
   static const std::string config_path = "hack_config.ini";
   static std::string device_name, device_source;
   static bool inverted_y = false;
+  static HackManager hack_mgr;
 
   void InitializeHack(std::string const& mkb_device_name, std::string const& mkb_device_source)
   {
+    // Create mods for all games/regions.
+    hack_mgr.add_mod(std::make_unique<MP1NTSC>());
+    hack_mgr.add_mod(std::make_unique<MP1PAL>());
+    hack_mgr.add_mod(std::make_unique<MP2NTSC>());
+    hack_mgr.add_mod(std::make_unique<MP2PAL>());
+    hack_mgr.add_mod(std::make_unique<MP3NTSC>());
+    hack_mgr.add_mod(std::make_unique<MP3PAL>());
+    hack_mgr.add_mod(std::make_unique<MenuNTSC>());
+    hack_mgr.add_mod(std::make_unique<MenuPAL>());
+
     device_name = mkb_device_name;
     device_source = mkb_device_source;
     IniFile cfg_file;
@@ -200,5 +212,9 @@ namespace prime
   std::string const& GetCtlDeviceSource()
   {
     return device_source;
+  }
+
+  HackManager *GetHackManager() {
+    return &hack_mgr;
   }
 }

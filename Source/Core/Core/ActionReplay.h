@@ -48,6 +48,4 @@ std::vector<std::string> GetSelfLog();
 void ClearSelfLog();
 bool IsSelfLogging();
 
-void SetActiveGame(int game);
-
 }  // namespace ActionReplay
