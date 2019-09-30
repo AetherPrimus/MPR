@@ -123,18 +123,18 @@ void SetUserDirectory(const std::string& custom_path)
   // Check our registry keys
   HKEY hkey;
   DWORD local = 0;
-  TCHAR configPath[MAX_PATH] = {0};
+  TCHAR configPath[MAX_PATH] = { 0 };
   if (RegOpenKeyEx(HKEY_CURRENT_USER, TEXT("Software\\Dolphin Emulator"), 0, KEY_QUERY_VALUE,
-                   &hkey) == ERROR_SUCCESS)
+    &hkey) == ERROR_SUCCESS)
   {
     DWORD size = 4;
     if (RegQueryValueEx(hkey, TEXT("LocalUserConfig"), nullptr, nullptr,
-                        reinterpret_cast<LPBYTE>(&local), &size) != ERROR_SUCCESS)
+      reinterpret_cast<LPBYTE>(&local), &size) != ERROR_SUCCESS)
       local = 0;
 
     size = MAX_PATH;
     if (RegQueryValueEx(hkey, TEXT("UserConfigPath"), nullptr, nullptr, (LPBYTE)configPath,
-                        &size) != ERROR_SUCCESS)
+      &size) != ERROR_SUCCESS)
       configPath[0] = 0;
     RegCloseKey(hkey);
   }
@@ -142,18 +142,8 @@ void SetUserDirectory(const std::string& custom_path)
   local = local || File::Exists(File::GetExeDirectory() + DIR_SEP "portable.txt");
 
   // Get Program Files path in case we need it.
-  TCHAR my_documents[MAX_PATH];
-  bool my_documents_found = SUCCEEDED(
-      SHGetFolderPath(nullptr, CSIDL_MYDOCUMENTS, nullptr, SHGFP_TYPE_CURRENT, my_documents));
 
-  if (local)  // Case 1-2
-    user_path = File::GetExeDirectory() + DIR_SEP USERDATA_DIR DIR_SEP;
-  else if (configPath[0])  // Case 3
-    user_path = TStrToUTF8(configPath);
-  else if (my_documents_found)  // Case 4
-    user_path = TStrToUTF8(my_documents) + DIR_SEP "Dolphin Emulator" DIR_SEP;
-  else  // Case 5
-    user_path = File::GetExeDirectory() + DIR_SEP USERDATA_DIR DIR_SEP;
+  user_path = File::GetExeDirectory() + DIR_SEP USERDATA_DIR DIR_SEP;
 
   // Prettify the path: it will be displayed in some places, we don't want a mix
   // of \ and /.
