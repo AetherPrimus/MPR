@@ -42,7 +42,7 @@
 #include "Core/ConfigManager.h"
 #include "Core/PowerPC/PowerPC.h"
 
-#include "Primehack/HackConfig.h"
+#include "PrimeHack/HackConfig.h"
 #include "InputCommon/GenericMouse.h"
 #include "VideoCommon/RenderBase.h"
 

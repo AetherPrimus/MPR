@@ -3,7 +3,7 @@
 #include <array>
 #include <memory>
 
-#include "Core/Primehack/PrimeMod.h"
+#include "Core/PrimeHack/PrimeMod.h"
 
 namespace prime {
 
