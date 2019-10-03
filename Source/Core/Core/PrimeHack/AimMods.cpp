@@ -181,7 +181,7 @@ namespace prime {
 
     pitch += static_cast<float>(dy) * -compensated_sens * (InvertedY() ? -1.f : 1.f);
     pitch = std::clamp(pitch, -1.22f, 1.22f);
-    const float yaw_vel = dx * -GetSensitivity();
+    const float yaw_vel = dx * -GetSensitivity() * (InvertedX() ? -1.f : 1.f);
 
     PowerPC::HostWrite_U32(*reinterpret_cast<u32*>(&pitch), pitch_address());
     PowerPC::HostWrite_U32(*reinterpret_cast<u32*>(&pitch), pitch_goal_address());
@@ -299,7 +299,7 @@ namespace prime {
 
     pitch += static_cast<float>(dy) * -compensated_sens * (InvertedY() ? -1.f : 1.f);
     pitch = std::clamp(pitch, -1.04f, 1.04f);
-    const float yaw_vel = dx * -GetSensitivity();
+    const float yaw_vel = dx * -GetSensitivity() * (InvertedX() ? -1.f : 1.f);
 
     u32 arm_cannon_model_matrix = PowerPC::HostRead_U32(base_address + 0xea8);
     PowerPC::HostWrite_U32(*reinterpret_cast<u32*>(&pitch), base_address + 0x5f0);
@@ -431,7 +431,7 @@ namespace prime {
 
     pitch += static_cast<float>(dy) * -compensated_sens * (InvertedY() ? -1.f : 1.f);
     pitch = std::clamp(pitch, -1.5f, 1.5f);
-    const float yaw_vel = dx * -GetSensitivity();
+    const float yaw_vel = dx * -GetSensitivity() * (InvertedX() ? -1.f : 1.f);
 
     PowerPC::HostWrite_U32(*reinterpret_cast<u32 const*>(&yaw_vel), base_address + 0x174);
     PowerPC::HostWrite_U32(0, base_address + 0x174 + 0x18);

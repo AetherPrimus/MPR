@@ -15,6 +15,7 @@ namespace prime
   static const std::string config_path = "hack_config.ini";
   static std::string device_name, device_source;
   static bool inverted_y = false;
+  static bool inverted_x = false;
   static HackManager hack_mgr;
 
   void InitializeHack(std::string const& mkb_device_name, std::string const& mkb_device_source)
@@ -58,6 +59,12 @@ namespace prime
       auto* section = cfg_file.GetOrCreateSection("misc");
       section->Set("inverted_y", false);
       inverted_y = false;
+    }
+
+    if (!cfg_file.GetIfExists<bool>("misc", "inverted_x", &inverted_x)) {
+      auto* section = cfg_file.GetOrCreateSection("misc");
+      section->Set("inverted_x", false);
+      inverted_x = false;
     }
 
     control_list.resize(8);
@@ -111,6 +118,7 @@ namespace prime
     auto* misc_section = cfg_file.GetOrCreateSection("misc");
     misc_section->Set("fov", camera_fov);
     misc_section->Set("inverted_y", inverted_y);
+    misc_section->Set("inverted_x", inverted_x);
     auto* beam_section = cfg_file.GetOrCreateSection("beam");
     auto* visor_section = cfg_file.GetOrCreateSection("visor");
 
@@ -134,6 +142,7 @@ namespace prime
     auto* misc_section = cfg_file.GetOrCreateSection("misc");
     misc_section->Get("fov", &camera_fov);
     misc_section->Get("inverted_y", &inverted_y);
+    misc_section->Get("inverted_x", &inverted_x);
     auto* beam_section = cfg_file.GetOrCreateSection("beam");
     auto* visor_section = cfg_file.GetOrCreateSection("visor");
 
@@ -202,6 +211,16 @@ namespace prime
   void SetInvertedY(bool inverted)
   {
     inverted_y = inverted;
+  }
+
+  bool InvertedX()
+  {
+    return inverted_x;
+  }
+
+  void SetInvertedX(bool inverted)
+  {
+    inverted_x = inverted;
   }
 
   std::string const& GetCtlDeviceName()

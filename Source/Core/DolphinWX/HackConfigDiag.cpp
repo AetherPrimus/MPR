@@ -306,6 +306,11 @@ void HackConfigDialog::OnYAxisInvert(wxCommandEvent& event)
   prime::SetInvertedY(invert_y_box->IsChecked());
 }
 
+void HackConfigDialog::OnXAxisInvert(wxCommandEvent& event)
+{
+  prime::SetInvertedX(invert_x_box->IsChecked());
+}
+
 HackConfigDialog::HackConfigDialog(wxWindow* const parent)
     : wxDialog(parent, wxID_ANY, "Hack Settings", wxDefaultPosition, wxDefaultSize,
                wxDEFAULT_DIALOG_STYLE)
@@ -369,6 +374,7 @@ HackConfigDialog::HackConfigDialog(wxWindow* const parent)
     1, 180, wxDefaultPosition);
   fov_box = new wxTextCtrl(this, wxID_ANY, RemoveTrailingZero(std::to_string(fov)));
   invert_y_box = new wxCheckBox(this, wxID_ANY, "Invert Y axis");
+  invert_x_box = new wxCheckBox(this, wxID_ANY, "Invert X axis");
   misc_sizer->Add(fov_label);
   misc_sizer->AddSpacer(space3);
   misc_sizer->Add(fov_slider, 0, wxEXPAND | wxLEFT | wxRIGHT);
@@ -377,7 +383,10 @@ HackConfigDialog::HackConfigDialog(wxWindow* const parent)
   misc_sizer->AddSpacer(space3);
   misc_sizer->Add(invert_y_box);
   misc_sizer->AddSpacer(space3);
+  misc_sizer->Add(invert_x_box);
+  misc_sizer->AddSpacer(space3);
   invert_y_box->SetValue(prime::InvertedY());
+  invert_x_box->SetValue(prime::InvertedX());
 
   auto* const enter_button = new wxButton(this, wxID_ANY, "OK");
   auto* const cancel_button = new wxButton(this, wxID_ANY, "Cancel");
@@ -408,6 +417,7 @@ HackConfigDialog::HackConfigDialog(wxWindow* const parent)
   cursor_sensitivity_box->Bind(wxEVT_KEY_UP, &HackConfigDialog::OnEnter2, this);
   fov_box->Bind(wxEVT_KEY_UP, &HackConfigDialog::OnEnter3, this);
   invert_y_box->Bind(wxEVT_CHECKBOX, &HackConfigDialog::OnYAxisInvert, this);
+  invert_x_box->Bind(wxEVT_CHECKBOX, &HackConfigDialog::OnXAxisInvert, this);
 
   SetSizerAndFit(szr_main);
   Center();

@@ -25,6 +25,7 @@ private:
   wxSlider* fov_slider;
   wxTextCtrl* fov_box;
   wxCheckBox* invert_y_box;
+  wxCheckBox* invert_x_box;
 
 private:
   void OnSensitivitySliderChanged(wxCommandEvent&);
@@ -36,6 +37,7 @@ private:
   void OnEnter2(wxKeyEvent&);
   void OnEnter3(wxKeyEvent&);
   void OnYAxisInvert(wxCommandEvent&);
+  void OnXAxisInvert(wxCommandEvent&);
 
   void DetectControl(wxCommandEvent&);
   bool DetectButton(wxButton* button, ControlReference* ref);

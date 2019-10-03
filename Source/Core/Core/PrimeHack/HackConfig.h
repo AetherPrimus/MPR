@@ -26,6 +26,8 @@ namespace prime
   void SetFov(float fov);
   bool InvertedY();
   void SetInvertedY(bool inverted);
+  bool InvertedX();
+  void SetInvertedX(bool inverted);
 
   std::string const& GetCtlDeviceName();
   std::string const& GetCtlDeviceSource();
