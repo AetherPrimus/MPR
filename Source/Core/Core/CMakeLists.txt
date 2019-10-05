@@ -225,9 +225,9 @@ add_library(core
   PowerPC/JitCommon/JitAsmCommon.cpp
   PowerPC/JitCommon/JitBase.cpp
   PowerPC/JitCommon/JitCache.cpp
-  Primehack/AimMods.cpp
-  Primehack/HackConfig.cpp
-  Primehack/HackManager.cpp
+  PrimeHack/AimMods.cpp
+  PrimeHack/HackConfig.cpp
+  PrimeHack/HackManager.cpp
 )
 
 if(_M_X86)
