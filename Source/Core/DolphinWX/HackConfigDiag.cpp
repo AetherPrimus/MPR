@@ -5,7 +5,7 @@
 #include <wx/sizer.h>
 
 #include "Common/IniFile.h"
-#include "Core/Primehack/HackConfig.h"
+#include "Core/PrimeHack/HackConfig.h"
 #include "InputCommon/ControllerInterface/ControllerInterface.h"
 #include "InputCommon/ControlReference/ControlReference.h"
 
