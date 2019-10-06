@@ -371,7 +371,7 @@ HackConfigDialog::HackConfigDialog(wxWindow* const parent)
   auto* const misc_sizer = new wxStaticBoxSizer(wxVERTICAL, this, "Miscellaneous");
   auto* const fov_label = new wxStaticText(this, wxID_ANY, "Field of View");
   fov_slider = new wxSlider(this, wxID_ANY, std::round(fov),
-    1, 180, wxDefaultPosition);
+    1, 101, wxDefaultPosition);
   fov_box = new wxTextCtrl(this, wxID_ANY, RemoveTrailingZero(std::to_string(fov)));
   invert_y_box = new wxCheckBox(this, wxID_ANY, "Invert Y axis");
   invert_x_box = new wxCheckBox(this, wxID_ANY, "Invert X axis");
