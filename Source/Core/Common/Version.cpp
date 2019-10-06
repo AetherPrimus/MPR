@@ -8,6 +8,8 @@
 
 namespace Common
 {
+#define PRIMEHACK_VERSION_STR "[v0.3.0]"
+
 #ifdef _DEBUG
 #define BUILD_TYPE_STR "Debug "
 #elif defined DEBUGFAST
@@ -16,15 +18,15 @@ namespace Common
 #define BUILD_TYPE_STR ""
 #endif
 
-const std::string scm_rev_str = "Ishiiruka-Dolphin"
+const std::string scm_rev_str = "PrimeHack"
 #if !SCM_IS_MASTER
 "[" SCM_BRANCH_STR "] "
 #endif
 
 #ifdef __INTEL_COMPILER
-" " BUILD_TYPE_STR " " SCM_DESC_STR "-ICC";
+" " PRIMEHACK_VERSION_STR " -ICC";
 #else
-" " BUILD_TYPE_STR " " SCM_DESC_STR;
+" " PRIMEHACK_VERSION_STR;
 #endif
 
 const std::string scm_rev_git_str = SCM_REV_STR;
