@@ -207,7 +207,7 @@ namespace prime {
       u32 camera_ptr = PowerPC::HostRead_U32(camera_pointer_address());
       u32 camera_offset = ((PowerPC::HostRead_U32(active_camera_offset_address()) >> 16) & 0x3ff) << 3;
       u32 camera_base = PowerPC::HostRead_U32(camera_ptr + camera_offset + 0x04);
-      const float fov = GetFov() > 101 ? GetFov() : 101;
+      const float fov = std::min(GetFov(), 101.f);
       PowerPC::HostWrite_U32(*reinterpret_cast<u32 const *>(&fov), camera_base + 0x164);
       PowerPC::HostWrite_U32(*reinterpret_cast<u32 const *>(&fov), global_fov1());
       PowerPC::HostWrite_U32(*reinterpret_cast<u32 const *>(&fov), global_fov2());
@@ -324,7 +324,7 @@ namespace prime {
     u32 camera_offset_tp = ((PowerPC::HostRead_U32(PowerPC::HostRead_U32(camera_offset_address()) + 0x0a) >> 16) & 0x3ff) << 3;
     u32 camera_base = PowerPC::HostRead_U32(camera_ptr + camera_offset + 4);
     u32 camera_base_tp = PowerPC::HostRead_U32(camera_ptr + camera_offset_tp + 4);
-    const float fov = GetFov() > 101 ? GetFov() : 101;
+    const float fov = std::min(GetFov(), 101.f);
     PowerPC::HostWrite_U32(*reinterpret_cast<u32 const *>(&fov), camera_base + 0x1e8);
     PowerPC::HostWrite_U32(*reinterpret_cast<u32 const *>(&fov), camera_base_tp + 0x1e8);
   }
@@ -449,7 +449,7 @@ namespace prime {
     }
     u32 camera_fov = PowerPC::HostRead_U32(PowerPC::HostRead_U32(PowerPC::HostRead_U32(PowerPC::HostRead_U32(camera_pointer_address()) + 0x1010) + 0x1c) + 0x178);
     u32 camera_fov_tp = PowerPC::HostRead_U32(PowerPC::HostRead_U32(PowerPC::HostRead_U32(PowerPC::HostRead_U32(camera_pointer_address()) + 0x1010) + 0x24) + 0x178);
-    const float fov = GetFov() > 94 ? GetFov() : 94;
+    const float fov = std::min(GetFov(), 94.f);
     PowerPC::HostWrite_U32(*reinterpret_cast<u32 const *>(&fov), camera_fov + 0x1c);
     PowerPC::HostWrite_U32(*reinterpret_cast<u32 const *>(&fov), camera_fov_tp + 0x1c);
     PowerPC::HostWrite_U32(*reinterpret_cast<u32 const *>(&fov), camera_fov + 0x18);
