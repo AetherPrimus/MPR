@@ -1,5 +1,6 @@
 #include "HackConfig.h"
 
+#include <array>
 #include <string>
 
 #include "Common/IniFile.h"
@@ -17,6 +18,9 @@ namespace prime
   static bool inverted_y = false;
   static bool inverted_x = false;
   static HackManager hack_mgr;
+
+  static std::array<std::string, 4> beam_binds = { "`1` & !E", "`2` & !E", "`3` & !E", "`4` & !E" };
+  static std::array<std::string, 4> visor_binds = { "", "E & `1`", "E & `2`", "E & `3`" };
 
   void InitializeHack(std::string const& mkb_device_name, std::string const& mkb_device_source)
   {
@@ -37,22 +41,22 @@ namespace prime
     if (!cfg_file.GetIfExists<float>("mouse", "sensitivity", &sensitivity))
     {
       auto* section = cfg_file.GetOrCreateSection("mouse");
-      section->Set("sensitivity", 7.5f);
-      sensitivity = 7.5f;
+      section->Set("sensitivity", 15.f);
+      sensitivity = 15.f;
     }
 
     if (!cfg_file.GetIfExists<float>("mouse", "cursor_sensitivity", &cursor_sensitivity))
     {
       auto* section = cfg_file.GetOrCreateSection("mouse");
-      section->Set("cursor_sensitivity", 50.f);
-      cursor_sensitivity = 50.f;
+      section->Set("cursor_sensitivity", 15.f);
+      cursor_sensitivity = 15.f;
     }
 
     if (!cfg_file.GetIfExists<float>("misc", "fov", &camera_fov))
     {
       auto* section = cfg_file.GetOrCreateSection("misc");
       section->Set("fov", 60.f);
-      cursor_sensitivity = 60.f;
+      camera_fov = 60.f;
     }
 
     if (!cfg_file.GetIfExists<bool>("misc", "inverted_y", &inverted_y)) {
@@ -76,8 +80,8 @@ namespace prime
       if (!cfg_file.GetIfExists<std::string>("beam", control.c_str(), &control_expr))
       {
         auto* section = cfg_file.GetOrCreateSection("beam");
-        section->Set(control.c_str(), "");
-        control_expr = "";
+        section->Set(control.c_str(), beam_binds[i]);
+        control_expr = beam_binds[i];
       }
       control_list[i] = std::make_unique<InputReference>();
       control_list[i]->UpdateReference(g_controller_interface,
@@ -87,8 +91,8 @@ namespace prime
       if (!cfg_file.GetIfExists<std::string>("visor", control.c_str(), &control_expr))
       {
         auto* section = cfg_file.GetOrCreateSection("visor");
-        section->Set(control.c_str(), "");
-        control_expr = "";
+        section->Set(control.c_str(), visor_binds[i]);
+        control_expr = visor_binds[i];
       }
       control_list[i + 4] = std::make_unique<InputReference>();
       control_list[i + 4]->SetExpression(control_expr);
