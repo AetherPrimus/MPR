@@ -49,6 +49,8 @@ namespace prime {
       return false;
     }
 
+    virtual ~PrimeMod() {};
+
   protected:
     std::vector<CodeChange> code_changes;
   };

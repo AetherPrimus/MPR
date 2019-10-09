@@ -11,6 +11,8 @@ namespace prime {
     }
     void run_mod() override;
 
+    virtual ~MP1() {}
+
   protected:
     virtual uint32_t lockon_address() const = 0;
     virtual uint32_t yaw_vel_address() const = 0;
@@ -39,6 +41,8 @@ namespace prime {
       return Region::NTSC;
     }
 
+    virtual ~MP1NTSC() {}
+
   protected:
     uint32_t lockon_address() const override;
     uint32_t yaw_vel_address() const override;
@@ -62,6 +66,8 @@ namespace prime {
       return Region::PAL;
     }
 
+    virtual ~MP1PAL() {}
+
   protected:
     uint32_t lockon_address() const override;
     uint32_t yaw_vel_address() const override;
@@ -84,6 +90,8 @@ namespace prime {
     }
 
     void run_mod();
+
+    virtual ~MP2() {}
 
   protected:
     virtual uint32_t load_state_address() const = 0;
@@ -110,6 +118,8 @@ namespace prime {
       return Region::NTSC;
     }
 
+    virtual ~MP2NTSC() {}
+
   protected:
     uint32_t load_state_address() const override;
     uint32_t camera_ctl_address() const override;
@@ -127,6 +137,8 @@ namespace prime {
     Region region() const override {
       return Region::PAL;
     }
+
+    virtual ~MP2PAL() {}
 
   protected:
     uint32_t load_state_address() const override;
@@ -149,6 +161,8 @@ namespace prime {
     bool should_apply_changes() const {
       return !fighting_ridley && PrimeMod::should_apply_changes();
     }
+
+    virtual ~MP3() {}
 
   protected:
     virtual uint32_t camera_ctl_address() const = 0;
@@ -177,6 +191,8 @@ namespace prime {
       return Region::NTSC;
     }
 
+    virtual ~MP3NTSC() {}
+
   protected:
     uint32_t camera_ctl_address() const override;
     uint32_t grapple_hook_address() const override;
@@ -197,6 +213,8 @@ namespace prime {
     Region region() const override {
       return Region::PAL;
     }
+
+    virtual ~MP3PAL() {}
 
   protected:
     uint32_t camera_ctl_address() const override;
@@ -222,6 +240,8 @@ namespace prime {
     }
 
     void run_mod() override;
+
+    virtual ~MenuNTSC() {}
   };
 
   class MenuPAL : public PrimeMod {
@@ -235,5 +255,7 @@ namespace prime {
     }
 
     void run_mod() override;
+
+    virtual ~MenuPAL() {}
   };
 }
