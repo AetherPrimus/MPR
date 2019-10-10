@@ -292,6 +292,7 @@
     <ClCompile Include="PrimeHack\AimMods.cpp" />
     <ClCompile Include="PrimeHack\HackConfig.cpp" />
     <ClCompile Include="PrimeHack\HackManager.cpp" />
+    <ClCompile Include="PrimeHack\MemoryWriter.cpp" />
     <ClCompile Include="State.cpp" />
     <ClCompile Include="TitleDatabase.cpp" />
     <ClCompile Include="WiiRoot.cpp" />
@@ -530,6 +531,7 @@
     <ClInclude Include="PrimeHack\AimMods.h" />
     <ClInclude Include="PrimeHack\HackConfig.h" />
     <ClInclude Include="Primehack\HackManager.h" />
+    <ClInclude Include="PrimeHack\MemoryWriter.h" />
     <ClInclude Include="Primehack\PrimeMod.h" />
     <ClInclude Include="State.h" />
     <ClInclude Include="TitleDatabase.h" />
