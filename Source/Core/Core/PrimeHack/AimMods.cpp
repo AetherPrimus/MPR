@@ -397,6 +397,11 @@ namespace prime {
   void MP3::run_mod() {
     u32 base_address = PowerPC::HostRead_U32(PowerPC::HostRead_U32(PowerPC::HostRead_U32(camera_ctl_address()) + 0x04) + 0x2184);
     if (!mem_check(base_address)) {
+      // Dupe code, oh well. Handle death screen
+      if (PowerPC::HostRead_U8(cursor_dlg_address())) {
+        u32 cursor_base = PowerPC::HostRead_U32(PowerPC::HostRead_U32(cursor_address()) + cursor_offset());
+        handle_cursor(cursor_base + 0x9c, cursor_base + 0x15c, 0.95f, 0.90f);
+      }
       return;
     }
 
@@ -459,6 +464,7 @@ namespace prime {
   uint32_t MP3NTSC::camera_ctl_address() const { return 0x805c6c6c; }
   uint32_t MP3NTSC::grapple_hook_address() const { return 0x805c8d77; }
   uint32_t MP3NTSC::boss_id_address() const { return 0x805c6f44; }
+  uint32_t MP3NTSC::cursor_dlg_address() const { return 0x805c8d77; }
   uint32_t MP3NTSC::cursor_address() const { return 0x8066fd08; }
   uint32_t MP3NTSC::cursor_offset() const { return 0xc54; }
   uint32_t MP3NTSC::cannon_lag_rtoc_offset() const { return 0x5ff0; }
@@ -500,6 +506,7 @@ namespace prime {
   uint32_t MP3PAL::camera_ctl_address() const { return 0x805ca0ec; }
   uint32_t MP3PAL::grapple_hook_address() const { return 0x805cc1d7; }
   uint32_t MP3PAL::boss_id_address() const { return 0x805ca3c4; }
+  uint32_t MP3PAL::cursor_dlg_address() const { return 0x805cc1d7; }
   uint32_t MP3PAL::cursor_address() const { return 0x80673588; }
   uint32_t MP3PAL::cursor_offset() const { return 0xd04; }
   uint32_t MP3PAL::cannon_lag_rtoc_offset() const { return 0x6000; }

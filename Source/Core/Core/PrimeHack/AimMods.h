@@ -168,6 +168,7 @@ namespace prime {
     virtual uint32_t camera_ctl_address() const = 0;
     virtual uint32_t grapple_hook_address() const = 0;
     virtual uint32_t boss_id_address() const = 0;
+    virtual uint32_t cursor_dlg_address() const = 0;
     virtual uint32_t cursor_address() const = 0;
     virtual uint32_t cursor_offset() const = 0;
     virtual uint32_t cannon_lag_rtoc_offset() const = 0;
@@ -197,6 +198,7 @@ namespace prime {
     uint32_t camera_ctl_address() const override;
     uint32_t grapple_hook_address() const override;
     uint32_t boss_id_address() const override;
+    uint32_t cursor_dlg_address() const;
     uint32_t cursor_address() const override;
     uint32_t cursor_offset() const override;
     uint32_t cannon_lag_rtoc_offset() const override;
@@ -220,6 +222,7 @@ namespace prime {
     uint32_t camera_ctl_address() const override;
     uint32_t grapple_hook_address() const override;
     uint32_t boss_id_address() const override;
+    uint32_t cursor_dlg_address() const;
     uint32_t cursor_address() const override;
     uint32_t cursor_offset() const override;
     uint32_t cannon_lag_rtoc_offset() const override;
