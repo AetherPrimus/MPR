@@ -30,7 +30,7 @@ namespace prime {
     else if (c >= 'A' && c <= 'F') {
       return c - 'A' + 0x0a;
     }
-    return 0;
+    return 0xff;
   }
 
   // Extract hex out of text and convert to 32 bit word
@@ -117,12 +117,44 @@ namespace prime {
     }
   }
 
+  bool is_memory_write(std::string const& s) {
+    if (s.length() < 6) return false;
+
+    if (s.substr(0, 6) == "write ") {
+      int nums_read = 0;
+      std::size_t i = 6;
+      while (true) {
+        i = s.find_first_not_of(' ', i);
+        if (i == std::string::npos) {
+          break;
+        }
+        auto j = s.find_first_of(' ', i);
+        if (j == std::string::npos) {
+          j = s.size();
+        }
+        if ((j - i) != 10 && (j - i) != 8) {
+          return false;
+        }
+        int q = 0;
+        if (s[0] == '0' && s[1] == 'x') q = 2;
+        for (; q < (j - i); q++) {
+          if (hex_nibble(s[i + q]) == 0xff) {
+            return false;
+          }
+        }
+        i = j;
+        nums_read++;
+      }
+      return nums_read > 1;
+    }
+    return false;
+  }
+
   void cli_thread() {
     AllocConsole();
     freopen("CONIN$", "r", stdin);
     freopen("CONOUT$", "w", stdout);
 
-    const std::regex write_memory("^write( +(0x)?([a-fA-F0-9]{8}))+ *$");
     const std::regex print_hex("^hdump +(0x)?([a-fA-F0-9]{8}) +(\\d+) *$");
     const std::regex print_instructions("^idump +(0x)?([a-fA-F0-9]{8}) +(\\d+) *$");
     const std::regex print_float("^fdump +(0x)?([a-fA-F0-9]{8}) +(\\d+) *$");
@@ -131,7 +163,8 @@ namespace prime {
       std::smatch match;
       std::getline(std::cin, command);
 
-      if (std::regex_search(command, match, write_memory)) {
+      // can't use regex to match me!!
+      if (is_memory_write(command)) {
         // params[0] = address, params[1+] = writes
         std::vector<uint32_t> params;
 
