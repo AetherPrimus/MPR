@@ -22,8 +22,12 @@ namespace prime
   static std::array<std::string, 4> beam_binds = { "`1` & !E", "`2` & !E", "`3` & !E", "`4` & !E" };
   static std::array<std::string, 4> visor_binds = { "", "E & `1`", "E & `2`", "E & `3`" };
 
+  bool isRunning = false;
+
   void InitializeHack(std::string const& mkb_device_name, std::string const& mkb_device_source)
   {
+    if (isRunning) return; isRunning = true;
+
     // Create mods for all games/regions.
     hack_mgr.add_mod(std::make_unique<MP1NTSC>());
     hack_mgr.add_mod(std::make_unique<MP1PAL>());
