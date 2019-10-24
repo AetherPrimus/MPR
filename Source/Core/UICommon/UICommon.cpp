@@ -96,6 +96,48 @@ void CreateDirectories()
 #endif
 }
 
+void run_data_import(std::string const& user_path, std::string const& dolphin_path) {
+  File::CreateDir(user_path);
+  File::CreateDir(user_path + "Config/Profiles/Wiimote/");
+  if (File::Exists(dolphin_path + "Config/Profiles/Wiimote/")) {
+    File::CopyDir(dolphin_path + "Config/Profiles/Wiimote/", user_path + "Config/Profiles/Wiimote/");
+  }
+  static const std::string paths[] = {
+    "Config/Hotkeys.ini",
+    "Config/UI.ini",
+    "Config/WiimoteNew.ini",
+    "Load/Titles.txt",
+    "Wii/title/00010000/52334d45",
+    "Wii/title/00010000/52334d50",
+    "Wii/shared1/00000000.app",
+    "Wii/shared1/00000001.app",
+    "Wii/shared1/00000002.app",
+    "Wii/shared1/content.map",
+    "Wii/shared2/menu/FaceLib",
+    "Wii/shared2/sys/net/02/config.dat",
+    "Wii/shared2/sys/SYSCONF",
+    "Wii/shared2/wc24",
+    "Wii/sys/cert.sys",
+    "Wii/sys/uid.sys",
+    "Wii/ticket/00010002/48414341.tik",
+    "Wii/title/00000001/00000002",
+    "Wii/title/00010002/48414341",
+    "GameSettings/R3ME01.ini",
+    "GameSettings/R3MP01.ini"
+  };
+  for (std::string const& path : paths) {
+    std::string copy_path = dolphin_path + path;
+    if (File::Exists(copy_path)) {
+      if (File::IsDirectory(copy_path)) {
+        File::CopyDir(copy_path, user_path + path);
+      }
+      else {
+        File::Copy(copy_path, user_path + path);
+      }
+    }
+  }
+}
+
 void SetUserDirectory(const std::string& custom_path)
 {
   if (!custom_path.empty())
@@ -152,6 +194,20 @@ void SetUserDirectory(const std::string& custom_path)
   // Make sure it ends in DIR_SEP.
   if (*user_path.rbegin() != DIR_SEP_CHR)
     user_path += DIR_SEP;
+
+  if (!File::Exists(user_path)) {
+    TCHAR my_documents[MAX_PATH];
+    bool my_documents_found = SUCCEEDED(
+      SHGetFolderPath(nullptr, CSIDL_MYDOCUMENTS, nullptr, SHGFP_TYPE_CURRENT, my_documents));
+    std::string global_path = TStrToUTF8(my_documents);
+    global_path += DIR_SEP "Dolphin Emulator" DIR_SEP;
+    global_path = ReplaceAll(global_path, "\\", DIR_SEP);
+
+    if (MessageBox(NULL, L"No user directory found, import global Dolphin configuration?",
+      L"Data Import", MB_YESNO) == IDYES && my_documents_found && File::Exists(global_path)) {
+      run_data_import(user_path, global_path);
+    }
+  }
 
 #else
   if (File::Exists(ROOT_DIR DIR_SEP USERDATA_DIR))
