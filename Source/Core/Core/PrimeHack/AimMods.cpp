@@ -173,6 +173,7 @@ namespace prime {
   void MP1::run_mod() {
     if (PowerPC::HostRead_U8(lockon_address())) {
       PowerPC::HostWrite_U32(0, yaw_vel_address());
+      return;
     }
 
     int dx = g_mouse_input->GetDeltaHorizontalAxis(),
@@ -301,7 +302,7 @@ namespace prime {
     pitch = std::clamp(pitch, -1.04f, 1.04f);
     const float yaw_vel = dx * -GetSensitivity() * (InvertedX() ? -1.f : 1.f);
 
-    u32 arm_cannon_model_matrix = PowerPC::HostRead_U32(base_address + 0xea8);
+    u32 arm_cannon_model_matrix = PowerPC::HostRead_U32(base_address + 0xea8) + 0x3b0;
     PowerPC::HostWrite_U32(*reinterpret_cast<u32*>(&pitch), base_address + 0x5f0);
     PowerPC::HostWrite_U32(*reinterpret_cast<u32*>(&pitch), arm_cannon_model_matrix + 0x24);
     PowerPC::HostWrite_U32(*reinterpret_cast<u32 const*>(&yaw_vel), base_address + 0x178);
@@ -339,7 +340,7 @@ namespace prime {
     code_changes.emplace_back(0x8008bb18, 0x60000000);
     code_changes.emplace_back(0x803054a0, 0xd23f009c);
 
-    beam_change_code(0x8018e7dc);
+    beam_change_code(0x8018cc88);
   }
 
   uint32_t MP2NTSC::load_state_address() const { return 0x804e8824; }
