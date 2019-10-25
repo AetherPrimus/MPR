@@ -8,7 +8,7 @@
 
 namespace Common
 {
-#define PRIMEHACK_VERSION_STR "[v0.3.0]"
+#define PRIMEHACK_VERSION_STR "[v0.3.1]"
 
 #ifdef _DEBUG
 #define BUILD_TYPE_STR "Debug "
