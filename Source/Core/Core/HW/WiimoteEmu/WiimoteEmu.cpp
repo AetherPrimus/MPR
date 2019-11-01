@@ -388,15 +388,15 @@ Wiimote::Wiimote(const unsigned int index) : m_index(index), ir_sin(0), ir_cos(1
                           new ControllerEmu::ControlGroup(_trans("PrimeHack"), "Camera"));
   m_primehack_camera->numeric_settings.emplace_back(
       m_primehack_camera_sensitivity =
-          new ControllerEmu::NumericSetting(_trans("Camera Sensitivity"), 15.0, 1, 100));
+          new ControllerEmu::NumericSetting(_trans("Camera Sensitivity"), 15, 1, 100));
 
   m_primehack_camera->numeric_settings.emplace_back(
       m_primehack_cursor_sensitivity =
-          new ControllerEmu::NumericSetting(_trans("Cursor Sensitivity"), 15.0, 1, 100));
+          new ControllerEmu::NumericSetting(_trans("Cursor Sensitivity"), 15, 1, 100));
 
   m_primehack_camera->numeric_settings.emplace_back(
       m_primehack_fieldofview =
-          new ControllerEmu::NumericSetting(_trans("Field of View"), 60.0, 1, 101));
+          new ControllerEmu::NumericSetting(_trans("Field of View"), 60, 1, 101));
 
   groups.emplace_back(m_primehack_misc =
                           new ControllerEmu::ControlGroup(_trans("PrimeHack"), "Miscellaneous"));
@@ -551,8 +551,8 @@ bool Wiimote::CheckBeamCtrl(int beamcount)
 std::tuple<double, double, double, bool, bool> Wiimote::GetPrimeSettings()
 {
   std::tuple t = std::make_tuple(
-      m_primehack_camera_sensitivity->GetValue(), m_primehack_cursor_sensitivity->GetValue(),
-      m_primehack_fieldofview->GetValue(), m_primehack_invert_x->GetValue(),
+      m_primehack_camera_sensitivity->GetValue() * 100, m_primehack_cursor_sensitivity->GetValue() * 100,
+      m_primehack_fieldofview->GetValue() * 100, m_primehack_invert_x->GetValue(),
       m_primehack_invert_y->GetValue());
 
   return t;
@@ -1097,6 +1097,8 @@ void Wiimote::LoadDefaults(const ControllerInterface& ciface)
 
   // set nunchuk defaults
   m_extension->attachments[1]->LoadDefaults(ciface);
+
+  m_primehack_camera_sensitivity->SetValue(m_primehack_camera_sensitivity->m_default_value);
 }
 
 int Wiimote::CurrentExtension() const

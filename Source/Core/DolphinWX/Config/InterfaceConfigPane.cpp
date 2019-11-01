@@ -86,6 +86,8 @@ void InterfaceConfigPane::InitializeGUI()
 
   m_confirm_stop_checkbox = new wxCheckBox(this, wxID_ANY, _("Confirm on Stop"));
   m_panic_handlers_checkbox = new wxCheckBox(this, wxID_ANY, _("Use Panic Handlers"));
+  m_panic_handlers_checkbox->Enable(false);
+
   m_osd_messages_checkbox = new wxCheckBox(this, wxID_ANY, _("Show On-Screen Display Messages"));
   m_show_active_title_checkbox =
     new wxCheckBox(this, wxID_ANY, _("Show Active Title in Window Title"));
@@ -174,7 +176,7 @@ void InterfaceConfigPane::LoadGUIValues()
   const SConfig& startup_params = SConfig::GetInstance();
 
   m_confirm_stop_checkbox->SetValue(startup_params.bConfirmStop);
-  m_panic_handlers_checkbox->SetValue(startup_params.bUsePanicHandlers);
+  m_panic_handlers_checkbox->SetValue(false);
   m_osd_messages_checkbox->SetValue(startup_params.bOnScreenDisplayMessages);
   m_show_active_title_checkbox->SetValue(startup_params.m_show_active_title);
   m_use_builtin_title_database_checkbox->SetValue(startup_params.m_use_builtin_title_database);

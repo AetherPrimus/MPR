@@ -250,6 +250,7 @@ void SConfig::SaveCoreSettings(IniFile& ini)
   core->Set("AccurateNaNs", bAccurateNaNs);
   core->Set("DefaultISO", m_strDefaultISO);
   core->Set("EnableCheats", bEnableCheats);
+  core->Set("EnablePrimeHack", bEnablePrimeHack);
   core->Set("SelectedLanguage", SelectedLanguage);
   core->Set("OverrideGCLang", bOverrideGCLanguage);
   core->Set("DPL2Decoder", bDPL2Decoder);
@@ -541,6 +542,7 @@ void SConfig::LoadCoreSettings(IniFile& ini)
   core->Get("SyncOnSkipIdle", &bSyncGPUOnSkipIdleHack, true);
   core->Get("DefaultISO", &m_strDefaultISO);
   //core->Get("EnableCheats", &bEnableCheats, true);
+  core->Get("EnablePrimeHack", &bEnablePrimeHack, true);
   bEnableCheats = true;
   core->Get("SelectedLanguage", &SelectedLanguage, 0);
   core->Get("OverrideGCLang", &bOverrideGCLanguage, false);

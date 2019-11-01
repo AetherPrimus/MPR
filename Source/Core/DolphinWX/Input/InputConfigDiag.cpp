@@ -70,6 +70,8 @@
 #include "InputCommon/ControllerInterface/Device.h"
 #include "InputCommon/InputConfig.h"
 
+#include "Core/PrimeHack/HackConfig.h"
+
 using ciface::ExpressionParser::ParseStatus;
 
 void InputConfigDialog::ConfigExtension(wxCommandEvent& event)
@@ -84,14 +86,14 @@ void InputConfigDialog::ConfigExtension(wxCommandEvent& event)
   case WiimoteEmu::EXT_NUNCHUK:
   {
     NunchukInputConfigDialog dlg(this, m_config, _("Nunchuk Configuration"), device_cbox,
-      m_port_num);
+                                 m_port_num);
     dlg.ShowModal();
   }
   break;
   case WiimoteEmu::EXT_CLASSIC:
   {
     ClassicInputConfigDialog dlg(this, m_config, _("Classic Controller Configuration"), device_cbox,
-      m_port_num);
+                                 m_port_num);
     dlg.ShowModal();
   }
   break;
@@ -110,7 +112,7 @@ void InputConfigDialog::ConfigExtension(wxCommandEvent& event)
   case WiimoteEmu::EXT_TURNTABLE:
   {
     TurntableInputConfigDialog dlg(this, m_config, _("Turntable Configuration"), device_cbox,
-      m_port_num);
+                                   m_port_num);
     dlg.ShowModal();
   }
   break;
@@ -125,8 +127,8 @@ PadSetting::PadSetting(wxControl* const _control) : wxcontrol(_control)
 }
 
 PadSettingExtension::PadSettingExtension(wxWindow* const parent,
-  ControllerEmu::Extension* const ext)
-  : PadSetting(new wxChoice(parent, wxID_ANY)), extension(ext)
+                                         ControllerEmu::Extension* const ext)
+    : PadSetting(new wxChoice(parent, wxID_ANY)), extension(ext)
 {
   for (auto& attachment : extension->attachments)
   {
@@ -147,10 +149,10 @@ void PadSettingExtension::UpdateValue()
 }
 
 PadSettingCheckBox::PadSettingCheckBox(wxWindow* const parent,
-  ControllerEmu::BooleanSetting* const _setting)
-  : PadSetting(
-    new wxCheckBox(parent, wxID_ANY, wxGetTranslation(StrToWxStr(_setting->m_ui_name)))),
-  setting(_setting)
+                                       ControllerEmu::BooleanSetting* const _setting)
+    : PadSetting(
+          new wxCheckBox(parent, wxID_ANY, wxGetTranslation(StrToWxStr(_setting->m_ui_name)))),
+      setting(_setting)
 {
   UpdateGUI();
 }
@@ -170,11 +172,11 @@ void PadSettingCheckBox::UpdateValue()
 }
 
 PadSettingSpin::PadSettingSpin(wxWindow* const parent,
-  ControllerEmu::NumericSetting* const settings)
-  : PadSetting(new wxSpinCtrl(parent, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize,
-    wxSP_ARROW_KEYS, settings->m_low, settings->m_high,
-    (int)(settings->m_value * 100))),
-  setting(settings)
+                               ControllerEmu::NumericSetting* const settings)
+    : PadSetting(new wxSpinCtrl(parent, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize,
+                                wxSP_ARROW_KEYS, settings->m_low, settings->m_high,
+                                (int)(settings->m_value * 100))),
+      setting(settings)
 {
   // Compute how wide the control needs to be to fit the maximum value in it.
   // This accounts for borders, margins and the spinner buttons.
@@ -193,18 +195,18 @@ void PadSettingSpin::UpdateValue()
 }
 
 ControlDialog::ControlDialog(InputConfigDialog* const parent, InputConfig& config,
-  ControlReference* const ref)
-  : wxDialog(parent, wxID_ANY, _("Configure Control"), wxDefaultPosition, wxDefaultSize,
-    wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER),
-  control_reference(ref), m_config(config), m_parent(parent)
+                             ControlReference* const ref)
+    : wxDialog(parent, wxID_ANY, _("Configure Control"), wxDefaultPosition, wxDefaultSize,
+               wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER),
+      control_reference(ref), m_config(config), m_parent(parent)
 {
   m_devq = m_parent->GetController()->GetDefaultDevice();
   const int space5 = FromDIP(5);
 
   // GetStrings() sounds slow :/
   device_cbox = new wxComboBox(this, wxID_ANY, StrToWxStr(m_devq.ToString()), wxDefaultPosition,
-    wxDLG_UNIT(this, wxSize(180, -1)), parent->device_cbox->GetStrings(),
-    wxTE_PROCESS_ENTER);
+                               wxDLG_UNIT(this, wxSize(180, -1)), parent->device_cbox->GetStrings(),
+                               wxTE_PROCESS_ENTER);
 
   device_cbox->Bind(wxEVT_COMBOBOX, &ControlDialog::SetDevice, this);
   device_cbox->Bind(wxEVT_TEXT_ENTER, &ControlDialog::SetDevice, this);
@@ -232,15 +234,15 @@ ControlDialog::ControlDialog(InputConfigDialog* const parent, InputConfig& confi
 }
 
 ExtensionButton::ExtensionButton(wxWindow* const parent, ControllerEmu::Extension* const ext)
-  : wxButton(parent, wxID_ANY, _("Configure"), wxDefaultPosition), extension(ext)
+    : wxButton(parent, wxID_ANY, _("Configure"), wxDefaultPosition), extension(ext)
 {
 }
 
 ControlButton::ControlButton(wxWindow* const parent, ControlReference* const _ref,
-  const std::string& name, const unsigned int width,
-  const std::string& label)
-  : wxButton(parent, wxID_ANY), control_reference(_ref), m_name(name),
-  m_configured_width(FromDIP(width))
+                             const std::string& name, const unsigned int width,
+                             const std::string& label)
+    : wxButton(parent, wxID_ANY), control_reference(_ref), m_name(name),
+      m_configured_width(FromDIP(width))
 {
   if (label.empty())
     SetLabelText(StrToWxStr(_ref->GetExpression()));
@@ -256,7 +258,7 @@ wxSize ControlButton::DoGetBestSize() const
   static constexpr int PADDING_HEIGHT = 4;
   wxClientDC dc(const_cast<ControlButton*>(this));
   wxFontMetrics metrics = dc.GetFontMetrics();
-  return { m_configured_width, metrics.height + FromDIP(PADDING_HEIGHT * 2) };
+  return {m_configured_width, metrics.height + FromDIP(PADDING_HEIGHT * 2)};
 }
 
 void InputConfigDialog::UpdateProfileComboBox()
@@ -265,7 +267,7 @@ void InputConfigDialog::UpdateProfileComboBox()
   pname += PROFILES_PATH;
   pname += m_config.GetProfileName();
 
-  std::vector<std::string> sv = Common::DoFileSearch({ pname }, { ".ini" });
+  std::vector<std::string> sv = Common::DoFileSearch({pname}, {".ini"});
 
   wxArrayString strs;
   for (const std::string& filename : sv)
@@ -287,6 +289,8 @@ void InputConfigDialog::UpdateControlReferences()
 void InputConfigDialog::OnClose(wxCloseEvent& event)
 {
   m_config.SaveConfig();
+  prime::UpdateHackSettings();
+
   EndModal(wxID_OK);
 }
 
@@ -340,7 +344,7 @@ void ControlDialog::UpdateGUI()
 
   // updates the "bound controls:" label
   m_bound_label->SetLabel(
-    wxString::Format(_("Bound Controls: %lu"), (unsigned long)control_reference->BoundCount()));
+      wxString::Format(_("Bound Controls: %lu"), (unsigned long)control_reference->BoundCount()));
 
   switch (control_reference->GetParseStatus())
   {
@@ -349,7 +353,7 @@ void ControlDialog::UpdateGUI()
     break;
   case ParseStatus::Successful:
     m_error_label->SetLabel(control_reference->BoundCount() > 0 ? wxString{} :
-      _("Device not found"));
+                                                                  _("Device not found"));
     break;
   case ParseStatus::EmptyExpression:
     m_error_label->SetLabel("");
@@ -405,7 +409,7 @@ bool ControlDialog::Validate()
 
   const auto lock = ControllerEmu::EmulatedController::GetStateLock();
   control_reference->UpdateReference(g_controller_interface,
-    m_parent->GetController()->GetDefaultDevice());
+                                     m_parent->GetController()->GetDefaultDevice());
 
   UpdateGUI();
 
@@ -441,7 +445,7 @@ void ControlDialog::ClearControl(wxCommandEvent&)
 
   const auto lock = ControllerEmu::EmulatedController::GetStateLock();
   control_reference->UpdateReference(g_controller_interface,
-    m_parent->GetController()->GetDefaultDevice());
+                                     m_parent->GetController()->GetDefaultDevice());
 
   UpdateGUI();
 }
@@ -456,8 +460,8 @@ inline bool IsAlphabetic(wxString& str)
 }
 
 inline void GetExpressionForControl(wxString& expr, wxString& control_name,
-  const ciface::Core::DeviceQualifier* control_device = nullptr,
-  const ciface::Core::DeviceQualifier* default_device = nullptr)
+                                    const ciface::Core::DeviceQualifier* control_device = nullptr,
+                                    const ciface::Core::DeviceQualifier* default_device = nullptr)
 {
   expr = "";
 
@@ -484,7 +488,7 @@ bool ControlDialog::GetExpressionForSelectedControl(wxString& expr)
 
   wxString control_name = control_lbox->GetString(num);
   GetExpressionForControl(expr, control_name, &m_devq,
-    &m_parent->GetController()->GetDefaultDevice());
+                          &m_parent->GetController()->GetDefaultDevice());
 
   return true;
 }
@@ -501,7 +505,7 @@ void ControlDialog::SetSelectedControl(wxCommandEvent&)
 
   const auto lock = ControllerEmu::EmulatedController::GetStateLock();
   control_reference->UpdateReference(g_controller_interface,
-    m_parent->GetController()->GetDefaultDevice());
+                                     m_parent->GetController()->GetDefaultDevice());
 
   UpdateGUI();
 }
@@ -537,45 +541,45 @@ void ControlDialog::AppendControl(wxCommandEvent& event)
 
   const auto lock = ControllerEmu::EmulatedController::GetStateLock();
   control_reference->UpdateReference(g_controller_interface,
-    m_parent->GetController()->GetDefaultDevice());
+                                     m_parent->GetController()->GetDefaultDevice());
 
   UpdateGUI();
 }
 
 void InputConfigDialog::EnablePadSetting(const std::string& group_name, const std::string& name,
-  const bool enabled)
+                                         const bool enabled)
 {
   const auto box_iterator =
-    std::find_if(control_groups.begin(), control_groups.end(), [&group_name](const auto& box) {
-    return group_name == box->control_group->name;
-  });
+      std::find_if(control_groups.begin(), control_groups.end(), [&group_name](const auto& box) {
+        return group_name == box->control_group->name;
+      });
   if (box_iterator == control_groups.end())
     return;
 
   const auto* box = *box_iterator;
   const auto it =
-    std::find_if(box->options.begin(), box->options.end(), [&name](const auto& pad_setting) {
-    return pad_setting->wxcontrol->GetLabelText() == name;
-  });
+      std::find_if(box->options.begin(), box->options.end(), [&name](const auto& pad_setting) {
+        return pad_setting->wxcontrol->GetLabelText() == name;
+      });
   if (it == box->options.end())
     return;
   (*it)->wxcontrol->Enable(enabled);
 }
 
 void InputConfigDialog::EnableControlButton(const std::string& group_name, const std::string& name,
-  const bool enabled)
+                                            const bool enabled)
 {
   const auto box_iterator =
-    std::find_if(control_groups.begin(), control_groups.end(), [&group_name](const auto& box) {
-    return group_name == box->control_group->name;
-  });
+      std::find_if(control_groups.begin(), control_groups.end(), [&group_name](const auto& box) {
+        return group_name == box->control_group->name;
+      });
   if (box_iterator == control_groups.end())
     return;
 
   const auto* box = *box_iterator;
   const auto it =
-    std::find_if(box->control_buttons.begin(), box->control_buttons.end(),
-      [&name](const auto& control_button) { return control_button->m_name == name; });
+      std::find_if(box->control_buttons.begin(), box->control_buttons.end(),
+                   [&name](const auto& control_button) { return control_button->m_name == name; });
   if (it == box->control_buttons.end())
     return;
   (*it)->Enable(enabled);
@@ -626,7 +630,7 @@ void InputConfigDialog::AdjustBooleanSetting(wxCommandEvent& event)
 void InputConfigDialog::ConfigControl(wxEvent& event)
 {
   m_control_dialog = new ControlDialog(this, m_config,
-    ((ControlButton*)event.GetEventObject())->control_reference);
+                                       ((ControlButton*)event.GetEventObject())->control_reference);
   m_control_dialog->ShowModal();
   m_control_dialog->Destroy();
 
@@ -661,7 +665,7 @@ void ControlDialog::DetectControl(wxCommandEvent& event)
     wxTheApp->Yield(true);
 
     ciface::Core::Device::Control* const ctrl =
-      control_reference->Detect(DETECT_WAIT_TIME, dev.get());
+        control_reference->Detect(DETECT_WAIT_TIME, dev.get());
 
     // if we got input, select it in the list
     if (ctrl)
@@ -708,7 +712,7 @@ bool InputConfigDialog::DetectButton(ControlButton* button)
     wxTheApp->Yield(true);
 
     ciface::Core::Device::Control* const ctrl =
-      button->control_reference->Detect(DETECT_WAIT_TIME, dev.get());
+        button->control_reference->Detect(DETECT_WAIT_TIME, dev.get());
 
     // if we got input, update expression and reference
     if (ctrl)
@@ -719,7 +723,7 @@ bool InputConfigDialog::DetectButton(ControlButton* button)
       button->control_reference->SetExpression(WxStrToStr(expr));
       const auto lock = ControllerEmu::EmulatedController::GetStateLock();
       button->control_reference->UpdateReference(g_controller_interface,
-        controller->GetDefaultDevice());
+                                                 controller->GetDefaultDevice());
       success = true;
     }
 
@@ -736,17 +740,17 @@ bool InputConfigDialog::DetectButton(ControlButton* button)
 wxStaticBoxSizer* ControlDialog::CreateControlChooser(InputConfigDialog* const parent)
 {
   wxStaticBoxSizer* const main_szr = new wxStaticBoxSizer(
-    wxVERTICAL, this, control_reference->IsInput() ? _("Input") : _("Output"));
+      wxVERTICAL, this, control_reference->IsInput() ? _("Input") : _("Output"));
   const int space5 = FromDIP(5);
 
   textctrl = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition,
-    wxDLG_UNIT(this, wxSize(-1, 32)), wxTE_MULTILINE | wxTE_RICH2);
+                            wxDLG_UNIT(this, wxSize(-1, 32)), wxTE_MULTILINE | wxTE_RICH2);
   wxFont font = textctrl->GetFont();
   font.SetFamily(wxFONTFAMILY_MODERN);
   textctrl->SetFont(font);
 
   wxButton* const detect_button =
-    new wxButton(this, wxID_ANY, control_reference->IsInput() ? _("Detect") : _("Test"));
+      new wxButton(this, wxID_ANY, control_reference->IsInput() ? _("Detect") : _("Test"));
 
   wxButton* const clear_button = new wxButton(this, wxID_ANY, _("Clear"));
 
@@ -780,12 +784,12 @@ wxStaticBoxSizer* ControlDialog::CreateControlChooser(InputConfigDialog* const p
   }
 
   m_range_slider = new DolphinSlider(
-    this, wxID_ANY, static_cast<int>(control_reference->range * SLIDER_TICK_COUNT),
-    -SLIDER_TICK_COUNT * 5, SLIDER_TICK_COUNT * 5, wxDefaultPosition, wxDefaultSize, wxSL_TOP);
+      this, wxID_ANY, static_cast<int>(control_reference->range * SLIDER_TICK_COUNT),
+      -SLIDER_TICK_COUNT * 5, SLIDER_TICK_COUNT * 5, wxDefaultPosition, wxDefaultSize, wxSL_TOP);
   m_range_spinner = new wxSpinCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition,
-    wxDLG_UNIT(this, wxSize(32, -1)),
-    wxSP_ARROW_KEYS | wxALIGN_RIGHT, m_range_slider->GetMin(),
-    m_range_slider->GetMax(), m_range_slider->GetValue());
+                                   wxDLG_UNIT(this, wxSize(32, -1)),
+                                   wxSP_ARROW_KEYS | wxALIGN_RIGHT, m_range_slider->GetMin(),
+                                   m_range_slider->GetMax(), m_range_slider->GetValue());
 
   detect_button->Bind(wxEVT_BUTTON, &ControlDialog::DetectControl, this);
   clear_button->Bind(wxEVT_BUTTON, &ControlDialog::ClearControl, this);
@@ -800,12 +804,12 @@ wxStaticBoxSizer* ControlDialog::CreateControlChooser(InputConfigDialog* const p
   wxBoxSizer* const range_sizer = new wxBoxSizer(wxHORIZONTAL);
   range_sizer->Add(new wxStaticText(this, wxID_ANY, _("Range")), 0, wxALIGN_CENTER_VERTICAL);
   range_sizer->Add(
-    new wxStaticText(this, wxID_ANY, wxString::Format("%d", m_range_slider->GetMin())), 0,
-    wxALIGN_CENTER_VERTICAL | wxLEFT, space5);
+      new wxStaticText(this, wxID_ANY, wxString::Format("%d", m_range_slider->GetMin())), 0,
+      wxALIGN_CENTER_VERTICAL | wxLEFT, space5);
   range_sizer->Add(m_range_slider, 1, wxEXPAND);
   range_sizer->Add(
-    new wxStaticText(this, wxID_ANY, wxString::Format("%d", m_range_slider->GetMax())), 0,
-    wxALIGN_CENTER_VERTICAL);
+      new wxStaticText(this, wxID_ANY, wxString::Format("%d", m_range_slider->GetMax())), 0,
+      wxALIGN_CENTER_VERTICAL);
   range_sizer->Add(m_range_spinner, 0, wxALIGN_CENTER_VERTICAL | wxLEFT, space5);
 
   wxBoxSizer* const ctrls_sizer = new wxBoxSizer(wxHORIZONTAL);
@@ -895,7 +899,7 @@ void InputConfigDialog::DeleteProfile(wxCommandEvent&)
   const char* const fnamecstr = fname.c_str();
 
   if (File::Exists(fnamecstr) && AskYesNoT("Are you sure you want to delete \"%s\"?",
-    WxStrToStr(profile_cbox->GetValue()).c_str()))
+                                           WxStrToStr(profile_cbox->GetValue()).c_str()))
   {
     File::Delete(fnamecstr);
 
@@ -943,19 +947,19 @@ ControlGroupBox::~ControlGroupBox()
 bool ControlGroupBox::HasBitmapHeading() const
 {
   return control_group->type == ControllerEmu::GroupType::Stick ||
-    control_group->type == ControllerEmu::GroupType::Tilt ||
-    control_group->type == ControllerEmu::GroupType::Cursor ||
-    control_group->type == ControllerEmu::GroupType::Force;
+         control_group->type == ControllerEmu::GroupType::Tilt ||
+         control_group->type == ControllerEmu::GroupType::Cursor ||
+         control_group->type == ControllerEmu::GroupType::Force;
 }
 
 ControlGroupBox::ControlGroupBox(ControllerEmu::ControlGroup* const group, wxWindow* const parent,
-  InputConfigDialog* eventsink)
-  : wxStaticBoxSizer(wxVERTICAL, parent, wxGetTranslation(StrToWxStr(group->ui_name))),
-  control_group(group), static_bitmap(nullptr), m_scale(1)
+                                 InputConfigDialog* eventsink)
+    : wxStaticBoxSizer(wxVERTICAL, parent, wxGetTranslation(StrToWxStr(group->ui_name))),
+      control_group(group), static_bitmap(nullptr), m_scale(1)
 {
-  static constexpr std::array<const char* const, 2> exclude_buttons{ { "Mic", "Modifier" } };
+  static constexpr std::array<const char* const, 2> exclude_buttons{{"Mic", "Modifier"}};
   static constexpr std::array<const char* const, 7> exclude_groups{
-    { "IR", "Swing", "Tilt", "Shake", "UDP Wiimote", "Extension", "Rumble" } };
+      {"IR", "Swing", "Tilt", "Shake", "UDP Wiimote", "Extension", "Rumble"}};
 
   wxFont small_font(7, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
   const int space3 = parent->FromDIP(3);
@@ -965,23 +969,23 @@ ControlGroupBox::ControlGroupBox(ControllerEmu::ControlGroup* const group, wxWin
   for (const auto& control : group->controls)
   {
     wxStaticText* const label =
-      new wxStaticText(parent, wxID_ANY, wxGetTranslation(StrToWxStr(control->ui_name)));
+        new wxStaticText(parent, wxID_ANY, wxGetTranslation(StrToWxStr(control->ui_name)));
 
     ControlButton* const control_button =
-      new ControlButton(parent, control->control_ref.get(), control->ui_name, 80);
+        new ControlButton(parent, control->control_ref.get(), control->ui_name, 80);
     control_button->SetFont(small_font);
 
     control_buttons.push_back(control_button);
     if (std::find(exclude_groups.begin(), exclude_groups.end(), control_group->name) ==
-      exclude_groups.end() &&
-      std::find(exclude_buttons.begin(), exclude_buttons.end(), control->ui_name) ==
-      exclude_buttons.end())
+            exclude_groups.end() &&
+        std::find(exclude_buttons.begin(), exclude_buttons.end(), control->ui_name) ==
+            exclude_buttons.end())
       eventsink->control_buttons.push_back(control_button);
 
     if (control->control_ref->IsInput())
     {
       control_button->SetToolTip(
-        _("Left-click to detect input.\nMiddle-click to clear.\nRight-click for more options."));
+          _("Left-click to detect input.\nMiddle-click to clear.\nRight-click for more options."));
       control_button->Bind(wxEVT_BUTTON, &InputConfigDialog::DetectControl, eventsink);
     }
     else
@@ -1010,12 +1014,12 @@ ControlGroupBox::ControlGroupBox(ControllerEmu::ControlGroup* const group, wxWin
 
     wxBitmap bitmap;
     bitmap.CreateScaled(bitmap_size.GetWidth(), bitmap_size.GetHeight(), wxBITMAP_SCREEN_DEPTH,
-      parent->GetContentScaleFactor());
+                        parent->GetContentScaleFactor());
     wxMemoryDC dc(bitmap);
     dc.Clear();
     dc.SelectObject(wxNullBitmap);
     static_bitmap = new wxStaticBitmap(parent, wxID_ANY, bitmap, wxDefaultPosition, wxDefaultSize,
-      wxBITMAP_TYPE_BMP);
+                                       wxBITMAP_TYPE_BMP);
 
     wxBoxSizer* const szr = new wxBoxSizer(wxVERTICAL);
     for (auto& groupSetting : group->numeric_settings)
@@ -1024,14 +1028,14 @@ ControlGroupBox::ControlGroupBox(ControllerEmu::ControlGroup* const group, wxWin
       setting->wxcontrol->Bind(wxEVT_SPINCTRL, &InputConfigDialog::AdjustSetting, eventsink);
       options.push_back(setting);
       szr->Add(
-        new wxStaticText(parent, wxID_ANY, wxGetTranslation(StrToWxStr(groupSetting->m_name))));
+          new wxStaticText(parent, wxID_ANY, wxGetTranslation(StrToWxStr(groupSetting->m_name))));
       szr->Add(setting->wxcontrol);
     }
     for (auto& groupSetting : group->boolean_settings)
     {
       auto* checkbox = new PadSettingCheckBox(parent, groupSetting.get());
       checkbox->wxcontrol->Bind(wxEVT_CHECKBOX, &InputConfigDialog::AdjustBooleanSetting,
-        eventsink);
+                                eventsink);
       options.push_back(checkbox);
       Add(checkbox->wxcontrol, 0, wxALL | wxLEFT, space3);
     }
@@ -1056,25 +1060,25 @@ ControlGroupBox::ControlGroupBox(ControllerEmu::ControlGroup* const group, wxWin
 
     wxBitmap bitmap;
     bitmap.CreateScaled(bitmap_scaled_size.GetWidth(), bitmap_scaled_size.GetHeight(),
-      wxBITMAP_SCREEN_DEPTH, parent->GetContentScaleFactor());
+                        wxBITMAP_SCREEN_DEPTH, parent->GetContentScaleFactor());
     wxMemoryDC dc(bitmap);
     dc.Clear();
     dc.SelectObject(wxNullBitmap);
     static_bitmap = new wxStaticBitmap(parent, wxID_ANY, bitmap, wxDefaultPosition, wxDefaultSize,
-      wxBITMAP_TYPE_BMP);
+                                       wxBITMAP_TYPE_BMP);
 
     auto* const threshold_cbox = new PadSettingSpin(parent, group->numeric_settings[0].get());
     threshold_cbox->wxcontrol->Bind(wxEVT_SPINCTRL, &InputConfigDialog::AdjustSetting, eventsink);
 
     threshold_cbox->wxcontrol->SetToolTip(
-      _("Adjust the analog control pressure required to activate buttons."));
+        _("Adjust the analog control pressure required to activate buttons."));
 
     options.push_back(threshold_cbox);
 
     wxBoxSizer* const szr = new wxBoxSizer(wxHORIZONTAL);
     szr->Add(new wxStaticText(parent, wxID_ANY,
-      wxGetTranslation(StrToWxStr(group->numeric_settings[0]->m_name))),
-      0, wxALIGN_CENTER_VERTICAL | wxRIGHT, space3);
+                              wxGetTranslation(StrToWxStr(group->numeric_settings[0]->m_name))),
+             0, wxALIGN_CENTER_VERTICAL | wxRIGHT, space3);
     szr->Add(threshold_cbox->wxcontrol, 0, wxRIGHT, space3);
 
     AddSpacer(space3);
@@ -1101,12 +1105,12 @@ ControlGroupBox::ControlGroupBox(ControllerEmu::ControlGroup* const group, wxWin
     m_scale = static_cast<double>(bitmap_size.GetWidth()) / width;
     wxBitmap bitmap;
     bitmap.CreateScaled(bitmap_size.GetWidth(), bitmap_size.GetHeight(), wxBITMAP_SCREEN_DEPTH,
-      parent->GetContentScaleFactor());
+                        parent->GetContentScaleFactor());
     wxMemoryDC dc(bitmap);
     dc.Clear();
     dc.SelectObject(wxNullBitmap);
     static_bitmap = new wxStaticBitmap(parent, wxID_ANY, bitmap, wxDefaultPosition, wxDefaultSize,
-      wxBITMAP_TYPE_BMP);
+                                       wxBITMAP_TYPE_BMP);
 
     for (auto& groupSetting : group->numeric_settings)
     {
@@ -1115,8 +1119,8 @@ ControlGroupBox::ControlGroupBox(ControllerEmu::ControlGroup* const group, wxWin
       options.push_back(setting);
       wxBoxSizer* const szr = new wxBoxSizer(wxHORIZONTAL);
       szr->Add(
-        new wxStaticText(parent, wxID_ANY, wxGetTranslation(StrToWxStr(groupSetting->m_name))), 0,
-        wxALIGN_CENTER_VERTICAL);
+          new wxStaticText(parent, wxID_ANY, wxGetTranslation(StrToWxStr(groupSetting->m_name))), 0,
+          wxALIGN_CENTER_VERTICAL);
       szr->Add(setting->wxcontrol, 0, wxLEFT, space3);
 
       AddSpacer(space3);
@@ -1130,7 +1134,7 @@ ControlGroupBox::ControlGroupBox(ControllerEmu::ControlGroup* const group, wxWin
   case ControllerEmu::GroupType::Extension:
   {
     PadSettingExtension* const attachments =
-      new PadSettingExtension(parent, (ControllerEmu::Extension*)group);
+        new PadSettingExtension(parent, (ControllerEmu::Extension*)group);
     wxButton* const configure_btn = new ExtensionButton(parent, (ControllerEmu::Extension*)group);
 
     options.push_back(attachments);
@@ -1151,7 +1155,7 @@ ControlGroupBox::ControlGroupBox(ControllerEmu::ControlGroup* const group, wxWin
     {
       PadSettingCheckBox* setting_cbox = new PadSettingCheckBox(parent, groupSetting.get());
       setting_cbox->wxcontrol->Bind(wxEVT_CHECKBOX, &InputConfigDialog::AdjustBooleanSetting,
-        eventsink);
+                                    eventsink);
       if (groupSetting->m_name == "Iterative Input")
         groupSetting->SetValue(false);
       options.push_back(setting_cbox);
@@ -1165,8 +1169,8 @@ ControlGroupBox::ControlGroupBox(ControllerEmu::ControlGroup* const group, wxWin
       options.push_back(setting);
       wxBoxSizer* const szr = new wxBoxSizer(wxHORIZONTAL);
       szr->Add(
-        new wxStaticText(parent, wxID_ANY, wxGetTranslation(StrToWxStr(groupSetting->m_name))), 0,
-        wxALIGN_CENTER_VERTICAL, space3);
+          new wxStaticText(parent, wxID_ANY, wxGetTranslation(StrToWxStr(groupSetting->m_name))), 0,
+          wxALIGN_CENTER_VERTICAL, space3);
       szr->Add(setting->wxcontrol, 0, wxLEFT, space3);
       AddSpacer(space3);
       Add(szr, 0, wxLEFT | wxRIGHT | wxALIGN_RIGHT, space3);
@@ -1187,7 +1191,7 @@ wxBoxSizer* InputConfigDialog::CreateDeviceChooserGroupBox()
   device_cbox->ToggleWindowStyle(wxTE_PROCESS_ENTER);
 
   wxButton* refresh_button = new wxButton(device_sbox->GetStaticBox(), wxID_ANY, _("Refresh"),
-    wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
+                                          wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
 
   device_cbox->Bind(wxEVT_COMBOBOX, &InputConfigDialog::SetDevice, this);
   device_cbox->Bind(wxEVT_TEXT_ENTER, &InputConfigDialog::SetDevice, this);
@@ -1195,7 +1199,7 @@ wxBoxSizer* InputConfigDialog::CreateDeviceChooserGroupBox()
 
   wxBoxSizer* const device_sbox_in = new wxBoxSizer(wxHORIZONTAL);
   device_sbox_in->Add(WxUtils::GiveMinSizeDIP(device_cbox, wxSize(64, -1)), 1,
-    wxALIGN_CENTER_VERTICAL);
+                      wxALIGN_CENTER_VERTICAL);
   device_sbox_in->Add(refresh_button, 0, wxALIGN_CENTER_VERTICAL | wxLEFT, space3);
   device_sbox->Add(device_sbox_in, 1, wxEXPAND | wxLEFT | wxRIGHT, space3);
   device_sbox->AddSpacer(space3);
@@ -1208,9 +1212,9 @@ wxBoxSizer* InputConfigDialog::CreaterResetGroupBox(wxOrientation orientation)
   wxStaticBoxSizer* const clear_sbox = new wxStaticBoxSizer(orientation, this, _("Reset"));
 
   wxButton* const default_button = new wxButton(clear_sbox->GetStaticBox(), wxID_ANY, _("Default"),
-    wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
+                                                wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
   wxButton* const clearall_button = new wxButton(clear_sbox->GetStaticBox(), wxID_ANY, _("Clear"),
-    wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
+                                                 wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
 
   wxBoxSizer* clear_sbox_in = new wxBoxSizer(orientation);
   clear_sbox_in->Add(default_button, 1, wxEXPAND);
@@ -1229,11 +1233,11 @@ wxBoxSizer* InputConfigDialog::CreateProfileChooserGroupBox()
   profile_cbox = new wxComboBox(profile_sbox->GetStaticBox(), wxID_ANY, "");
 
   wxButton* const pload_btn = new wxButton(profile_sbox->GetStaticBox(), wxID_ANY, _("Load"),
-    wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
+                                           wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
   wxButton* const psave_btn = new wxButton(profile_sbox->GetStaticBox(), wxID_ANY, _("Save"),
-    wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
+                                           wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
   wxButton* const pdelete_btn = new wxButton(profile_sbox->GetStaticBox(), wxID_ANY, _("Delete"),
-    wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
+                                             wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
 
   pload_btn->Bind(wxEVT_BUTTON, &InputConfigDialog::LoadProfile, this);
   psave_btn->Bind(wxEVT_BUTTON, &InputConfigDialog::SaveProfile, this);
@@ -1241,7 +1245,7 @@ wxBoxSizer* InputConfigDialog::CreateProfileChooserGroupBox()
 
   wxBoxSizer* profile_sbox_in = new wxBoxSizer(wxHORIZONTAL);
   profile_sbox_in->Add(WxUtils::GiveMinSizeDIP(profile_cbox, wxSize(64, -1)), 1,
-    wxALIGN_CENTER_VERTICAL);
+                       wxALIGN_CENTER_VERTICAL);
   profile_sbox_in->AddSpacer(space3);
   profile_sbox_in->Add(pload_btn, 0, wxALIGN_CENTER_VERTICAL);
   profile_sbox_in->Add(psave_btn, 0, wxALIGN_CENTER_VERTICAL);
@@ -1252,9 +1256,9 @@ wxBoxSizer* InputConfigDialog::CreateProfileChooserGroupBox()
 }
 
 InputConfigDialog::InputConfigDialog(wxWindow* const parent, InputConfig& config,
-  const wxString& name, const int port_num)
-  : wxDialog(parent, wxID_ANY, name), controller(config.GetController(port_num)),
-  m_config(config), m_port_num(port_num)
+                                     const wxString& name, const int port_num)
+    : wxDialog(parent, wxID_ANY, name), controller(config.GetController(port_num)),
+      m_config(config), m_port_num(port_num)
 {
   Bind(wxEVT_CLOSE_WINDOW, &InputConfigDialog::OnClose, this);
   Bind(wxEVT_BUTTON, &InputConfigDialog::OnCloseButton, this, wxID_CLOSE);
@@ -1304,7 +1308,7 @@ void InputEventFilter::BlockEvents(bool block)
 bool InputEventFilter::ShouldCatchEventType(wxEventType type)
 {
   return type == wxEVT_KEY_DOWN || type == wxEVT_KEY_UP || type == wxEVT_CHAR ||
-    type == wxEVT_CHAR_HOOK || type == wxEVT_LEFT_DOWN || type == wxEVT_LEFT_UP ||
-    type == wxEVT_MIDDLE_DOWN || type == wxEVT_MIDDLE_UP || type == wxEVT_RIGHT_DOWN ||
-    type == wxEVT_RIGHT_UP;
+         type == wxEVT_CHAR_HOOK || type == wxEVT_LEFT_DOWN || type == wxEVT_LEFT_UP ||
+         type == wxEVT_MIDDLE_DOWN || type == wxEVT_MIDDLE_UP || type == wxEVT_RIGHT_DOWN ||
+         type == wxEVT_RIGHT_UP;
 }

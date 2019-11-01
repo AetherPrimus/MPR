@@ -55,6 +55,7 @@ void GeneralConfigPane::InitializeGUI()
 
   m_dual_core_checkbox = new wxCheckBox(this, wxID_ANY, _("Enable Dual Core (speedup)"));
   m_cheats_checkbox = new wxCheckBox(this, wxID_ANY, _("Enable Cheats"));
+  m_primehack_toggle = new wxCheckBox(this, wxID_ANY, _("Toggle PrimeHack"));
 #if defined(USE_ANALYTICS) && USE_ANALYTICS
   m_analytics_checkbox = new wxCheckBox(this, wxID_ANY, _("Enable Usage Statistics Reporting"));
 #ifdef __APPLE__
@@ -106,6 +107,8 @@ void GeneralConfigPane::InitializeGUI()
   basic_settings_sizer->AddSpacer(space5);
   basic_settings_sizer->Add(m_cheats_checkbox, 0, wxLEFT | wxRIGHT, space5);
   basic_settings_sizer->AddSpacer(space5);
+  basic_settings_sizer->Add(m_primehack_toggle, 0, wxLEFT | wxRIGHT, space5);
+  basic_settings_sizer->AddSpacer(space5);
   basic_settings_sizer->Add(throttler_sizer);
 
 #if defined(USE_ANALYTICS) && USE_ANALYTICS
@@ -144,6 +147,7 @@ void GeneralConfigPane::LoadGUIValues()
 
   m_dual_core_checkbox->SetValue(startup_params.bCPUThread);
   m_cheats_checkbox->SetValue(startup_params.bEnableCheats);
+  m_primehack_toggle->SetValue(startup_params.bEnablePrimeHack);
 
 #if defined(USE_ANALYTICS) && USE_ANALYTICS
   m_analytics_checkbox->SetValue(startup_params.m_analytics_enabled);
@@ -169,6 +173,8 @@ void GeneralConfigPane::BindEvents()
   m_cheats_checkbox->Bind(wxEVT_CHECKBOX, &GeneralConfigPane::OnCheatCheckBoxChanged, this);
   m_cheats_checkbox->Bind(wxEVT_UPDATE_UI, &WxEventUtils::OnEnableIfCoreNotRunning);
 
+  m_primehack_toggle->Bind(wxEVT_CHECKBOX, &GeneralConfigPane::OnPrimeHackToggled, this);
+
 #if defined(USE_ANALYTICS) && USE_ANALYTICS
   m_analytics_checkbox->Bind(wxEVT_CHECKBOX, &GeneralConfigPane::OnAnalyticsCheckBoxChanged, this);
 
@@ -192,6 +198,11 @@ void GeneralConfigPane::OnDualCoreCheckBoxChanged(wxCommandEvent& event)
 void GeneralConfigPane::OnCheatCheckBoxChanged(wxCommandEvent& event)
 {
   SConfig::GetInstance().bEnableCheats = m_cheats_checkbox->IsChecked();
+}
+
+void GeneralConfigPane::OnPrimeHackToggled(wxCommandEvent& event)
+{
+  SConfig::GetInstance().bEnablePrimeHack = m_primehack_toggle->IsChecked();
 }
 
 void GeneralConfigPane::OnThrottlerChoiceChanged(wxCommandEvent& event)
