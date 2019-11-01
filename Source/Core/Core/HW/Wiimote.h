@@ -7,6 +7,8 @@
 #include "Common/Common.h"
 #include "Common/CommonTypes.h"
 
+#include <tuple>
+
 class InputConfig;
 class PointerWrap;
 
@@ -73,6 +75,11 @@ ControllerEmu::ControlGroup* GetClassicGroup(int number, WiimoteEmu::ClassicGrou
 ControllerEmu::ControlGroup* GetGuitarGroup(int number, WiimoteEmu::GuitarGroup group);
 ControllerEmu::ControlGroup* GetDrumsGroup(int number, WiimoteEmu::DrumsGroup group);
 ControllerEmu::ControlGroup* GetTurntableGroup(int number, WiimoteEmu::TurntableGroup group);
+
+bool CheckVisor(int visor_count);
+bool CheckBeam(int beam_count);
+
+std::tuple<double, double, double, bool, bool> PrimeSettings();
 
 void ControlChannel(int number, u16 channel_id, const void* data, u32 size);
 void InterruptChannel(int number, u16 channel_id, const void* data, u32 size);

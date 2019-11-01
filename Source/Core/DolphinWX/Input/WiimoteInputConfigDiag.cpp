@@ -3,7 +3,6 @@
 // Refer to the license.txt file included.
 
 #include <wx/notebook.h>
-#include <wx/panel.h>
 
 #include "DolphinWX/Input/WiimoteInputConfigDiag.h"
 
@@ -123,6 +122,9 @@ WiimoteInputConfigDialog::WiimoteInputConfigDialog(wxWindow* const parent, Input
   szr_main->Add(CreateButtonSizer(wxCLOSE | wxNO_DEFAULT), 0, wxEXPAND | wxLEFT | wxRIGHT, space5);
   szr_main->AddSpacer(space5);
 
+  // PrimeHack Tab
+  AddPrimeHackTab(notebook);
+
   SetSizerAndFit(szr_main);
   Center();
 
@@ -130,4 +132,52 @@ WiimoteInputConfigDialog::WiimoteInputConfigDialog(wxWindow* const parent, Input
   UpdateProfileComboBox();
 
   UpdateGUI();
+}
+
+void WiimoteInputConfigDialog::AddPrimeHackTab(wxNotebook* notebook)
+{
+  const int space5 = FromDIP(5);
+  const int space3 = FromDIP(3);
+
+  auto* const tab_primehack = new wxPanel(notebook);
+
+  auto* const m_primehack_beams = new ControlGroupBox(
+    Wiimote::GetWiimoteGroup(0, WiimoteEmu::WiimoteGroup::Beams), tab_primehack, this);
+
+  auto* const m_primehack_visors = new ControlGroupBox(
+      Wiimote::GetWiimoteGroup(0, WiimoteEmu::WiimoteGroup::Visors), tab_primehack, this);
+
+  auto* const m_primehack_camera = new ControlGroupBox(
+      Wiimote::GetWiimoteGroup(0, WiimoteEmu::WiimoteGroup::Camera), tab_primehack, this);
+
+    auto* const m_primehack_misc = new ControlGroupBox(
+      Wiimote::GetWiimoteGroup(0, WiimoteEmu::WiimoteGroup::Misc), tab_primehack, this);
+
+
+  auto* const camera_sizer = new wxBoxSizer(wxVERTICAL);
+  camera_sizer->Add(m_primehack_camera, 0, wxEXPAND | wxTOP, space5);
+  //camera_sizer->AddSpacer(space5);
+
+  
+  auto* const misc_sizer = new wxBoxSizer(wxVERTICAL);
+  camera_sizer->Add(m_primehack_misc, 0, wxEXPAND | wxTOP, space5);
+  //camera_sizer->AddSpacer(space5);
+
+  auto* const general_sizer = new wxBoxSizer(wxHORIZONTAL);
+  general_sizer->AddSpacer(space5);
+  general_sizer->Add(m_primehack_beams, 0, wxEXPAND | wxTOP, space5);
+  general_sizer->AddSpacer(space5);
+  general_sizer->Add(m_primehack_visors, 0, wxEXPAND | wxTOP, space5);
+  general_sizer->AddSpacer(space5);
+  general_sizer->Add(camera_sizer, 0, wxEXPAND | wxRIGHT, space5);
+  //general_sizer->AddSpacer(space5);
+  general_sizer->Add(misc_sizer, 0, wxEXPAND | wxRIGHT, space5);
+  //general_sizer->AddSpacer(space5);
+  //general_sizer->AddSpacer(space5);
+  //general_sizer->Add(m_primehack_camera, 0, wxEXPAND | wxTOP, space5);
+  //camera_sizer->AddSpacer(space5);
+
+  tab_primehack->SetSizerAndFit(general_sizer);
+
+  notebook->AddPage(tab_primehack, _("PrimeHack"));
 }

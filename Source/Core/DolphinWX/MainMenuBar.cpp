@@ -60,7 +60,6 @@ void MainMenuBar::AddMenus()
   }
 
   Append(CreateHelpMenu(), _("&Help"));
-  Append(CreatePrimeSettingsMenu(), _("&PrimeHack Settings"));
 }
 
 void MainMenuBar::BindEvents()
@@ -528,14 +527,6 @@ wxMenu* MainMenuBar::CreateHelpMenu() const
   help_menu->Append(wxID_ABOUT, _("&About"));
 
   return help_menu;
-}
-
-wxMenu* MainMenuBar::CreatePrimeSettingsMenu() const
-{
-  auto* const prime_settings_menu = new wxMenu;
-  prime_settings_menu->Append(IDM_SENSITIVITY, _("&All Settings"));
-  
-  return prime_settings_menu;
 }
 
 void MainMenuBar::OnPopulatePerspectivesMenu(PopulatePerspectivesEvent& event)

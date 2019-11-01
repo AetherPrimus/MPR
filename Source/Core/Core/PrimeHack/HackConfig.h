@@ -13,10 +13,10 @@ namespace prime
   // PRECONDITION:  For all following functions, InitializeHack has been called
   std::vector<std::unique_ptr<ControlReference>>& GetMutableControls();
   void RefreshControlDevices();
-  void SaveStateToIni();
-  void LoadStateFromIni();
+
   bool CheckBeamCtl(int beam_num);
   bool CheckVisorCtl(int visor_num);
+  void UpdateHackSettings();
 
   float GetSensitivity();
   void SetSensitivity(float sensitivity);

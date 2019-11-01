@@ -102,8 +102,6 @@
 
 #include "Core/ActionReplay.h"
 
-#include "HackConfigDiag.h"
-
 class InputConfig;
 class wxFrame;
 
@@ -217,8 +215,6 @@ void CFrame::BindMenuBarEvents()
   Bind(wxEVT_MENU, &CFrame::OnHelp, this, IDM_HELP_ONLINE_DOCS);
   Bind(wxEVT_MENU, &CFrame::OnHelp, this, IDM_HELP_GITHUB);
   Bind(wxEVT_MENU, &CFrame::OnHelp, this, wxID_ABOUT);
-
-  Bind(wxEVT_MENU, &CFrame::OnPrimeSettings, this, IDM_SENSITIVITY);
 
   if (m_use_debugger)
     BindDebuggerMenuBarEvents();
@@ -1114,22 +1110,6 @@ void CFrame::OnHelp(wxCommandEvent& event)
   case IDM_HELP_GITHUB:
     WxUtils::Launch("https://github.com/dolphin-emu/dolphin");
     break;
-  }
-}
-
-void CFrame::OnPrimeSettings(wxCommandEvent& event)
-{
-  switch (event.GetId())
-  {
-  case IDM_SENSITIVITY:
-  {
-    HackConfigDialog frame(this);
-    HotkeyManagerEmu::Enable(false);
-    frame.ShowModal();
-    frame.Destroy();
-    HotkeyManagerEmu::Enable(true);
-  }
-  break;
   }
 }
 

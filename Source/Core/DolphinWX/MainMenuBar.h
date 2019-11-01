@@ -41,8 +41,6 @@ private:
   wxMenu* CreateProfilerMenu() const;
   wxMenu* CreateHelpMenu() const;
 
-  wxMenu* CreatePrimeSettingsMenu() const;
-
   void OnPopulatePerspectivesMenu(PopulatePerspectivesEvent&);
   void OnUpdateWiiMenuTool(wxCommandEvent&);
 

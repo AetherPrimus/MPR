@@ -53,7 +53,13 @@ enum class WiimoteGroup
   Extension,
 
   Options,
-  Hotkeys
+  Hotkeys,
+
+  Beams,
+  Visors,
+  Camera,
+  Misc,
+
 };
 
 enum
@@ -203,6 +209,11 @@ public:
   void InterruptChannel(const u16 channel_id, const void* data, u32 size);
   void ControlChannel(const u16 channel_id, const void* data, u32 size);
   bool CheckForButtonPress();
+
+  bool CheckVisorCtrl(int visor_count);
+  bool CheckBeamCtrl(int beam_count);
+  std::tuple<double, double, double, bool, bool> GetPrimeSettings();
+
   void Reset();
 
   void DoState(PointerWrap& p);
@@ -258,6 +269,17 @@ private:
   ControllerEmu::BooleanSetting* m_upright_setting;
   ControllerEmu::NumericSetting* m_battery_setting;
   ControllerEmu::ModifySettingsButton* m_hotkeys;
+
+  ControllerEmu::ControlGroup* m_primehack_beams;
+  ControllerEmu::ControlGroup* m_primehack_visors;
+  ControllerEmu::ControlGroup* m_primehack_misc;
+  ControllerEmu::ControlGroup* m_primehack_camera;
+
+  ControllerEmu::NumericSetting* m_primehack_camera_sensitivity;
+  ControllerEmu::NumericSetting* m_primehack_cursor_sensitivity;
+  ControllerEmu::NumericSetting* m_primehack_fieldofview;
+  ControllerEmu::BooleanSetting* m_primehack_invert_y;
+  ControllerEmu::BooleanSetting* m_primehack_invert_x;
 
   // Wiimote accel data
   AccelData m_accel;
