@@ -64,7 +64,7 @@ void WiiConfigPane::InitializeGUI()
   m_system_language_strings.Add(_("Korean"));
 
   m_bt_sensor_bar_pos_strings.Add(_("Top"));
-  m_bt_sensor_bar_pos_strings.Add(_("Bottom"));
+  //m_bt_sensor_bar_pos_strings.Add(_("Bottom"));
 
   m_pal60_mode_checkbox = new wxCheckBox(this, wxID_ANY, _("Use PAL60 Mode (EuRGB60)"));
   m_screensaver_checkbox = new wxCheckBox(this, wxID_ANY, _("Enable Screen Saver"));
@@ -80,6 +80,8 @@ void WiiConfigPane::InitializeGUI()
   m_usb_passthrough_rem_device_btn = new wxButton(this, wxID_ANY, _("Remove"));
   m_bt_sensor_bar_pos =
       new wxChoice(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, m_bt_sensor_bar_pos_strings);
+  m_bt_sensor_bar_pos->Enable(false);
+
   m_bt_sensor_bar_sens = new DolphinSlider(this, wxID_ANY, 0, 0, 4);
   m_bt_speaker_volume = new DolphinSlider(this, wxID_ANY, 0, 0, 127);
   m_bt_wiimote_motor_checkbox = new wxCheckBox(this, wxID_ANY, _("Wii Remote Rumble"));
@@ -190,8 +192,7 @@ void WiiConfigPane::LoadGUIValues()
 
   PopulateUSBPassthroughListbox();
 
-  m_bt_sensor_bar_pos->SetSelection(
-      TranslateSensorBarPosition(Config::Get(Config::SYSCONF_SENSOR_BAR_POSITION)));
+  m_bt_sensor_bar_pos->SetSelection(0);
   m_bt_sensor_bar_sens->SetValue(Config::Get(Config::SYSCONF_SENSOR_BAR_SENSITIVITY));
   m_bt_speaker_volume->SetValue(Config::Get(Config::SYSCONF_SPEAKER_VOLUME));
   m_bt_wiimote_motor_checkbox->SetValue(Config::Get(Config::SYSCONF_WIIMOTE_MOTOR));

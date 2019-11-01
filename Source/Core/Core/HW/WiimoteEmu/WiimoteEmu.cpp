@@ -365,7 +365,7 @@ Wiimote::Wiimote(const unsigned int index) : m_index(index), ir_sin(0), ir_cos(1
   m_hotkeys->AddInput(_trans("Upright Hold"), false);
 
   // TODO: This value should probably be re-read if SYSCONF gets changed
-  m_sensor_bar_on_top = Config::Get(Config::SYSCONF_SENSOR_BAR_POSITION) != 0;
+  m_sensor_bar_on_top = true;
 
   // Adding PrimeHack Buttons
   groups.emplace_back(m_primehack_beams =
