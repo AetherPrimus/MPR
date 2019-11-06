@@ -386,17 +386,18 @@ Wiimote::Wiimote(const unsigned int index) : m_index(index), ir_sin(0), ir_cos(1
 
   groups.emplace_back(m_primehack_camera =
                           new ControllerEmu::ControlGroup(_trans("PrimeHack"), "Camera"));
+  
   m_primehack_camera->numeric_settings.emplace_back(
       m_primehack_camera_sensitivity =
-          new ControllerEmu::NumericSetting(_trans("Camera Sensitivity"), 15, 1, 100));
+          new ControllerEmu::NumericSetting(_trans("Camera Sensitivity"), 0.15, 1, 200));
 
   m_primehack_camera->numeric_settings.emplace_back(
       m_primehack_cursor_sensitivity =
-          new ControllerEmu::NumericSetting(_trans("Cursor Sensitivity"), 15, 1, 100));
+          new ControllerEmu::NumericSetting(_trans("Cursor Sensitivity"), 0.15, 1, 100));
 
   m_primehack_camera->numeric_settings.emplace_back(
       m_primehack_fieldofview =
-          new ControllerEmu::NumericSetting(_trans("Field of View"), 60, 1, 101));
+          new ControllerEmu::NumericSetting(_trans("Field of View"), 0.60, 1, 101));
 
   groups.emplace_back(m_primehack_misc =
                           new ControllerEmu::ControlGroup(_trans("PrimeHack"), "Miscellaneous"));
