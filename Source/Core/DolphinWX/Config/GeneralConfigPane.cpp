@@ -174,6 +174,7 @@ void GeneralConfigPane::BindEvents()
   m_cheats_checkbox->Bind(wxEVT_UPDATE_UI, &WxEventUtils::OnEnableIfCoreNotRunning);
 
   m_primehack_toggle->Bind(wxEVT_CHECKBOX, &GeneralConfigPane::OnPrimeHackToggled, this);
+  m_primehack_toggle->Bind(wxEVT_UPDATE_UI, &WxEventUtils::OnEnableIfCoreNotRunning);
 
 #if defined(USE_ANALYTICS) && USE_ANALYTICS
   m_analytics_checkbox->Bind(wxEVT_CHECKBOX, &GeneralConfigPane::OnAnalyticsCheckBoxChanged, this);
