@@ -2,263 +2,253 @@
 
 #include "Core/PrimeHack/PrimeMod.h"
 
-namespace prime {
+namespace prime
+{
+void springball_code(u32 base_offset, std::vector<CodeChange>* code_changes);
+void springball_check(u32 base_address);
 
-  class MP1 : public PrimeMod {
-  public:
-    Game game() const override {
-      return Game::PRIME_1;
-    }
-    void run_mod() override;
+class MP1 : public PrimeMod
+{
+public:
+  Game game() const override { return Game::PRIME_1; }
 
-    virtual ~MP1() {}
+  void run_mod() override;
 
-  protected:
-    virtual uint32_t lockon_address() const = 0;
-    virtual uint32_t yaw_vel_address() const = 0;
-    virtual uint32_t pitch_address() const = 0;
-    virtual uint32_t pitch_goal_address() const = 0;
-    virtual uint32_t avel_limiter_address() const = 0;
-    virtual uint32_t new_beam_address() const = 0;
-    virtual uint32_t beamchange_flag_address() const = 0;
-    virtual uint32_t visor_base_address() const = 0;
-    virtual uint32_t camera_pointer_address() const = 0;
-    virtual uint32_t active_camera_offset_address() const = 0;
-    virtual uint32_t global_fov1() const = 0;
-    virtual uint32_t global_fov2() const = 0;
+  virtual ~MP1() {}
 
-    void beam_change_code(uint32_t base_offset);
+protected:
+  virtual uint32_t lockon_address() const = 0;
+  virtual uint32_t yaw_vel_address() const = 0;
+  virtual uint32_t pitch_address() const = 0;
+  virtual uint32_t pitch_goal_address() const = 0;
+  virtual uint32_t avel_limiter_address() const = 0;
+  virtual uint32_t new_beam_address() const = 0;
+  virtual uint32_t beamchange_flag_address() const = 0;
+  virtual uint32_t visor_base_address() const = 0;
+  virtual uint32_t camera_pointer_address() const = 0;
+  virtual uint32_t ball_check_address() const = 0;
+  virtual uint32_t active_camera_offset_address() const = 0;
+  virtual uint32_t global_fov1() const = 0;
+  virtual uint32_t global_fov2() const = 0;
 
-  private:
-    float pitch = 0;
-  };
+  void beam_change_code(uint32_t base_offset);
 
-  class MP1NTSC : public MP1 {
-  public:
-    MP1NTSC();
+private:
+  float pitch = 0;
+};
 
-    Region region() const override {
-      return Region::NTSC;
-    }
+class MP1NTSC : public MP1
+{
+public:
+  MP1NTSC();
 
-    virtual ~MP1NTSC() {}
+  Region region() const override { return Region::NTSC; }
 
-  protected:
-    uint32_t lockon_address() const override;
-    uint32_t yaw_vel_address() const override;
-    uint32_t pitch_address() const override;
-    uint32_t pitch_goal_address() const override;
-    uint32_t avel_limiter_address() const override;
-    uint32_t new_beam_address() const override;
-    uint32_t beamchange_flag_address() const override;
-    uint32_t visor_base_address() const override;
-    uint32_t camera_pointer_address() const override;
-    uint32_t active_camera_offset_address() const override;
-    uint32_t global_fov1() const override;
-    uint32_t global_fov2() const override;
-  };
+  virtual ~MP1NTSC() {}
 
-  class MP1PAL : public MP1 {
-  public:
-    MP1PAL();
+protected:
+  uint32_t lockon_address() const override;
+  uint32_t yaw_vel_address() const override;
+  uint32_t pitch_address() const override;
+  uint32_t pitch_goal_address() const override;
+  uint32_t avel_limiter_address() const override;
+  uint32_t new_beam_address() const override;
+  uint32_t beamchange_flag_address() const override;
+  uint32_t visor_base_address() const override;
+  uint32_t camera_pointer_address() const override;
+  uint32_t ball_check_address() const;
+  uint32_t active_camera_offset_address() const override;
+  uint32_t global_fov1() const override;
+  uint32_t global_fov2() const override;
+};
 
-    Region region() const override {
-      return Region::PAL;
-    }
+class MP1PAL : public MP1
+{
+public:
+  MP1PAL();
 
-    virtual ~MP1PAL() {}
+  Region region() const override { return Region::PAL; }
 
-  protected:
-    uint32_t lockon_address() const override;
-    uint32_t yaw_vel_address() const override;
-    uint32_t pitch_address() const override;
-    uint32_t pitch_goal_address() const override;
-    uint32_t avel_limiter_address() const override;
-    uint32_t new_beam_address() const override;
-    uint32_t beamchange_flag_address() const override;
-    uint32_t visor_base_address() const override;
-    uint32_t camera_pointer_address() const override;
-    uint32_t active_camera_offset_address() const override;
-    uint32_t global_fov1() const override;
-    uint32_t global_fov2() const override;
-  };
+  virtual ~MP1PAL() {}
 
-  class MP2 : public PrimeMod {
-  public:
-    Game game() const override {
-      return Game::PRIME_2;
-    }
+protected:
+  uint32_t lockon_address() const override;
+  uint32_t yaw_vel_address() const override;
+  uint32_t pitch_address() const override;
+  uint32_t pitch_goal_address() const override;
+  uint32_t avel_limiter_address() const override;
+  uint32_t new_beam_address() const override;
+  uint32_t beamchange_flag_address() const override;
+  uint32_t visor_base_address() const override;
+  uint32_t camera_pointer_address() const override;
+  uint32_t ball_check_address() const;
+  uint32_t active_camera_offset_address() const override;
+  uint32_t global_fov1() const override;
+  uint32_t global_fov2() const override;
+};
 
-    void run_mod();
+class MP2 : public PrimeMod
+{
+public:
+  Game game() const override { return Game::PRIME_2; }
 
-    virtual ~MP2() {}
+  void run_mod();
 
-  protected:
-    virtual uint32_t load_state_address() const = 0;
-    // Honestly unsure of what this was, found it so long ago
-    // seems to point to a lot of important stuff though
-    virtual uint32_t camera_ctl_address() const = 0;
-    virtual uint32_t lockon_address() const = 0;
-    virtual uint32_t new_beam_address() const = 0;
-    virtual uint32_t beamchange_flag_address() const = 0;
-    virtual uint32_t camera_ptr_address() const = 0;
-    virtual uint32_t camera_offset_address() const = 0;
+  virtual ~MP2() {}
 
-    void beam_change_code(uint32_t base_offset);
+protected:
+  virtual uint32_t load_state_address() const = 0;
+  // Honestly unsure of what this was, found it so long ago
+  // seems to point to a lot of important stuff though
+  virtual uint32_t camera_ctl_address() const = 0;
+  virtual uint32_t lockon_address() const = 0;
+  virtual uint32_t new_beam_address() const = 0;
+  virtual uint32_t beamchange_flag_address() const = 0;
+  virtual uint32_t camera_ptr_address() const = 0;
+  virtual uint32_t camera_offset_address() const = 0;
 
-  private:
-    float pitch = 0;
-  };
+  void beam_change_code(uint32_t base_offset);
 
-  class MP2NTSC : public MP2 {
-  public:
-    MP2NTSC();
+private:
+  float pitch = 0;
+};
 
-    Region region() const override {
-      return Region::NTSC;
-    }
+class MP2NTSC : public MP2
+{
+public:
+  MP2NTSC();
 
-    virtual ~MP2NTSC() {}
+  Region region() const override { return Region::NTSC; }
 
-  protected:
-    uint32_t load_state_address() const override;
-    uint32_t camera_ctl_address() const override;
-    uint32_t lockon_address() const override;
-    uint32_t new_beam_address() const override;
-    uint32_t beamchange_flag_address() const override;
-    uint32_t camera_ptr_address() const override;
-    uint32_t camera_offset_address() const override;
-  };
+  virtual ~MP2NTSC() {}
 
-  class MP2PAL : public MP2 {
-  public:
-    MP2PAL();
+protected:
+  uint32_t load_state_address() const override;
+  uint32_t camera_ctl_address() const override;
+  uint32_t lockon_address() const override;
+  uint32_t new_beam_address() const override;
+  uint32_t beamchange_flag_address() const override;
+  uint32_t camera_ptr_address() const override;
+  uint32_t camera_offset_address() const override;
+};
 
-    Region region() const override {
-      return Region::PAL;
-    }
+class MP2PAL : public MP2
+{
+public:
+  MP2PAL();
 
-    virtual ~MP2PAL() {}
+  Region region() const override { return Region::PAL; }
 
-  protected:
-    uint32_t load_state_address() const override;
-    uint32_t camera_ctl_address() const override;
-    uint32_t lockon_address() const override;
-    uint32_t new_beam_address() const override;
-    uint32_t beamchange_flag_address() const override;
-    uint32_t camera_ptr_address() const override;
-    uint32_t camera_offset_address() const override;
-  };
+  virtual ~MP2PAL() {}
 
-  class MP3 : public PrimeMod {
-  public:
-    Game game() const override {
-      return Game::PRIME_3;
-    }
+protected:
+  uint32_t load_state_address() const override;
+  uint32_t camera_ctl_address() const override;
+  uint32_t lockon_address() const override;
+  uint32_t new_beam_address() const override;
+  uint32_t beamchange_flag_address() const override;
+  uint32_t camera_ptr_address() const override;
+  uint32_t camera_offset_address() const override;
+};
 
-    void run_mod() override;
+class MP3 : public PrimeMod
+{
+public:
+  Game game() const override { return Game::PRIME_3; }
 
-    bool should_apply_changes() const {
-      return !fighting_ridley && PrimeMod::should_apply_changes();
-    }
+  void run_mod() override;
 
-    virtual ~MP3() {}
+  bool should_apply_changes() const { return !fighting_ridley && PrimeMod::should_apply_changes(); }
 
-  protected:
-    virtual uint32_t camera_ctl_address() const = 0;
-    virtual uint32_t grapple_hook_address() const = 0;
-    virtual uint32_t boss_id_address() const = 0;
-    virtual uint32_t cursor_dlg_address() const = 0;
-    virtual uint32_t cursor_address() const = 0;
-    virtual uint32_t cursor_offset() const = 0;
-    virtual uint32_t cannon_lag_rtoc_offset() const = 0;
-    virtual uint32_t lockon_address() const = 0;
-    virtual uint32_t camera_pointer_address() const = 0;
-    virtual void apply_mod_instructions() = 0;
-    virtual void apply_normal_instructions() = 0;
+  virtual ~MP3() {}
 
-    void control_state_hook(u32 base_offset, Region region);
+protected:
+  virtual uint32_t camera_ctl_address() const = 0;
+  virtual uint32_t grapple_hook_address() const = 0;
+  virtual uint32_t boss_id_address() const = 0;
+  virtual uint32_t cursor_dlg_address() const = 0;
+  virtual uint32_t cursor_address() const = 0;
+  virtual uint32_t cursor_offset() const = 0;
+  virtual uint32_t cannon_lag_rtoc_offset() const = 0;
+  virtual uint32_t lockon_address() const = 0;
+  virtual uint32_t camera_pointer_address() const = 0;
+  virtual void apply_mod_instructions() = 0;
+  virtual void apply_normal_instructions() = 0;
 
-  private:
-    float pitch = 0;
-    bool fighting_ridley = false;
-  };
+  void control_state_hook(u32 base_offset, Region region);
 
-  class MP3NTSC : public MP3 {
-  public:
-    MP3NTSC();
+private:
+  float pitch = 0;
+  bool fighting_ridley = false;
+};
 
-    Region region() const override {
-      return Region::NTSC;
-    }
+class MP3NTSC : public MP3
+{
+public:
+  MP3NTSC();
 
-    virtual ~MP3NTSC() {}
+  Region region() const override { return Region::NTSC; }
 
-  protected:
-    uint32_t camera_ctl_address() const override;
-    uint32_t grapple_hook_address() const override;
-    uint32_t boss_id_address() const override;
-    uint32_t cursor_dlg_address() const;
-    uint32_t cursor_address() const override;
-    uint32_t cursor_offset() const override;
-    uint32_t cannon_lag_rtoc_offset() const override;
-    uint32_t lockon_address() const override;
-    uint32_t camera_pointer_address() const override;
-    void apply_mod_instructions() override;
-    void apply_normal_instructions() override;
-  };
+  virtual ~MP3NTSC() {}
 
-  class MP3PAL : public MP3 {
-  public:
-    MP3PAL();
+protected:
+  uint32_t camera_ctl_address() const override;
+  uint32_t grapple_hook_address() const override;
+  uint32_t boss_id_address() const override;
+  uint32_t cursor_dlg_address() const;
+  uint32_t cursor_address() const override;
+  uint32_t cursor_offset() const override;
+  uint32_t cannon_lag_rtoc_offset() const override;
+  uint32_t lockon_address() const override;
+  uint32_t camera_pointer_address() const override;
+  void apply_mod_instructions() override;
+  void apply_normal_instructions() override;
+};
 
-    Region region() const override {
-      return Region::PAL;
-    }
+class MP3PAL : public MP3
+{
+public:
+  MP3PAL();
 
-    virtual ~MP3PAL() {}
+  Region region() const override { return Region::PAL; }
 
-  protected:
-    uint32_t camera_ctl_address() const override;
-    uint32_t grapple_hook_address() const override;
-    uint32_t boss_id_address() const override;
-    uint32_t cursor_dlg_address() const;
-    uint32_t cursor_address() const override;
-    uint32_t cursor_offset() const override;
-    uint32_t cannon_lag_rtoc_offset() const override;
-    uint32_t lockon_address() const override;
-    uint32_t camera_pointer_address() const override;
-    void apply_mod_instructions() override;
-    void apply_normal_instructions() override;
-  };
+  virtual ~MP3PAL() {}
 
-  class MenuNTSC : public PrimeMod {
-  public:
-    Game game() const override {
-      return Game::MENU;
-    }
+protected:
+  uint32_t camera_ctl_address() const override;
+  uint32_t grapple_hook_address() const override;
+  uint32_t boss_id_address() const override;
+  uint32_t cursor_dlg_address() const;
+  uint32_t cursor_address() const override;
+  uint32_t cursor_offset() const override;
+  uint32_t cannon_lag_rtoc_offset() const override;
+  uint32_t lockon_address() const override;
+  uint32_t camera_pointer_address() const override;
+  void apply_mod_instructions() override;
+  void apply_normal_instructions() override;
+};
 
-    Region region() const override {
-      return Region::NTSC;
-    }
+class MenuNTSC : public PrimeMod
+{
+public:
+  Game game() const override { return Game::MENU; }
 
-    void run_mod() override;
+  Region region() const override { return Region::NTSC; }
 
-    virtual ~MenuNTSC() {}
-  };
+  void run_mod() override;
 
-  class MenuPAL : public PrimeMod {
-  public:
-    Game game() const override {
-      return Game::MENU;
-    }
+  virtual ~MenuNTSC() {}
+};
 
-    Region region() const override {
-      return Region::PAL;
-    }
+class MenuPAL : public PrimeMod
+{
+public:
+  Game game() const override { return Game::MENU; }
 
-    void run_mod() override;
+  Region region() const override { return Region::PAL; }
 
-    virtual ~MenuPAL() {}
-  };
-}
+  void run_mod() override;
+
+  virtual ~MenuPAL() {}
+};
+}  // namespace prime

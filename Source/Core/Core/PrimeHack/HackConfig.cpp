@@ -71,6 +71,11 @@ bool CheckVisorCtl(int visor_num)
   return Wiimote::CheckVisor(visor_num);
 }
 
+bool CheckSpringBallCtl()
+{
+  return Wiimote::CheckSpringBall();
+}
+
 void UpdateHackSettings()
 {
   double camera, cursor, fov;

@@ -406,6 +406,8 @@ Wiimote::Wiimote(const unsigned int index) : m_index(index), ir_sin(0), ir_cos(1
 
   m_primehack_misc->boolean_settings.emplace_back(
       m_primehack_invert_y = new ControllerEmu::BooleanSetting(_trans("Invert Y Axis"), false));
+  m_primehack_misc->controls.emplace_back(
+      new ControllerEmu::Input("Spring Ball", "Spring Ball"));
 
   // --- reset eeprom/register/values to default ---
   Reset();
@@ -547,6 +549,11 @@ bool Wiimote::CheckVisorCtrl(int visorcount)
 bool Wiimote::CheckBeamCtrl(int beamcount)
 {
   return m_primehack_beams->controls[beamcount].get()->control_ref->State() > 0.5;
+}
+
+bool Wiimote::CheckSpringBallCtrl()
+{
+  return m_primehack_misc->controls[0].get()->control_ref->State() > 0.5;
 }
 
 std::tuple<double, double, double, bool, bool> Wiimote::GetPrimeSettings()

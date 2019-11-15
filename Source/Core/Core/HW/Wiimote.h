@@ -78,6 +78,7 @@ ControllerEmu::ControlGroup* GetTurntableGroup(int number, WiimoteEmu::Turntable
 
 bool CheckVisor(int visor_count);
 bool CheckBeam(int beam_count);
+bool CheckSpringBall();
 
 std::tuple<double, double, double, bool, bool> PrimeSettings();
 
