@@ -401,13 +401,18 @@ Wiimote::Wiimote(const unsigned int index) : m_index(index), ir_sin(0), ir_cos(1
 
   groups.emplace_back(m_primehack_misc =
                           new ControllerEmu::ControlGroup(_trans("PrimeHack"), "Miscellaneous"));
-  m_primehack_misc->boolean_settings.emplace_back(
+  m_primehack_camera->boolean_settings.emplace_back(
       m_primehack_invert_x = new ControllerEmu::BooleanSetting(_trans("Invert X Axis"), false));
 
-  m_primehack_misc->boolean_settings.emplace_back(
+  m_primehack_camera->boolean_settings.emplace_back(
       m_primehack_invert_y = new ControllerEmu::BooleanSetting(_trans("Invert Y Axis"), false));
+
   m_primehack_misc->controls.emplace_back(
       new ControllerEmu::Input("Spring Ball", "Spring Ball"));
+  m_primehack_misc->controls.emplace_back(
+    new ControllerEmu::Input("Next Beam", "Next Beam"));
+  m_primehack_misc->controls.emplace_back(
+    new ControllerEmu::Input("Previous Beam", "Previous Beam"));
 
   // --- reset eeprom/register/values to default ---
   Reset();
@@ -549,6 +554,11 @@ bool Wiimote::CheckVisorCtrl(int visorcount)
 bool Wiimote::CheckBeamCtrl(int beamcount)
 {
   return m_primehack_beams->controls[beamcount].get()->control_ref->State() > 0.5;
+}
+
+bool Wiimote::CheckBeamScrollCtrl(bool direction)
+{
+  return m_primehack_misc->controls[direction ? 1 : 2].get()->control_ref->State() > 0.5;
 }
 
 bool Wiimote::CheckSpringBallCtrl()
