@@ -28,7 +28,7 @@ protected:
   virtual uint32_t avel_limiter_address() const = 0;
   virtual uint32_t new_beam_address() const = 0;
   virtual uint32_t beamchange_flag_address() const = 0;
-  virtual uint32_t visor_base_address() const = 0;
+  virtual uint32_t powerups_base_address() const = 0;
   virtual uint32_t camera_pointer_address() const = 0;
   virtual uint32_t cplayer() const = 0;
   virtual uint32_t active_camera_offset_address() const = 0;
@@ -58,7 +58,7 @@ protected:
   uint32_t avel_limiter_address() const override;
   uint32_t new_beam_address() const override;
   uint32_t beamchange_flag_address() const override;
-  uint32_t visor_base_address() const override;
+  uint32_t powerups_base_address() const override;
   uint32_t camera_pointer_address() const override;
   uint32_t cplayer() const;
   uint32_t active_camera_offset_address() const override;
@@ -83,7 +83,7 @@ protected:
   uint32_t avel_limiter_address() const override;
   uint32_t new_beam_address() const override;
   uint32_t beamchange_flag_address() const override;
-  uint32_t visor_base_address() const override;
+  uint32_t powerups_base_address() const override;
   uint32_t camera_pointer_address() const override;
   uint32_t cplayer() const;
   uint32_t active_camera_offset_address() const override;
