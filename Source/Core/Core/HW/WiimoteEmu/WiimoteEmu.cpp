@@ -300,7 +300,7 @@ Wiimote::Wiimote(const unsigned int index) : m_index(index), ir_sin(0), ir_cos(1
   {
     const std::string& ui_name = (named_button == std::string("Home")) ? "HOME" : named_button;
     m_buttons->controls.emplace_back(new ControllerEmu::Input(named_button, ui_name));
-  }
+}
 
   // ir
   // i18n: IR stands for infrared and refers to the pointer functionality of Wii Remotes
@@ -342,17 +342,17 @@ Wiimote::Wiimote(const unsigned int index) : m_index(index), ir_sin(0), ir_cos(1
   // options
   groups.emplace_back(m_options = new ControllerEmu::ControlGroup(_trans("Options")));
   m_options->boolean_settings.emplace_back(
-      m_sideways_setting = new ControllerEmu::BooleanSetting("Sideways Wiimote",
-                                                             _trans("Sideways Wii Remote"), false));
+    m_sideways_setting = new ControllerEmu::BooleanSetting("Sideways Wiimote",
+      _trans("Sideways Wii Remote"), false));
   m_options->boolean_settings.emplace_back(
-      m_upright_setting = new ControllerEmu::BooleanSetting("Upright Wiimote",
-                                                            _trans("Upright Wii Remote"), false));
+    m_upright_setting = new ControllerEmu::BooleanSetting("Upright Wiimote",
+      _trans("Upright Wii Remote"), false));
   m_options->boolean_settings.emplace_back(std::make_unique<ControllerEmu::BooleanSetting>(
-      _trans("Iterative Input"), false, ControllerEmu::SettingType::VIRTUAL));
+    _trans("Iterative Input"), false, ControllerEmu::SettingType::VIRTUAL));
   m_options->numeric_settings.emplace_back(
-      std::make_unique<ControllerEmu::NumericSetting>(_trans("Speaker Pan"), 0, -127, 127));
+    std::make_unique<ControllerEmu::NumericSetting>(_trans("Speaker Pan"), 0, -127, 127));
   m_options->numeric_settings.emplace_back(
-      m_battery_setting = new ControllerEmu::NumericSetting(_trans("Battery"), 95.0 / 100, 0, 255));
+    m_battery_setting = new ControllerEmu::NumericSetting(_trans("Battery"), 95.0 / 100, 0, 255));
 
   // hotkeys
   groups.emplace_back(m_hotkeys = new ControllerEmu::ModifySettingsButton(_trans("Hotkeys")));
@@ -369,7 +369,7 @@ Wiimote::Wiimote(const unsigned int index) : m_index(index), ir_sin(0), ir_cos(1
 
   // Adding PrimeHack Buttons
   groups.emplace_back(m_primehack_beams =
-                          new ControllerEmu::ControlGroup(_trans("PrimeHack"), "Beams"));
+    new ControllerEmu::ControlGroup(_trans("PrimeHack"), "Beams"));
   for (const char* prime_button : prime_beams)
   {
     const std::string& ui_name = prime_button;
@@ -377,7 +377,7 @@ Wiimote::Wiimote(const unsigned int index) : m_index(index), ir_sin(0), ir_cos(1
   }
 
   groups.emplace_back(m_primehack_visors =
-                          new ControllerEmu::ControlGroup(_trans("PrimeHack"), "Visors"));
+    new ControllerEmu::ControlGroup(_trans("PrimeHack"), "Visors"));
   for (const char* prime_button : prime_visors)
   {
     const std::string& ui_name = prime_button;
@@ -385,30 +385,30 @@ Wiimote::Wiimote(const unsigned int index) : m_index(index), ir_sin(0), ir_cos(1
   }
 
   groups.emplace_back(m_primehack_camera =
-                          new ControllerEmu::ControlGroup(_trans("PrimeHack"), "Camera"));
-  
-  m_primehack_camera->numeric_settings.emplace_back(
-      m_primehack_camera_sensitivity =
-          new ControllerEmu::NumericSetting(_trans("Camera Sensitivity"), 0.15, 1, 200));
+    new ControllerEmu::ControlGroup(_trans("PrimeHack"), "Camera"));
 
   m_primehack_camera->numeric_settings.emplace_back(
-      m_primehack_cursor_sensitivity =
-          new ControllerEmu::NumericSetting(_trans("Cursor Sensitivity"), 0.15, 1, 100));
+    m_primehack_camera_sensitivity =
+    new ControllerEmu::NumericSetting(_trans("Camera Sensitivity"), 0.15, 1, 200));
 
   m_primehack_camera->numeric_settings.emplace_back(
-      m_primehack_fieldofview =
-          new ControllerEmu::NumericSetting(_trans("Field of View"), 0.60, 1, 101));
+    m_primehack_cursor_sensitivity =
+    new ControllerEmu::NumericSetting(_trans("Cursor Sensitivity"), 0.15, 1, 100));
+
+  m_primehack_camera->numeric_settings.emplace_back(
+    m_primehack_fieldofview =
+    new ControllerEmu::NumericSetting(_trans("Field of View"), 0.60, 1, 101));
 
   groups.emplace_back(m_primehack_misc =
-                          new ControllerEmu::ControlGroup(_trans("PrimeHack"), "Miscellaneous"));
+    new ControllerEmu::ControlGroup(_trans("PrimeHack"), "Miscellaneous"));
   m_primehack_camera->boolean_settings.emplace_back(
-      m_primehack_invert_x = new ControllerEmu::BooleanSetting(_trans("Invert X Axis"), false));
+    m_primehack_invert_x = new ControllerEmu::BooleanSetting(_trans("Invert X Axis"), false));
 
   m_primehack_camera->boolean_settings.emplace_back(
-      m_primehack_invert_y = new ControllerEmu::BooleanSetting(_trans("Invert Y Axis"), false));
+    m_primehack_invert_y = new ControllerEmu::BooleanSetting(_trans("Invert Y Axis"), false));
 
   m_primehack_misc->controls.emplace_back(
-      new ControllerEmu::Input("Spring Ball", "Spring Ball"));
+    new ControllerEmu::Input("Spring Ball", "Spring Ball"));
   m_primehack_misc->controls.emplace_back(
     new ControllerEmu::Input("Next Beam", "Next Beam"));
   m_primehack_misc->controls.emplace_back(
@@ -1058,29 +1058,36 @@ void Wiimote::LoadDefaults(const ControllerInterface& ciface)
 {
   EmulatedController::LoadDefaults(ciface);
 
-// Buttons
+  // Button defaults
 #if defined HAVE_X11 && HAVE_X11
   // A
   m_buttons->SetControlExpression(0, "Click 1");
   // B
   m_buttons->SetControlExpression(1, "Click 3");
 #else
-  // A
+  // Fire
   m_buttons->SetControlExpression(0, "`Click 0` | RETURN");
-  // B
+  // Jump
   m_buttons->SetControlExpression(1, "SPACE");
 #endif
-  m_buttons->SetControlExpression(2, "TAB");     // 1
-  m_buttons->SetControlExpression(3, "ESCAPE");  // 2
-  m_buttons->SetControlExpression(4, "Q");       // -
-  m_buttons->SetControlExpression(5, "R");       // +
+  // Map screen
+  m_buttons->SetControlExpression(2, "TAB");
+  // Pause menu
+  m_buttons->SetControlExpression(3, "ESCAPE");
+  // Beam menu
+  m_buttons->SetControlExpression(4, "Q");
+  // Visor menu
+  m_buttons->SetControlExpression(5, "R");
 
-  // Shake
+  // Shake (Only used in Prime 3, may need revision)
   m_shake->SetControlExpression(1, "LSHIFT & (`Axis Y-` | `Axis Y+` | `Axis X-` | `Axis X+`)");
+  // Springball
+  m_shake->SetControlExpression(2, "LMENU");
 
-// DPad
+  // DPad
 #ifdef _WIN32
-  m_dpad->SetControlExpression(1, "F");  // Down
+  // Missiles
+  m_dpad->SetControlExpression(1, "F");
 
 #elif __APPLE__
   m_dpad->SetControlExpression(0, "Up Arrow");     // Up
@@ -1093,30 +1100,32 @@ void Wiimote::LoadDefaults(const ControllerInterface& ciface)
   m_dpad->SetControlExpression(2, "Left");   // Left
   m_dpad->SetControlExpression(3, "Right");  // Right
 #endif
-  m_tilt->SetControlExpression(0, "LSHIFT & W");
-  m_tilt->SetControlExpression(1, "LSHIFT & S");
-  m_tilt->SetControlExpression(2, "LSHIFT & A");
-  m_tilt->SetControlExpression(3, "LSHIFT & D");
+                                             // Motion puzzle controls
+  m_tilt->SetControlExpression(0, "LSHIFT & W");   // Push
+  m_tilt->SetControlExpression(1, "LSHIFT & S");   // Pull
+  m_tilt->SetControlExpression(2, "LSHIFT & A");   // Rotate left
+  m_tilt->SetControlExpression(3, "LSHIFT & D");   // Rotate right
+  m_swing->SetControlExpression(4, "LSHIFT & W");  // Thrust forward
+  m_swing->SetControlExpression(5, "LSHIFT & S");  // Pull back
 
-  m_swing->SetControlExpression(4, "LSHIFT & W");
-  m_swing->SetControlExpression(5, "LSHIFT & S");
-  // ugly stuff
-  // enable nunchuk
-  m_extension->switch_extension = 1;
-
-  m_primehack_beams->SetControlExpression(0, "`1` & !E");
-  m_primehack_beams->SetControlExpression(1, "`2` & !E");
-  m_primehack_beams->SetControlExpression(2, "`3` & !E");
-  m_primehack_beams->SetControlExpression(3, "`4` & !E");
-
-  m_primehack_visors->SetControlExpression(1, "E & `1`");
-  m_primehack_visors->SetControlExpression(2, "E & `2`");
-  m_primehack_visors->SetControlExpression(3, "E & `3`");
 
   // set nunchuk defaults
   m_extension->attachments[1]->LoadDefaults(ciface);
 
-  m_primehack_camera_sensitivity->SetValue(m_primehack_camera_sensitivity->m_default_value);
+  // Beams
+  m_primehack_beams->SetControlExpression(0, "`1` & !E");
+  m_primehack_beams->SetControlExpression(1, "`2` & !E");
+  m_primehack_beams->SetControlExpression(2, "`3` & !E");
+  m_primehack_beams->SetControlExpression(3, "`4` & !E");
+  // Visors (Combination keys strongly recommended)
+  m_primehack_visors->SetControlExpression(0, "E & `1`");
+  m_primehack_visors->SetControlExpression(1, "E & `2`");
+  m_primehack_visors->SetControlExpression(2, "E & `3`");
+  m_primehack_visors->SetControlExpression(3, "E & `4`");
+  // Misc. Defaults
+  m_primehack_misc->SetControlExpression(0, "SPACE"); // Spring Ball
+  m_primehack_misc->SetControlExpression(1, "Axis Z+"); // Next beam
+  m_primehack_misc->SetControlExpression(2, "Axis Z-"); // Previous beam
 }
 
 int Wiimote::CurrentExtension() const
