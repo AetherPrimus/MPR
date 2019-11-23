@@ -189,6 +189,7 @@ void VideoConfig::Refresh()
   iStereoDepthPercentage = Config::Get(Config::GFX_STEREO_DEPTH_PERCENTAGE);
   sStereoShader = Config::Get(Config::GFX_STEREO_SHADER);
 
+  bAutoEFBMP2 = Config::Get(Config::AutoEFBMP2);
   bEFBAccessEnable = Config::Get(Config::GFX_HACK_EFB_ACCESS_ENABLE);
   bEFBFastAccess = Config::Get(Config::GFX_HACK_EFB_FAST_ACCESS_ENABLE);
   iBBoxMode = Config::Get(Config::GFX_HACK_BBOX_MODE);

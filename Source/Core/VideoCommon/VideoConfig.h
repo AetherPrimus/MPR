@@ -146,6 +146,7 @@ struct VideoConfig final
   int iTessellationDisplacementIntensity;
   bool bForceTrueColor;
   bool bHPFrameBuffer;
+
   // Information
   bool bShowFPS;
   bool bShowNetPlayPing;
@@ -156,7 +157,6 @@ struct VideoConfig final
   bool bTexFmtOverlayEnable;
   bool bTexFmtOverlayCenter;
   bool bLogRenderTimeToFile;
-
 
   // Render
   bool bWireFrame;
@@ -184,6 +184,8 @@ struct VideoConfig final
 
 
   // Hacks
+  bool bAutoEFBMP2;
+
   bool bEFBAccessEnable;
   bool bEFBFastAccess;
   bool bForceProgressive;
