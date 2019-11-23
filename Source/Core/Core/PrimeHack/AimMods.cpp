@@ -447,15 +447,24 @@ namespace prime
       PowerPC::HostWrite_U32(beam_id, new_beam_address());
       PowerPC::HostWrite_U32(1, beamchange_flag_address());
     }
+
+    u32 visor_base = PowerPC::HostRead_U32(base_address + 0x12ec);
     int visor_id, visor_off;
     std::tie(visor_id, visor_off) = get_visor_switch(prime_two_visors);
     if (visor_id != -1)
-    {
-      u32 visor_base = PowerPC::HostRead_U32(base_address + 0x12ec);
+    {    
       if (PowerPC::HostRead_U32(visor_base + (visor_off * 0x0c) + 0x5c) != 0)
       {
         PowerPC::HostWrite_U32(visor_id, visor_base + 0x34);
       }
+    }
+
+    if (UseMP2AutoEFB())
+    {
+      bool useEFB = PowerPC::HostRead_U32(visor_base + 0x34) != 2;
+
+      if (GetEFBTexture() != useEFB)
+        SetEFBToTexture(useEFB);
     }
 
     springball_check(base_address + 0x374, base_address + 0x2C4);

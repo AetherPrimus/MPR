@@ -11,6 +11,7 @@
 #include "Core/HW/WiimoteEmu/WiimoteEmu.h"
 #include "Core/ConfigManager.h"
 #include "Core/Config/GraphicsSettings.h"
+#include "VideoCommon/VideoConfig.h"
 
 namespace prime
 {
@@ -80,6 +81,22 @@ bool CheckSpringBallCtl()
 {
   return Wiimote::CheckSpringBall();
 }
+
+void SetEFBToTexture(bool toggle)
+{
+  return Config::SetCurrent(Config::GFX_HACK_SKIP_EFB_COPY_TO_RAM, toggle);
+}
+
+bool UseMP2AutoEFB()
+{
+  return Config::Get(Config::AutoEFBMP2);
+}
+
+bool GetEFBTexture()
+{
+  return Config::Get(Config::GFX_HACK_SKIP_EFB_COPY_TO_RAM);
+}
+
 
 bool DisplayInfo()
 {
