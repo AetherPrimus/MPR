@@ -28,6 +28,7 @@ bool IsSettingSaveable(const Config::ConfigLocation& config_location)
 
       // Graphics.Settings
 
+      Config::primehack_info.location,
       Config::GFX_WIDESCREEN_HACK.location,
       Config::GFX_ASPECT_RATIO.location,
       Config::GFX_CROP.location,

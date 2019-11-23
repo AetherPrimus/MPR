@@ -163,6 +163,7 @@ struct VideoConfig final
   bool bDisableFog;
 
   // Utility
+  bool bPrimeHackInfo;
   bool bDumpTextures;  
   bool bHiresTextures;
   bool bHiresMaterialMaps;

@@ -742,6 +742,7 @@ VideoConfigDiag::VideoConfigDiag(wxWindow* parent, const std::string& title)
       szr_enh->Add(CreateCheckBox(page_enh, _("Use Scaling Filter"), (Use_Scaling_filter_desc),
                                   Config::GFX_ENHANCE_USE_SCALING_FILTER));
     }
+
     szr_enh->Add(CreateCheckBox(page_enh, _("Widescreen Hack"), (ws_hack_desc),
                                 Config::GFX_WIDESCREEN_HACK));
     szr_enh->Add(
@@ -1298,6 +1299,9 @@ VideoConfigDiag::VideoConfigDiag(wxWindow* parent, const std::string& title)
                                     Config::GFX_OVERLAY_STATS));
       szr_debug->Add(CreateCheckBox(page_advanced, _("Texture Format Overlay"), (texfmt_desc),
                                     Config::GFX_TEXFMT_OVERLAY_ENABLE));
+      szr_debug->Add(CreateCheckBox(page_advanced, _("PrimeHack Dev Info"), _("PrimeHack Development Display"),
+        Config::primehack_info));
+
       if (vconfig.backend_info.bSupportsValidationLayer)
       {
         szr_debug->Add(validation_layer =

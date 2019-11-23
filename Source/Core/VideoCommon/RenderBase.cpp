@@ -60,6 +60,10 @@
 #include "VideoCommon/VertexShaderManager.h"
 #include "VideoCommon/XFMemory.h"
 
+#include "Core/PrimeHack/AimMods.h"
+
+//std::string cplayer_str;
+
 // TODO: Move these out of here.
 int frameCount;
 int OSDChoice;
@@ -331,7 +335,7 @@ bool Renderer::CheckForHostConfigChanges()
 // Create On-Screen-Messages
 void Renderer::DrawDebugText()
 {
-  std::string final_yellow, final_cyan;
+  std::string final_yellow, final_cyan, final_purple;
 
   if (g_ActiveConfig.bShowFPS || SConfig::GetInstance().m_ShowFrameCount)
   {
@@ -351,6 +355,11 @@ void Renderer::DrawDebugText()
 
     final_cyan += "\n";
     final_yellow += "\n";
+  }
+
+  if (g_ActiveConfig.bPrimeHackInfo)
+  {
+    final_purple = "CPlayer: " + cplayer_str + "\n";
   }
 
   if (SConfig::GetInstance().m_ShowLag)
@@ -468,6 +477,7 @@ void Renderer::DrawDebugText()
   // and then the text
   RenderText(final_cyan, 20, 20, 0xFF00FFFF);
   RenderText(final_yellow, 20, 20, 0xFFFFFF00);
+  RenderText(final_purple, 20, 40, 0xFFFF00FF);
 }
 
 float Renderer::CalculateDrawAspectRatio(u32 target_width, u32 target_height) const

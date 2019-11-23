@@ -2,10 +2,14 @@
 
 #include "Core/PrimeHack/PrimeMod.h"
 
+extern std::string cplayer_str;
+
 namespace prime
 {
 void springball_code(u32 base_offset, std::vector<CodeChange>* code_changes);
-void springball_check(u32 base_address);
+void springball_check(u32 ball_address, u32 movement_address);
+
+void set_cplayer_str(u32 address);
 
 class MP1 : public PrimeMod
 {
@@ -26,7 +30,7 @@ protected:
   virtual uint32_t beamchange_flag_address() const = 0;
   virtual uint32_t visor_base_address() const = 0;
   virtual uint32_t camera_pointer_address() const = 0;
-  virtual uint32_t ball_check_address() const = 0;
+  virtual uint32_t cplayer() const = 0;
   virtual uint32_t active_camera_offset_address() const = 0;
   virtual uint32_t global_fov1() const = 0;
   virtual uint32_t global_fov2() const = 0;
@@ -56,7 +60,7 @@ protected:
   uint32_t beamchange_flag_address() const override;
   uint32_t visor_base_address() const override;
   uint32_t camera_pointer_address() const override;
-  uint32_t ball_check_address() const;
+  uint32_t cplayer() const;
   uint32_t active_camera_offset_address() const override;
   uint32_t global_fov1() const override;
   uint32_t global_fov2() const override;
@@ -81,7 +85,7 @@ protected:
   uint32_t beamchange_flag_address() const override;
   uint32_t visor_base_address() const override;
   uint32_t camera_pointer_address() const override;
-  uint32_t ball_check_address() const;
+  uint32_t cplayer() const;
   uint32_t active_camera_offset_address() const override;
   uint32_t global_fov1() const override;
   uint32_t global_fov2() const override;

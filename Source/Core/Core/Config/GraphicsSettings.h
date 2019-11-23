@@ -19,6 +19,7 @@ extern const ConfigInfo<int> GFX_ADAPTER;
 
 // Graphics.Settings
 
+extern const ConfigInfo<bool> primehack_info;
 extern const ConfigInfo<bool> GFX_WIDESCREEN_HACK;
 extern const ConfigInfo<int> GFX_ASPECT_RATIO;
 extern const ConfigInfo<int> GFX_SUGGESTED_ASPECT_RATIO;

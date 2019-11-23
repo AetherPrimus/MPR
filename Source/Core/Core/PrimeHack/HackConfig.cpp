@@ -10,6 +10,7 @@
 #include "Core/HW/Wiimote.h"
 #include "Core/HW/WiimoteEmu/WiimoteEmu.h"
 #include "Core/ConfigManager.h"
+#include "Core/Config/GraphicsSettings.h"
 
 namespace prime
 {
@@ -78,6 +79,11 @@ bool CheckBeamScrollCtl(bool direction)
 bool CheckSpringBallCtl()
 {
   return Wiimote::CheckSpringBall();
+}
+
+bool DisplayInfo()
+{
+  return Config::Get(Config::primehack_info);
 }
 
 void UpdateHackSettings()

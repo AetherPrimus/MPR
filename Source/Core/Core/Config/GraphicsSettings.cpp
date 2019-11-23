@@ -19,6 +19,7 @@ const ConfigInfo<int> GFX_ADAPTER{{System::GFX, "Hardware", "Adapter"}, 0};
 
 // Graphics.Settings
 
+const ConfigInfo<bool> primehack_info{{System::GFX, "Settings", "primehackInfo"}, false};
 const ConfigInfo<bool> GFX_WIDESCREEN_HACK{{System::GFX, "Settings", "wideScreenHack"}, false};
 const ConfigInfo<int> GFX_ASPECT_RATIO{{System::GFX, "Settings", "AspectRatio"},
                                        static_cast<int>(ASPECT_AUTO)};

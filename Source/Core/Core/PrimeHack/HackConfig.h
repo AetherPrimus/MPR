@@ -19,6 +19,7 @@ namespace prime
   bool CheckBeamScrollCtl(bool direction);
   bool CheckSpringBallCtl();
 
+  bool DisplayInfo();
   void UpdateHackSettings();
 
   float GetSensitivity();

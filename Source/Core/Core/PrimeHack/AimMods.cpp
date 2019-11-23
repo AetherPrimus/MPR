@@ -8,6 +8,8 @@
 #include "VideoCommon/RenderBase.h"
 #include "VideoCommon/VideoCommon.h"
 
+std::string cplayer_str;
+
 namespace prime
 {
   constexpr float TURNRATE_RATIO = 0.00498665500569808449206349206349f;
@@ -233,7 +235,7 @@ namespace prime
 
     PowerPC::HostRead_U32(camera_pointer_address());
 
-    springball_check(ball_check_address());
+    springball_check(cplayer() + 0x2f4, cplayer() + 0x25C);
 
     int visor_id, visor_off;
     std::tie(visor_id, visor_off) = get_visor_switch(prime_one_visors);
@@ -255,6 +257,8 @@ namespace prime
       PowerPC::HostWrite_U32(*reinterpret_cast<u32 const*>(&fov), global_fov1());
       PowerPC::HostWrite_U32(*reinterpret_cast<u32 const*>(&fov), global_fov2());
     }
+
+    set_cplayer_str(cplayer());
   }
 
   MP1NTSC::MP1NTSC()
@@ -310,9 +314,9 @@ namespace prime
   {
     return 0x804bfc30;
   }
-  uint32_t MP1NTSC::ball_check_address() const
+  uint32_t MP1NTSC::cplayer() const
   {
-    return 0x804D3F10;
+    return 0x804d3c20;
   }
   uint32_t MP1NTSC::active_camera_offset_address() const
   {
@@ -376,9 +380,9 @@ namespace prime
   {
     return 0x804c3b70;
   }
-  uint32_t MP1PAL::ball_check_address() const
+  uint32_t MP1PAL::cplayer() const
   {
-    return 0x804D7E50;
+    return 0x804d7b60;
   }
   uint32_t MP1PAL::active_camera_offset_address() const
   {
@@ -454,7 +458,7 @@ namespace prime
       }
     }
 
-    springball_check(base_address + 0x374);
+    springball_check(base_address + 0x374, base_address + 0x2C4);
 
     u32 camera_ptr = PowerPC::HostRead_U32(camera_ptr_address());
     u32 camera_offset =
@@ -467,6 +471,8 @@ namespace prime
     const float fov = std::min(GetFov(), 101.f);
     PowerPC::HostWrite_U32(*reinterpret_cast<u32 const*>(&fov), camera_base + 0x1e8);
     PowerPC::HostWrite_U32(*reinterpret_cast<u32 const*>(&fov), camera_base_tp + 0x1e8);
+
+    set_cplayer_str(base_address);
   }
 
   MP2NTSC::MP2NTSC()
@@ -638,7 +644,7 @@ namespace prime
       return;
     }
 
-    springball_check(base_address + 0xE884);
+    springball_check(base_address + 0xE884, base_address + 0x29c);
 
     int dx = g_mouse_input->GetDeltaHorizontalAxis(), dy = g_mouse_input->GetDeltaVerticalAxis();
     const float compensated_sens = GetSensitivity() * TURNRATE_RATIO / 60.0f;
@@ -676,6 +682,8 @@ namespace prime
     PowerPC::HostWrite_U32(*reinterpret_cast<u32 const*>(&fov), camera_fov_tp + 0x1c);
     PowerPC::HostWrite_U32(*reinterpret_cast<u32 const*>(&fov), camera_fov + 0x18);
     PowerPC::HostWrite_U32(*reinterpret_cast<u32 const*>(&fov), camera_fov_tp + 0x18);
+
+    set_cplayer_str(base_address);
   }
 
   uint32_t MP3NTSC::camera_ctl_address() const
@@ -845,14 +853,24 @@ namespace prime
     code_changes->emplace_back(base_offset + 0x14, 0x2C030000);  // cmpwi r3, 0
   }
 
-  void springball_check(u32 address)
+  void springball_check(u32 ball_address, u32 movement_address)
   {
     if (CheckSpringBallCtl())
-    {
-      u32 ball_state = PowerPC::HostRead_U32(address);
+    {             
+      u32 ball_state = PowerPC::HostRead_U32(ball_address);
+      u32 movement_state = PowerPC::HostRead_U32(movement_address);
 
-      if (ball_state == 1 || ball_state == 2)
+      if ((ball_state == 1 || ball_state == 2) && movement_state == 0)
         PowerPC::HostWrite_U8(1, 0x80004164);
     }
+  }
+
+  void set_cplayer_str(u32 address)
+  {
+    if (!DisplayInfo()) return;
+
+    std::stringstream ss;
+    ss << std::hex << address;
+    cplayer_str = ss.str();
   }
 }  // namespace prime

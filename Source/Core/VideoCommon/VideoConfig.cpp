@@ -82,6 +82,7 @@ void VideoConfig::Refresh()
   bVSync = Config::Get(Config::GFX_VSYNC);
   iAdapter = Config::Get(Config::GFX_ADAPTER);
 
+  bPrimeHackInfo = Config::Get(Config::primehack_info);
   bWidescreenHack = Config::Get(Config::GFX_WIDESCREEN_HACK);
   iAspectRatio = Config::Get(Config::GFX_ASPECT_RATIO);
   bCrop = Config::Get(Config::GFX_CROP);
