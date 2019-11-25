@@ -167,7 +167,7 @@ const ConfigInfo<std::string> GFX_STEREO_SHADER{
   { System::GFX, "Stereoscopy", "StereoShader" }, std::string("Anaglyph/dubois")};
 
 // Graphics.Hacks
-const ConfigInfo<bool> AutoEFBMP2{{System::GFX, "Hacks", "AutoEFBMP2"}, true};
+const ConfigInfo<bool> AutoEFBMP{{System::GFX, "Hacks", "AutoEFBMP"}, true};
 const ConfigInfo<bool> GFX_HACK_EFB_ACCESS_ENABLE{{System::GFX, "Hacks", "EFBAccessEnable"}, true};
 const ConfigInfo<bool> GFX_HACK_EFB_FAST_ACCESS_ENABLE{ { System::GFX, "Hacks", "EFBFastAccess" }, false };
 const ConfigInfo<int> GFX_HACK_BBOX_MODE{{System::GFX, "Hacks", "BoundingBoxMode"}, 0};

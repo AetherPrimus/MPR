@@ -1171,8 +1171,8 @@ VideoConfigDiag::VideoConfigDiag(wxWindow* parent, const std::string& title)
     szr_efb->Add(CreateCheckBox(page_hacks, _("Store EFB copies to Texture Only"),
                                 (skip_efb_copy_to_ram_desc), Config::GFX_HACK_SKIP_EFB_COPY_TO_RAM),
                  0, wxBOTTOM | wxLEFT, 5);
-    szr_efb->Add(CreateCheckBox(page_hacks, _("Automatically disable \"EFB to Texture\" while scanning in MP2"),
-                                _("This setting was added by PrimeHack."), Config::AutoEFBMP2),
+    szr_efb->Add(CreateCheckBox(page_hacks, _("Automatically disable \"EFB to Texture\" while scanning in MP2 & MP3"),
+                                _("This setting was added by PrimeHack."), Config::AutoEFBMP),
                  0, wxBOTTOM | wxLEFT, 5);
     szr_hacks->Add(szr_efb, 0, wxEXPAND | wxALL, 5);
 
