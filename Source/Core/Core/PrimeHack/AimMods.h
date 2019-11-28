@@ -21,6 +21,7 @@ public:
   virtual ~MP1() {}
 
 protected:
+  virtual uint32_t orbit_state_address() const = 0;
   virtual uint32_t lockon_address() const = 0;
   virtual uint32_t yaw_vel_address() const = 0;
   virtual uint32_t pitch_address() const = 0;
@@ -51,6 +52,7 @@ public:
   virtual ~MP1NTSC() {}
 
 protected:
+  uint32_t orbit_state_address() const override;
   uint32_t lockon_address() const override;
   uint32_t yaw_vel_address() const override;
   uint32_t pitch_address() const override;
@@ -76,6 +78,7 @@ public:
   virtual ~MP1PAL() {}
 
 protected:
+  uint32_t orbit_state_address() const override;
   uint32_t lockon_address() const override;
   uint32_t yaw_vel_address() const override;
   uint32_t pitch_address() const override;
@@ -168,7 +171,7 @@ public:
 
 protected:
   virtual uint32_t camera_ctl_address() const = 0;
-  virtual uint32_t grapple_hook_address() const = 0;
+  virtual uint32_t cursor_enabled_address() const = 0;
   virtual uint32_t boss_id_address() const = 0;
   virtual uint32_t cursor_dlg_address() const = 0;
   virtual uint32_t cursor_address() const = 0;
@@ -197,7 +200,7 @@ public:
 
 protected:
   uint32_t camera_ctl_address() const override;
-  uint32_t grapple_hook_address() const override;
+  uint32_t cursor_enabled_address() const override;
   uint32_t boss_id_address() const override;
   uint32_t cursor_dlg_address() const;
   uint32_t cursor_address() const override;
@@ -220,7 +223,7 @@ public:
 
 protected:
   uint32_t camera_ctl_address() const override;
-  uint32_t grapple_hook_address() const override;
+  uint32_t cursor_enabled_address() const override;
   uint32_t boss_id_address() const override;
   uint32_t cursor_dlg_address() const;
   uint32_t cursor_address() const override;

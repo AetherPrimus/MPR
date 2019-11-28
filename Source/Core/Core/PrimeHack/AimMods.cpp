@@ -206,7 +206,7 @@ namespace prime
 
   void MP1::run_mod()
   {
-    if (PowerPC::HostRead_U8(lockon_address()))
+    if (PowerPC::HostRead_U32(orbit_state_address()) != 5 && PowerPC::HostRead_U8(lockon_address()))
     {
       PowerPC::HostWrite_U32(0, yaw_vel_address());
       return;
@@ -275,11 +275,16 @@ namespace prime
     code_changes.emplace_back(0x80183a64, 0x60000000);
     code_changes.emplace_back(0x8017661c, 0x60000000);
     code_changes.emplace_back(0x802fb5b4, 0xd23f009c);
+    code_changes.emplace_back(0x8019fbcc, 0x60000000);
 
     beam_change_code(0x8018e544);
     prime::springball_code(0x801476D0, &code_changes);
   }
 
+  uint32_t MP1NTSC::orbit_state_address() const
+  {
+    return 0x804d3f20;
+  }
   uint32_t MP1NTSC::lockon_address() const
   {
     return 0x804c00b3;
@@ -341,11 +346,16 @@ namespace prime
     code_changes.emplace_back(0x80183d24, 0x60000000);
     code_changes.emplace_back(0x801768b4, 0x60000000);
     code_changes.emplace_back(0x802fb84c, 0xd23f009c);
+    code_changes.emplace_back(0x8019fe64, 0x60000000);
 
     beam_change_code(0x8018e7dc);
     prime::springball_code(0x80147820, &code_changes);
   }
 
+  uint32_t MP1PAL::orbit_state_address() const
+  {
+    return 0x804d7e60;
+  }
   uint32_t MP1PAL::lockon_address() const
   {
     return 0x804c3ff3;
@@ -425,7 +435,8 @@ namespace prime
     {
       return;
     }
-    if (PowerPC::HostRead_U8(lockon_address()))
+
+    if (PowerPC::HostRead_U32(base_address + 0x390) != 5 && PowerPC::HostRead_U8(lockon_address()))
     {
       PowerPC::HostWrite_U32(0, base_address + 0x178);
       return;
@@ -501,6 +512,8 @@ namespace prime
     code_changes.emplace_back(0x8008bb48, 0x60000000);
     code_changes.emplace_back(0x8008bb18, 0x60000000);
     code_changes.emplace_back(0x803054a0, 0xd23f009c);
+    code_changes.emplace_back(0x80169dbc, 0x60000000);
+    code_changes.emplace_back(0x80143d00, 0x48000050);
 
     beam_change_code(0x8018cc88);
     prime::springball_code(0x8010BD98, &code_changes);
@@ -545,6 +558,8 @@ namespace prime
     code_changes.emplace_back(0x8008d18c, 0x60000000);
     code_changes.emplace_back(0x8008d15c, 0x60000000);
     code_changes.emplace_back(0x80307d2c, 0xd23f009c);
+    code_changes.emplace_back(0x8016b534, 0x60000000);
+    code_changes.emplace_back(0x80145474, 0x48000050);
 
     beam_change_code(0x8018e41c);
     prime::springball_code(0x8010D440, &code_changes);
@@ -628,7 +643,7 @@ namespace prime
       return;
     }
 
-    if (PowerPC::HostRead_U8(grapple_hook_address()) || PowerPC::HostRead_U8(base_address + 0x378) ||
+    if (PowerPC::HostRead_U8(cursor_enabled_address()) ||
       PowerPC::HostRead_U32(boss_id_address()) == 0x442f0000)
     {
       if (PowerPC::HostRead_U32(boss_id_address()) == 0x442f0000 && !fighting_ridley)
@@ -654,7 +669,7 @@ namespace prime
       PowerPC::HostWrite_U32(0, cursor_base + 0x9c);
       PowerPC::HostWrite_U32(0, cursor_base + 0x15c);
     }
-    if (PowerPC::HostRead_U8(lockon_address()))
+    if (!PowerPC::HostRead_U8(base_address + 0x378) && PowerPC::HostRead_U8(lockon_address()))
     {
       PowerPC::HostWrite_U32(0, base_address + 0x174);
       return;
@@ -715,7 +730,7 @@ namespace prime
   {
     return 0x805c6c6c;  // camera_ctl_address()) + 0x04) + 0x2184
   }
-  uint32_t MP3NTSC::grapple_hook_address() const
+  uint32_t MP3NTSC::cursor_enabled_address() const
   {
     return 0x805c8d77;
   }
@@ -788,7 +803,7 @@ namespace prime
   {
     return 0x805ca0ec;
   }
-  uint32_t MP3PAL::grapple_hook_address() const
+  uint32_t MP3PAL::cursor_enabled_address() const
   {
     return 0x805cc1d7;
   }
