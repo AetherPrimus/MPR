@@ -1,6 +1,7 @@
 #include "Core/PrimeHack/AimMods.h"
 
 #include <cmath>
+#include <sstream>
 
 #include "Core/PowerPC/PowerPC.h"
 #include "Core/PrimeHack/HackConfig.h"
