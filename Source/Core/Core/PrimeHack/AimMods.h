@@ -183,6 +183,7 @@ protected:
   virtual void apply_normal_instructions() = 0;
 
   void control_state_hook(u32 base_offset, Region region);
+  void grapple_slide_no_lookat(u32 base_offset);
 
 private:
   float pitch = 0;
