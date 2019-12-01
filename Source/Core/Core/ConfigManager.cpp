@@ -786,6 +786,7 @@ void SConfig::LoadDefaults()
 #endif
 #endif
 
+  bEnableCheats = true;
   iCPUCore = PowerPC::DefaultCPUCore();
   iTimingVariance = 40;
   bCPUThread = false;
