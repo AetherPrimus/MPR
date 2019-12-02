@@ -943,10 +943,11 @@ static bool RunCodeLocked(const ARCode& arcode)
 
 void RunAllActive()
 {
-  if (!SConfig::GetInstance().bEnableCheats || !SConfig::GetInstance().bEnablePrimeHack)
-    return;
+  if (SConfig::GetInstance().bEnablePrimeHack)
+    prime::GetHackManager()->run_active_mods();
 
-  prime::GetHackManager()->run_active_mods();
+  if (!SConfig::GetInstance().bEnableCheats)
+    return;
 
   std::lock_guard<std::mutex> guard(s_lock);
   s_active_codes.erase(std::remove_if(s_active_codes.begin(), s_active_codes.end(),
