@@ -1108,12 +1108,13 @@ void Wiimote::LoadDefaults(const ControllerInterface& ciface)
   m_swing->SetControlExpression(4, "LSHIFT & W");  // Thrust forward
   m_swing->SetControlExpression(5, "LSHIFT & S");  // Pull back
 
+  m_extension->switch_extension = 1;
 
   // set nunchuk defaults
   m_extension->attachments[1]->LoadDefaults(ciface);
 
   // Beams
-  m_primehack_beams->SetControlExpression(0, "`1` & !E");
+  m_primehack_beams->SetControlExpression(0, "E & (!`1` & !`2` & !`3`)");
   m_primehack_beams->SetControlExpression(1, "`2` & !E");
   m_primehack_beams->SetControlExpression(2, "`3` & !E");
   m_primehack_beams->SetControlExpression(3, "`4` & !E");
@@ -1123,7 +1124,7 @@ void Wiimote::LoadDefaults(const ControllerInterface& ciface)
   m_primehack_visors->SetControlExpression(2, "E & `3`");
   m_primehack_visors->SetControlExpression(3, "E & `4`");
   // Misc. Defaults
-  m_primehack_misc->SetControlExpression(0, "SPACE"); // Spring Ball
+  m_primehack_misc->SetControlExpression(0, "LMENU"); // Spring Ball
   m_primehack_misc->SetControlExpression(1, "Axis Z+"); // Next beam
   m_primehack_misc->SetControlExpression(2, "Axis Z-"); // Previous beam
 }
