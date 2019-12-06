@@ -4,7 +4,11 @@
 #include <string>
 
 #include "Common/IniFile.h"
-#include "Core/PrimeHack/AimMods.h"
+#include "Core/PrimeHack/PrimeUtils.h"
+#include "Core/PrimeHack/Games/MP1.h"
+#include "Core/PrimeHack/Games/MP2.h"
+#include "Core/PrimeHack/Games/MP3.h"
+
 #include "InputCommon/ControllerInterface/ControllerInterface.h"
 
 #include "Core/HW/Wiimote.h"

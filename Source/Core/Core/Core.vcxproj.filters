@@ -166,6 +166,9 @@
     <Filter Include="PrimeHack">
       <UniqueIdentifier>{2a376c18-c401-407a-a689-4e706b2e1fb1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="PrimeHack\Games">
+      <UniqueIdentifier>{4e9f21bb-7786-4855-8519-dd68f0c700e4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BootManager.cpp" />
@@ -891,13 +894,22 @@
     <ClCompile Include="DSP\Jit\x64\DSPJitUtil.cpp">
       <Filter>DSPCore\Jit</Filter>
     </ClCompile>
-    <ClCompile Include="PrimeHack\AimMods.cpp">
-      <Filter>PrimeHack</Filter>
-    </ClCompile>
     <ClCompile Include="PrimeHack\HackManager.cpp">
       <Filter>PrimeHack</Filter>
     </ClCompile>
     <ClCompile Include="PrimeHack\HackConfig.cpp">
+      <Filter>PrimeHack</Filter>
+    </ClCompile>
+    <ClCompile Include="PrimeHack\Games\MP3.cpp">
+      <Filter>PrimeHack\Games</Filter>
+    </ClCompile>
+    <ClCompile Include="PrimeHack\Games\MP2.cpp">
+      <Filter>PrimeHack\Games</Filter>
+    </ClCompile>
+    <ClCompile Include="PrimeHack\Games\MP1.cpp">
+      <Filter>PrimeHack\Games</Filter>
+    </ClCompile>
+    <ClCompile Include="PrimeHack\PrimeUtils.cpp">
       <Filter>PrimeHack</Filter>
     </ClCompile>
   </ItemGroup>
@@ -1574,10 +1586,19 @@
     <ClInclude Include="Primehack\PrimeMod.h">
       <Filter>PrimeHack</Filter>
     </ClInclude>
-    <ClInclude Include="PrimeHack\AimMods.h">
+    <ClInclude Include="PrimeHack\HackConfig.h">
       <Filter>PrimeHack</Filter>
     </ClInclude>
-    <ClInclude Include="PrimeHack\HackConfig.h">
+    <ClInclude Include="PrimeHack\Games\MP3.h">
+      <Filter>PrimeHack\Games</Filter>
+    </ClInclude>
+    <ClInclude Include="PrimeHack\Games\MP2.h">
+      <Filter>PrimeHack\Games</Filter>
+    </ClInclude>
+    <ClInclude Include="PrimeHack\Games\MP1.h">
+      <Filter>PrimeHack\Games</Filter>
+    </ClInclude>
+    <ClInclude Include="PrimeHack\PrimeUtils.h">
       <Filter>PrimeHack</Filter>
     </ClInclude>
   </ItemGroup>

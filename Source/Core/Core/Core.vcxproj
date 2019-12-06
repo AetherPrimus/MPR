@@ -289,7 +289,10 @@
     <ClCompile Include="PowerPC\PPCSymbolDB.cpp" />
     <ClCompile Include="PowerPC\PPCTables.cpp" />
     <ClCompile Include="PowerPC\Profiler.cpp" />
-    <ClCompile Include="PrimeHack\AimMods.cpp" />
+    <ClCompile Include="PrimeHack\PrimeUtils.cpp" />
+    <ClCompile Include="PrimeHack\Games\MP1.cpp" />
+    <ClCompile Include="PrimeHack\Games\MP2.cpp" />
+    <ClCompile Include="PrimeHack\Games\MP3.cpp" />
     <ClCompile Include="PrimeHack\HackConfig.cpp" />
     <ClCompile Include="PrimeHack\HackManager.cpp" />
     <ClCompile Include="State.cpp" />
@@ -527,7 +530,10 @@
     <ClInclude Include="PowerPC\PPCSymbolDB.h" />
     <ClInclude Include="PowerPC\PPCTables.h" />
     <ClInclude Include="PowerPC\Profiler.h" />
-    <ClInclude Include="PrimeHack\AimMods.h" />
+    <ClInclude Include="PrimeHack\PrimeUtils.h" />
+    <ClInclude Include="PrimeHack\Games\MP1.h" />
+    <ClInclude Include="PrimeHack\Games\MP2.h" />
+    <ClInclude Include="PrimeHack\Games\MP3.h" />
     <ClInclude Include="PrimeHack\HackConfig.h" />
     <ClInclude Include="Primehack\HackManager.h" />
     <ClInclude Include="Primehack\PrimeMod.h" />

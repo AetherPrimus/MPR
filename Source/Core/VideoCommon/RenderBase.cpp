@@ -60,7 +60,7 @@
 #include "VideoCommon/VertexShaderManager.h"
 #include "VideoCommon/XFMemory.h"
 
-#include "Core/PrimeHack/AimMods.h"
+#include "Core/PrimeHack/PrimeUtils.h"
 
 //std::string cplayer_str;
 
