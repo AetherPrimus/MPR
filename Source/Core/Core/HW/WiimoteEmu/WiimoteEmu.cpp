@@ -402,10 +402,10 @@ Wiimote::Wiimote(const unsigned int index) : m_index(index), ir_sin(0), ir_cos(1
   groups.emplace_back(m_primehack_misc =
     new ControllerEmu::ControlGroup(_trans("PrimeHack"), "Miscellaneous"));
   m_primehack_camera->boolean_settings.emplace_back(
-    m_primehack_invert_x = new ControllerEmu::BooleanSetting(_trans("Invert X Axis"), false));
+    m_primehack_invert_x = new ControllerEmu::BooleanSetting("Invert X Axis", false));
 
   m_primehack_camera->boolean_settings.emplace_back(
-    m_primehack_invert_y = new ControllerEmu::BooleanSetting(_trans("Invert Y Axis"), false));
+    m_primehack_invert_y = new ControllerEmu::BooleanSetting("Invert Y Axis", false));
 
   m_primehack_misc->controls.emplace_back(
     new ControllerEmu::Input("Spring Ball", "Spring Ball"));
