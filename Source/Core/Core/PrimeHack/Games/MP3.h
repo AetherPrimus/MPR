@@ -20,6 +20,7 @@ protected:
   virtual uint32_t camera_ctl_address() const = 0;
   virtual uint32_t cursor_enabled_address() const = 0;
   virtual uint32_t boss_id_address() const = 0;
+  virtual uint64_t boss_id() const = 0;
   virtual uint32_t cursor_dlg_address() const = 0;
   virtual uint32_t cursor_address() const = 0;
   virtual uint32_t cursor_offset() const = 0;
@@ -50,6 +51,7 @@ protected:
   uint32_t camera_ctl_address() const override;
   uint32_t cursor_enabled_address() const override;
   uint32_t boss_id_address() const override;
+  uint64_t boss_id() const override;
   uint32_t cursor_dlg_address() const;
   uint32_t cursor_address() const override;
   uint32_t cursor_offset() const override;
@@ -73,6 +75,7 @@ protected:
   uint32_t camera_ctl_address() const override;
   uint32_t cursor_enabled_address() const override;
   uint32_t boss_id_address() const override;
+  uint64_t boss_id() const override;
   uint32_t cursor_dlg_address() const;
   uint32_t cursor_address() const override;
   uint32_t cursor_offset() const override;
