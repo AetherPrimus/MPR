@@ -37,24 +37,6 @@ namespace prime
       return;
     }
 
-    if (PowerPC::HostRead_U32(base_address + 0x390) != 5 && PowerPC::HostRead_U8(lockon_address()))
-    {
-      PowerPC::HostWrite_U32(0, base_address + 0x178);
-      return;
-    }
-
-    int dx = g_mouse_input->GetDeltaHorizontalAxis(), dy = g_mouse_input->GetDeltaVerticalAxis();
-    const float compensated_sens = GetSensitivity() * TURNRATE_RATIO / 60.0f;
-
-    pitch += static_cast<float>(dy) * -compensated_sens * (InvertedY() ? -1.f : 1.f);
-    pitch = std::clamp(pitch, -1.04f, 1.04f);
-    const float yaw_vel = dx * -GetSensitivity() * (InvertedX() ? -1.f : 1.f);
-
-    u32 arm_cannon_model_matrix = PowerPC::HostRead_U32(base_address + 0xea8) + 0x3b0;
-    PowerPC::HostWrite_U32(*reinterpret_cast<u32*>(&pitch), base_address + 0x5f0);
-    PowerPC::HostWrite_U32(*reinterpret_cast<u32*>(&pitch), arm_cannon_model_matrix + 0x24);
-    PowerPC::HostWrite_U32(*reinterpret_cast<u32 const*>(&yaw_vel), base_address + 0x178);
-
     for (int i = 0; i < 4; i++) {
       u32 beam_base = PowerPC::HostRead_U32(base_address + 0x12ec);
       set_beam_owned(i, PowerPC::HostRead_U32(beam_base + (prime_two_beams[i] * 0x0c) + 0x5c) ? true : false);
@@ -85,6 +67,24 @@ namespace prime
       if (GetEFBTexture() != useEFB)
         SetEFBToTexture(useEFB);
     }
+
+    if (PowerPC::HostRead_U32(base_address + 0x390) != 5 && PowerPC::HostRead_U8(lockon_address()))
+    {
+      PowerPC::HostWrite_U32(0, base_address + 0x178);
+      return;
+    }
+
+    int dx = g_mouse_input->GetDeltaHorizontalAxis(), dy = g_mouse_input->GetDeltaVerticalAxis();
+    const float compensated_sens = GetSensitivity() * TURNRATE_RATIO / 60.0f;
+
+    pitch += static_cast<float>(dy) * -compensated_sens * (InvertedY() ? -1.f : 1.f);
+    pitch = std::clamp(pitch, -1.04f, 1.04f);
+    const float yaw_vel = dx * -GetSensitivity() * (InvertedX() ? -1.f : 1.f);
+
+    u32 arm_cannon_model_matrix = PowerPC::HostRead_U32(base_address + 0xea8) + 0x3b0;
+    PowerPC::HostWrite_U32(*reinterpret_cast<u32*>(&pitch), base_address + 0x5f0);
+    PowerPC::HostWrite_U32(*reinterpret_cast<u32*>(&pitch), arm_cannon_model_matrix + 0x24);
+    PowerPC::HostWrite_U32(*reinterpret_cast<u32 const*>(&yaw_vel), base_address + 0x178);
 
     springball_check(base_address + 0x374, base_address + 0x2C4);
 

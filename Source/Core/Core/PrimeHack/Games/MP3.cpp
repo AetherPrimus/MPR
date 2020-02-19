@@ -105,6 +105,26 @@ namespace prime
       PowerPC::HostWrite_U32(0, cursor_base + 0x9c);
       PowerPC::HostWrite_U32(0, cursor_base + 0x15c);
     }
+
+    u32 visor_base = PowerPC::HostRead_U32(base_address + 0x35a8);
+    int visor_id, visor_off;
+    std::tie(visor_id, visor_off) = get_visor_switch(prime_three_visors, PowerPC::HostRead_U32(visor_base + 0x34) == 0);
+    if (visor_id != -1)
+    {
+      if (PowerPC::HostRead_U32(visor_base + (visor_off * 0x0c) + 0x58) != 0)
+      {
+        PowerPC::HostWrite_U32(visor_id, visor_base + 0x34);
+      }
+    }
+
+    if (UseMPAutoEFB())
+    {
+      bool useEFB = PowerPC::HostRead_U32(visor_base + 0x34) != 1;
+
+      if (GetEFBTexture() != useEFB)
+        SetEFBToTexture(useEFB);
+    }
+
     if (!PowerPC::HostRead_U8(base_address + 0x378) && PowerPC::HostRead_U8(lockon_address()))
     {
       PowerPC::HostWrite_U32(0, base_address + 0x174);
@@ -125,25 +145,6 @@ namespace prime
     u32 rtoc_min_turn_rate = GPR(2) - cannon_lag_rtoc_offset();
     PowerPC::HostWrite_U32(0, rtoc_min_turn_rate);
     PowerPC::HostWrite_U32(*reinterpret_cast<u32*>(&pitch), base_address + 0x784);
-
-    u32 visor_base = PowerPC::HostRead_U32(base_address + 0x35a8);
-    int visor_id, visor_off;
-    std::tie(visor_id, visor_off) = get_visor_switch(prime_three_visors, PowerPC::HostRead_U32(visor_base + 0x34) == 0);
-    if (visor_id != -1)
-    {
-      if (PowerPC::HostRead_U32(visor_base + (visor_off * 0x0c) + 0x58) != 0)
-      {
-        PowerPC::HostWrite_U32(visor_id, visor_base + 0x34);
-      }
-    }
-
-    if (UseMPAutoEFB())
-    {
-      bool useEFB = PowerPC::HostRead_U32(visor_base + 0x34) != 1;
-
-      if (GetEFBTexture() != useEFB)
-        SetEFBToTexture(useEFB);
-    }
 
     u32 camera_fov = PowerPC::HostRead_U32(
       PowerPC::HostRead_U32(
