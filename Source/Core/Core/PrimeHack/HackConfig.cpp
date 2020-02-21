@@ -27,6 +27,7 @@ static float camera_fov;
 static std::string device_name, device_source;
 static bool inverted_y = false;
 static bool inverted_x = false;
+static bool camera_culling = false;
 static HackManager hack_mgr;
 bool isRunning = false;
 
@@ -110,15 +111,16 @@ bool DisplayInfo()
 void UpdateHackSettings()
 {
   double camera, cursor, fov;
-  bool invertx, inverty;
-  std::tie<double, double, double, bool, bool>(camera, cursor, fov, invertx, inverty) =
-      Wiimote::PrimeSettings();
+  bool invertx, inverty, culling;
+  std::tie<double, double, double, bool, bool, bool>(camera, cursor, fov, invertx, inverty, culling) =
+    Wiimote::PrimeSettings();
 
   SetSensitivity((float)camera);
   SetCursorSensitivity((float)cursor);
   SetFov((float)fov);
   SetInvertedX(invertx);
   SetInvertedY(inverty);
+  SetCulling(culling);
 }
 
 std::vector<std::unique_ptr<ControlReference>>& GetMutableControls()
@@ -174,6 +176,16 @@ bool InvertedX()
 void SetInvertedX(bool inverted)
 {
   inverted_x = inverted;
+}
+
+void SetCulling(bool culling)
+{
+  camera_culling = culling; 
+}
+
+bool Culling()
+{
+  return camera_culling;
 }
 
 std::string const& GetCtlDeviceName()

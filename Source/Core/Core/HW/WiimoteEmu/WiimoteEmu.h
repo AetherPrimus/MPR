@@ -215,7 +215,7 @@ public:
   bool CheckBeamScrollCtrl(bool direction);
   bool CheckSpringBallCtrl();
 
-  std::tuple<double, double, double, bool, bool> GetPrimeSettings();
+  std::tuple<double, double, double, bool, bool, bool> GetPrimeSettings();
 
   void Reset();
 
@@ -283,6 +283,7 @@ private:
   ControllerEmu::NumericSetting* m_primehack_fieldofview;
   ControllerEmu::BooleanSetting* m_primehack_invert_y;
   ControllerEmu::BooleanSetting* m_primehack_invert_x;
+  ControllerEmu::BooleanSetting* m_primehack_toggle_culling;
 
   // Wiimote accel data
   AccelData m_accel;
