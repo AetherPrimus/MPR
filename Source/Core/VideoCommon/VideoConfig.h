@@ -184,8 +184,6 @@ struct VideoConfig final
 
 
   // Hacks
-  bool bAutoEFBMP;
-
   bool bEFBAccessEnable;
   bool bEFBFastAccess;
   bool bForceProgressive;

@@ -28,7 +28,6 @@ bool IsSettingSaveable(const Config::ConfigLocation& config_location)
 
       // Graphics.Settings
 
-      Config::primehack_info.location,
       Config::GFX_WIDESCREEN_HACK.location,
       Config::GFX_ASPECT_RATIO.location,
       Config::GFX_CROP.location,
@@ -153,6 +152,16 @@ bool IsSettingSaveable(const Config::ConfigLocation& config_location)
       Config::GFX_PROJECTION_HACK_ZFAR.location,
       Config::GFX_PERF_QUERIES_ENABLE.location,
 
+     // Graphics.PrimeHack
+      Config::TOGGLE_PRIMEHACK_INFO.location,
+      Config::TOGGLE_ARM_REPOSITION.location,
+      Config::AUTO_EFB.location,
+      Config::ARMPOSITION_MODE.location,
+      Config::ARMPOSITION_LEFTRIGHT.location,
+      Config::ARMPOSITION_UPDOWN.location,
+      Config::ARMPOSITION_FORWARDBACK.location,
+      Config::TOGGLE_CULLING.location,
+      Config::DISABLE_BLOOM_PRIME3.location,
   };
 
   return std::find(s_setting_saveable.begin(), s_setting_saveable.end(), config_location) !=

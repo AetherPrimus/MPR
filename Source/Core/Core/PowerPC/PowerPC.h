@@ -224,6 +224,8 @@ void HostWrite_U8(u8 var, u32 address);
 void HostWrite_U16(u16 var, u32 address);
 void HostWrite_U32(u32 var, u32 address);
 void HostWrite_U64(u64 var, u32 address);
+void HostWrite_F32(float var, u32 address);
+void HostWrite_F64(double var, u32 address);
 
 // Returns whether a read or write to the given address will resolve to a RAM
 // access given the current CPU state.

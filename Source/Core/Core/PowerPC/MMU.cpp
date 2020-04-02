@@ -601,6 +601,20 @@ void HostWrite_U64(const u64 var, const u32 address)
   WriteToHardware<XCheckTLBFlag::NoException, u64>(address, var);
 }
 
+void HostWrite_F32(const float var, const u32 address)
+{
+  const u32 integral = Common::BitCast<u32>(var);
+
+  HostWrite_U32(integral, address);
+}
+
+void HostWrite_F64(const double var, const u32 address)
+{
+  const u64 integral = Common::BitCast<u64>(var);
+
+  HostWrite_U64(integral, address);
+}
+
 std::string HostGetString(u32 address, size_t size)
 {
   std::string s;

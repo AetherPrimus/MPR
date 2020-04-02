@@ -19,7 +19,6 @@ const ConfigInfo<int> GFX_ADAPTER{{System::GFX, "Hardware", "Adapter"}, 0};
 
 // Graphics.Settings
 
-const ConfigInfo<bool> primehack_info{{System::GFX, "Settings", "primehackInfo"}, false};
 const ConfigInfo<bool> GFX_WIDESCREEN_HACK{{System::GFX, "Settings", "wideScreenHack"}, false};
 const ConfigInfo<int> GFX_ASPECT_RATIO{{System::GFX, "Settings", "AspectRatio"},
                                        static_cast<int>(ASPECT_AUTO)};
@@ -167,7 +166,6 @@ const ConfigInfo<std::string> GFX_STEREO_SHADER{
   { System::GFX, "Stereoscopy", "StereoShader" }, std::string("Anaglyph/dubois")};
 
 // Graphics.Hacks
-const ConfigInfo<bool> AutoEFBMP{{System::GFX, "Hacks", "AutoEFBMP"}, true};
 const ConfigInfo<bool> GFX_HACK_EFB_ACCESS_ENABLE{{System::GFX, "Hacks", "EFBAccessEnable"}, true};
 const ConfigInfo<bool> GFX_HACK_EFB_FAST_ACCESS_ENABLE{ { System::GFX, "Hacks", "EFBFastAccess" }, false };
 const ConfigInfo<int> GFX_HACK_BBOX_MODE{{System::GFX, "Hacks", "BoundingBoxMode"}, 0};
@@ -196,4 +194,18 @@ const ConfigInfo<std::string> GFX_PROJECTION_HACK_ZFAR{{System::GFX, "GameSpecif
                                                        ""};
 const ConfigInfo<bool> GFX_PERF_QUERIES_ENABLE{{System::GFX, "GameSpecific", "PerfQueriesEnable"},
                                                false};
+
+// Graphics.PrimeHack
+const ConfigInfo<bool> AUTO_EFB{{System::GFX, "PrimeHack Misc", "AutoEFBMP"}, true};
+const ConfigInfo<bool> DISABLE_BLOOM_PRIME3{{System::GFX, "PrimeHack Misc", "DisableBloomPrime3"}, false};
+const ConfigInfo<bool> TOGGLE_ARM_REPOSITION{{System::GFX, "PrimeHack Misc", "ToggleArmRePosition"}, true};
+const ConfigInfo<bool> TOGGLE_CULLING{{System::GFX, "PrimeHack Misc", "ToggleCulling"}, false};
+const ConfigInfo<bool> ARMPOSITION_MODE{{System::GFX, "PrimeHack Misc", "ArmPosition_Mode"}, true};
+
+const ConfigInfo<int> ARMPOSITION_LEFTRIGHT{{System::GFX, "PrimeHack Misc", "ArmPosition_LEFTRIGHT"}, 25};
+const ConfigInfo<int> ARMPOSITION_UPDOWN{{System::GFX, "PrimeHack Misc", "ArmPosition_UPDOWN"}, 30};
+const ConfigInfo<int> ARMPOSITION_FORWARDBACK{{System::GFX, "PrimeHack Misc", "ArmPosition_FORWARDBACK"}, -35};
+
+const ConfigInfo<bool> TOGGLE_PRIMEHACK_INFO{{System::GFX, "Settings", "primehackInfo"}, false};
+
 }  // namespace Config

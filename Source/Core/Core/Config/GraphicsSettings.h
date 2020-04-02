@@ -19,7 +19,6 @@ extern const ConfigInfo<int> GFX_ADAPTER;
 
 // Graphics.Settings
 
-extern const ConfigInfo<bool> primehack_info;
 extern const ConfigInfo<bool> GFX_WIDESCREEN_HACK;
 extern const ConfigInfo<int> GFX_ASPECT_RATIO;
 extern const ConfigInfo<int> GFX_SUGGESTED_ASPECT_RATIO;
@@ -129,7 +128,6 @@ extern const ConfigInfo<std::string> GFX_STEREO_SHADER;
 
 // Graphics.Hacks
 
-extern const ConfigInfo<bool> AutoEFBMP;
 extern const ConfigInfo<bool> GFX_HACK_EFB_ACCESS_ENABLE;
 extern const ConfigInfo<bool> GFX_HACK_EFB_FAST_ACCESS_ENABLE;
 extern const ConfigInfo<int> GFX_HACK_BBOX_MODE;
@@ -153,6 +151,19 @@ extern const ConfigInfo<std::string> GFX_PROJECTION_HACK_ZNEAR;
 extern const ConfigInfo<std::string> GFX_PROJECTION_HACK_ZFAR;
 extern const ConfigInfo<bool> GFX_PERF_QUERIES_ENABLE;
 
+// Graphics.PrimeHack
+
+extern const ConfigInfo<bool> AUTO_EFB;
+extern const ConfigInfo<bool> DISABLE_BLOOM_PRIME3;
+extern const ConfigInfo<bool> TOGGLE_ARM_REPOSITION;
+extern const ConfigInfo<bool> TOGGLE_CULLING;
+extern const ConfigInfo<bool> ARMPOSITION_MODE;
+
+extern const ConfigInfo<int> ARMPOSITION_LEFTRIGHT;
+extern const ConfigInfo<int> ARMPOSITION_UPDOWN;
+extern const ConfigInfo<int> ARMPOSITION_FORWARDBACK;
+
+extern const ConfigInfo<bool> TOGGLE_PRIMEHACK_INFO;
 
 
 }  // namespace Config

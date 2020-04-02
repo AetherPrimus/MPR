@@ -105,26 +105,6 @@ namespace prime
       PowerPC::HostWrite_U32(0, cursor_base + 0x9c);
       PowerPC::HostWrite_U32(0, cursor_base + 0x15c);
     }
-
-    u32 visor_base = PowerPC::HostRead_U32(base_address + 0x35a8);
-    int visor_id, visor_off;
-    std::tie(visor_id, visor_off) = get_visor_switch(prime_three_visors, PowerPC::HostRead_U32(visor_base + 0x34) == 0);
-    if (visor_id != -1)
-    {
-      if (PowerPC::HostRead_U32(visor_base + (visor_off * 0x0c) + 0x58) != 0)
-      {
-        PowerPC::HostWrite_U32(visor_id, visor_base + 0x34);
-      }
-    }
-
-    if (UseMPAutoEFB())
-    {
-      bool useEFB = PowerPC::HostRead_U32(visor_base + 0x34) != 1;
-
-      if (GetEFBTexture() != useEFB)
-        SetEFBToTexture(useEFB);
-    }
-
     if (!PowerPC::HostRead_U8(base_address + 0x378) && PowerPC::HostRead_U8(lockon_address()))
     {
       PowerPC::HostWrite_U32(0, base_address + 0x174);
@@ -146,6 +126,25 @@ namespace prime
     PowerPC::HostWrite_U32(0, rtoc_min_turn_rate);
     PowerPC::HostWrite_U32(*reinterpret_cast<u32*>(&pitch), base_address + 0x784);
 
+    u32 visor_base = PowerPC::HostRead_U32(base_address + 0x35a8);
+    int visor_id, visor_off;
+    std::tie(visor_id, visor_off) = get_visor_switch(prime_three_visors, PowerPC::HostRead_U32(visor_base + 0x34) == 0);
+    if (visor_id != -1)
+    {
+      if (PowerPC::HostRead_U32(visor_base + (visor_off * 0x0c) + 0x58) != 0)
+      {
+        PowerPC::HostWrite_U32(visor_id, visor_base + 0x34);
+      }
+    }
+
+    if (UseMPAutoEFB())
+    {
+      bool useEFB = PowerPC::HostRead_U32(visor_base + 0x34) != 1;
+
+      if (GetEFBTexture() != useEFB)
+        SetEFBToTexture(useEFB);
+    }
+
     u32 camera_fov = PowerPC::HostRead_U32(
       PowerPC::HostRead_U32(
         PowerPC::HostRead_U32(PowerPC::HostRead_U32(camera_pointer_address()) + 0x1010) + 0x1c) +
@@ -154,17 +153,27 @@ namespace prime
       PowerPC::HostRead_U32(
         PowerPC::HostRead_U32(PowerPC::HostRead_U32(camera_pointer_address()) + 0x1010) + 0x24) +
       0x178);
+
     const float fov = std::min(GetFov(), 170.f);
     PowerPC::HostWrite_U32(*reinterpret_cast<u32 const*>(&fov), camera_fov + 0x1c);
     PowerPC::HostWrite_U32(*reinterpret_cast<u32 const*>(&fov), camera_fov_tp + 0x1c);
     PowerPC::HostWrite_U32(*reinterpret_cast<u32 const*>(&fov), camera_fov + 0x18);
     PowerPC::HostWrite_U32(*reinterpret_cast<u32 const*>(&fov), camera_fov_tp + 0x18);
 
+    u32 cgame_camera = PowerPC::HostRead_U32(
+      PowerPC::HostRead_U32(
+        PowerPC::HostRead_U32(
+          PowerPC::HostRead_U32(camera_fov + 0x68) + 0x0c) + 0x18) + 0x14);
 
-    if (Culling() || GetFov() > 96.f)
+    adjust_viewmodel(fov, armpos_address(), cgame_camera + 0x8C);
+
+    if (GetCulling() || GetFov() > 96.f)
       disable_culling(culling_address(), &code_changes);
 
-    set_cplayer_str(base_address);
+    if (GetBloom())
+      PowerPC::HostWrite_U32(0x4e800020, bloom_address());
+    else
+      PowerPC::HostWrite_U32(0x9421fe00, bloom_address());
   }
 
   uint32_t MP3NTSC::camera_ctl_address() const
@@ -209,6 +218,14 @@ namespace prime
   uint32_t MP3NTSC::culling_address() const
   {
     return 0x8031490C;
+  }
+  uint32_t MP3NTSC::bloom_address() const
+  {
+    return 0x804852cc; 
+  }
+  uint32_t MP3NTSC::armpos_address() const
+  {
+    return 0x809f3b00; 
   }
 
   MP3NTSC::MP3NTSC()
@@ -295,7 +312,15 @@ namespace prime
   }
   uint32_t MP3PAL::culling_address() const
   {
-    return 0x805ca0e8;
+    return 0x80314038;
+  }
+  uint32_t MP3PAL::bloom_address() const
+  {
+    return 0x804849E8;
+  }
+  uint32_t MP3PAL::armpos_address() const
+  {
+    return 0x809EACE0;
   }
 
   MP3PAL::MP3PAL()

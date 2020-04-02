@@ -22,6 +22,12 @@ namespace prime
   void SetEFBToTexture(bool toggle);
   bool UseMPAutoEFB();
   bool GetEFBTexture();
+  bool GetBloom();
+
+  bool GetAutoArmAdjust();
+  bool GetToggleArmAdjust();
+  std::tuple<float, float, float> GetArmXYZ();
+
   bool DisplayInfo();
   void UpdateHackSettings();
 
@@ -35,8 +41,7 @@ namespace prime
   void SetInvertedY(bool inverted);
   bool InvertedX();
   void SetInvertedX(bool inverted);
-  void SetCulling(bool culling);
-  bool Culling();
+  bool GetCulling();
 
   std::string const& GetCtlDeviceName();
   std::string const& GetCtlDeviceSource();

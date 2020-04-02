@@ -98,6 +98,12 @@ public:
   VideoConfigDiag(wxWindow* parent, const std::string &title);
 
 protected:
+  void Event_UpdateX(wxCommandEvent &ev);
+  void Event_UpdateY(wxCommandEvent &ev);
+  void Event_UpdateZ(wxCommandEvent &ev);
+
+  void Event_ViewModelUpdate(wxCommandEvent &ev);
+
   void Event_Backend(wxCommandEvent &ev);
 
   void Event_Adapter(wxCommandEvent &ev);
@@ -175,6 +181,8 @@ protected:
   void OnFilteringModeChanged(wxCommandEvent& ev);
   void OnCullModeChanged(wxCommandEvent& ev);
 
+  void UpdatePrimeUI();
+
   wxChoice* choice_backend;
   wxChoice* choice_adapter;
   wxChoice* choice_display_resolution;
@@ -238,6 +246,22 @@ protected:
 
   SettingCheckBox* validation_layer;
   SettingCheckBox* backend_multithreading;
+
+  // PrimeHack
+
+  wxCheckBox* m_toggle_culling;
+
+  wxSpinCtrl* x_counter;
+  wxSpinCtrl* y_counter;
+  wxSpinCtrl* z_counter;
+
+  DolphinSlider* m_x_axis;
+  DolphinSlider* m_y_axis;
+  DolphinSlider* m_z_axis;
+
+  SettingCheckBox* toggle_viewmodel;
+  wxRadioButton* auto_viewmodel;
+  wxRadioButton* manual_viewmodel;
 
   std::map<wxWindow*, wxString> ctrl_descs; // maps setting controls to their descriptions
   std::map<wxWindow*, wxStaticText*> desc_texts; // maps dialog tabs (which are the parents of the setting controls) to their description text objects

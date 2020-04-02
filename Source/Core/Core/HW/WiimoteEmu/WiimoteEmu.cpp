@@ -407,9 +407,6 @@ Wiimote::Wiimote(const unsigned int index) : m_index(index), ir_sin(0), ir_cos(1
   m_primehack_camera->boolean_settings.emplace_back(
     m_primehack_invert_y = new ControllerEmu::BooleanSetting("Invert Y Axis", false));
 
-  m_primehack_camera->boolean_settings.emplace_back(
-    m_primehack_toggle_culling = new ControllerEmu::BooleanSetting("Disable Culling", false));
-
   m_primehack_misc->controls.emplace_back(
     new ControllerEmu::Input("Spring Ball", "Spring Ball"));
   m_primehack_misc->controls.emplace_back(
@@ -569,12 +566,12 @@ bool Wiimote::CheckSpringBallCtrl()
   return m_primehack_misc->controls[0].get()->control_ref->State() > 0.5;
 }
 
-std::tuple<double, double, double, bool, bool, bool> Wiimote::GetPrimeSettings()
+std::tuple<double, double, double, bool, bool> Wiimote::GetPrimeSettings()
 {
   std::tuple t = std::make_tuple(
       m_primehack_camera_sensitivity->GetValue() * 100, m_primehack_cursor_sensitivity->GetValue() * 100,
       m_primehack_fieldofview->GetValue() * 100, m_primehack_invert_x->GetValue(),
-      m_primehack_invert_y->GetValue(), m_primehack_toggle_culling->GetValue());
+      m_primehack_invert_y->GetValue());
 
   return t;
 }

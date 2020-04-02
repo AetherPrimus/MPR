@@ -82,7 +82,6 @@ void VideoConfig::Refresh()
   bVSync = Config::Get(Config::GFX_VSYNC);
   iAdapter = Config::Get(Config::GFX_ADAPTER);
 
-  bPrimeHackInfo = Config::Get(Config::primehack_info);
   bWidescreenHack = Config::Get(Config::GFX_WIDESCREEN_HACK);
   iAspectRatio = Config::Get(Config::GFX_ASPECT_RATIO);
   bCrop = Config::Get(Config::GFX_CROP);
@@ -189,7 +188,6 @@ void VideoConfig::Refresh()
   iStereoDepthPercentage = Config::Get(Config::GFX_STEREO_DEPTH_PERCENTAGE);
   sStereoShader = Config::Get(Config::GFX_STEREO_SHADER);
 
-  bAutoEFBMP = Config::Get(Config::AutoEFBMP);
   bEFBAccessEnable = Config::Get(Config::GFX_HACK_EFB_ACCESS_ENABLE);
   bEFBFastAccess = Config::Get(Config::GFX_HACK_EFB_FAST_ACCESS_ENABLE);
   iBBoxMode = Config::Get(Config::GFX_HACK_BBOX_MODE);

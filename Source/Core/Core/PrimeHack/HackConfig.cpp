@@ -94,7 +94,7 @@ void SetEFBToTexture(bool toggle)
 
 bool UseMPAutoEFB()
 {
-  return Config::Get(Config::AutoEFBMP);
+  return Config::Get(Config::AUTO_EFB);
 }
 
 bool GetEFBTexture()
@@ -105,14 +105,37 @@ bool GetEFBTexture()
 
 bool DisplayInfo()
 {
-  return Config::Get(Config::primehack_info);
+  return Config::Get(Config::TOGGLE_PRIMEHACK_INFO);
+}
+
+bool GetBloom()
+{
+  return Config::Get(Config::DISABLE_BLOOM_PRIME3);
+}
+
+bool GetAutoArmAdjust()
+{
+  return Config::Get(Config::ARMPOSITION_MODE);
+}
+
+bool GetToggleArmAdjust()
+{
+  return Config::Get(Config::TOGGLE_ARM_REPOSITION);
+}
+
+std::tuple<float, float, float> GetArmXYZ() {
+  float x = Config::Get(Config::ARMPOSITION_LEFTRIGHT) / 100.f;
+  float y = Config::Get(Config::ARMPOSITION_FORWARDBACK) / 100.f;
+  float z = Config::Get(Config::ARMPOSITION_UPDOWN) / 100.f;
+
+  return std::make_tuple(x, y, z);
 }
 
 void UpdateHackSettings()
 {
   double camera, cursor, fov;
-  bool invertx, inverty, culling;
-  std::tie<double, double, double, bool, bool, bool>(camera, cursor, fov, invertx, inverty, culling) =
+  bool invertx, inverty;
+  std::tie<double, double, double, bool, bool>(camera, cursor, fov, invertx, inverty) =
     Wiimote::PrimeSettings();
 
   SetSensitivity((float)camera);
@@ -120,7 +143,6 @@ void UpdateHackSettings()
   SetFov((float)fov);
   SetInvertedX(invertx);
   SetInvertedY(inverty);
-  SetCulling(culling);
 }
 
 std::vector<std::unique_ptr<ControlReference>>& GetMutableControls()
@@ -183,9 +205,9 @@ void SetCulling(bool culling)
   camera_culling = culling; 
 }
 
-bool Culling()
+bool GetCulling()
 {
-  return camera_culling;
+  return Config::Get(Config::TOGGLE_CULLING);
 }
 
 std::string const& GetCtlDeviceName()
