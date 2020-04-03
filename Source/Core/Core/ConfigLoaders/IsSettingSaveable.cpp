@@ -162,6 +162,7 @@ bool IsSettingSaveable(const Config::ConfigLocation& config_location)
       Config::ARMPOSITION_FORWARDBACK.location,
       Config::TOGGLE_CULLING.location,
       Config::DISABLE_BLOOM_PRIME3.location,
+      Config::ENABLE_SECONDARY_GUNFX.location
   };
 
   return std::find(s_setting_saveable.begin(), s_setting_saveable.end(), config_location) !=

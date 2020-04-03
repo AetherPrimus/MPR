@@ -59,7 +59,6 @@
 #include "VideoCommon/VertexManagerBase.h"
 #include "VideoCommon/VertexShaderManager.h"
 #include "VideoCommon/XFMemory.h"
-
 #include "Core/PrimeHack/PrimeUtils.h"
 
 //std::string cplayer_str;
@@ -359,7 +358,7 @@ void Renderer::DrawDebugText()
 
   if (g_ActiveConfig.bPrimeHackInfo)
   {
-    final_purple = "CPlayer: " + cplayer_str + "\n";
+    final_purple = prime::GetDevInfo() + "\n";
   }
 
   if (SConfig::GetInstance().m_ShowLag)

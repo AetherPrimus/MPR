@@ -250,6 +250,7 @@ protected:
   // PrimeHack
 
   wxCheckBox* m_toggle_culling;
+  wxCheckBox* m_toggle_secondaryFX;
 
   wxSpinCtrl* x_counter;
   wxSpinCtrl* y_counter;

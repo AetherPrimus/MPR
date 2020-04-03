@@ -1,6 +1,6 @@
 #include "Core/PrimeHack/PrimeUtils.h"
 
-std::string cplayer_str;
+std::string info_str;
 
 namespace prime
 {
@@ -95,6 +95,24 @@ namespace prime
       pressing_button = false;
     }
     return std::make_tuple(-1, 0);
+  }
+
+  std::stringstream ss;
+  void DevInfo(std::string line, u32 hex)
+  {
+    ss << line << ": " << std::hex << hex << std::endl;
+  }
+
+  std::string GetDevInfo()
+  {
+    std::string result = ss.str();
+
+    return result;
+  }
+
+  void ClrDevInfo()
+  {
+    ss = std::stringstream();
   }
 
   int get_beam_switch(std::array<int, 4> const& beams)
@@ -244,14 +262,5 @@ namespace prime
       if ((ball_state == 1 || ball_state == 2) && movement_state == 0)
         PowerPC::HostWrite_U8(1, 0x80004164);
     }
-  }
-
-  void set_cplayer_str(u32 address)
-  {
-    if (!DisplayInfo()) return;
-
-    std::stringstream ss;
-    ss << std::hex << address;
-    cplayer_str = ss.str();
   }
 }  // namespace prime

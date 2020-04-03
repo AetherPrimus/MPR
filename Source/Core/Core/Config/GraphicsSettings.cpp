@@ -201,6 +201,7 @@ const ConfigInfo<bool> DISABLE_BLOOM_PRIME3{{System::GFX, "PrimeHack Misc", "Dis
 const ConfigInfo<bool> TOGGLE_ARM_REPOSITION{{System::GFX, "PrimeHack Misc", "ToggleArmRePosition"}, true};
 const ConfigInfo<bool> TOGGLE_CULLING{{System::GFX, "PrimeHack Misc", "ToggleCulling"}, false};
 const ConfigInfo<bool> ARMPOSITION_MODE{{System::GFX, "PrimeHack Misc", "ArmPosition_Mode"}, true};
+const ConfigInfo<bool> ENABLE_SECONDARY_GUNFX{{System::GFX, "PrimeHack Misc", "EnableSecondaryGunFX"}, false};
 
 const ConfigInfo<int> ARMPOSITION_LEFTRIGHT{{System::GFX, "PrimeHack Misc", "ArmPosition_LEFTRIGHT"}, 25};
 const ConfigInfo<int> ARMPOSITION_UPDOWN{{System::GFX, "PrimeHack Misc", "ArmPosition_UPDOWN"}, 30};

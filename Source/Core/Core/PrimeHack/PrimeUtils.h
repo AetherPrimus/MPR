@@ -11,7 +11,7 @@
 #include "VideoCommon/RenderBase.h"
 #include "VideoCommon/VideoCommon.h"
 
-extern std::string cplayer_str;
+extern std::string info_str;
 
 namespace prime
 {
@@ -25,8 +25,6 @@ void handle_cursor(u32 x_address, u32 y_address, float right_bound, float bottom
 void springball_code(u32 base_offset, std::vector<CodeChange>* code_changes);
 void springball_check(u32 ball_address, u32 movement_address);
 
-void set_cplayer_str(u32 address);
-
 bool mem_check(u32 address);
 void write_invalidate(u32 address, u32 value);
 float getAspectRatio();
@@ -36,6 +34,10 @@ void set_cursor_pos(float x, float y);
 
 void disable_culling(u32 address, std::vector<CodeChange>* code_changes);
 void adjust_viewmodel(float fov, u32 arm_address, u32 znear_address);
+
+void DevInfo(std::string line, u32 hex);
+std::string GetDevInfo();
+void ClrDevInfo();
 
 class MenuNTSC : public PrimeMod
 {

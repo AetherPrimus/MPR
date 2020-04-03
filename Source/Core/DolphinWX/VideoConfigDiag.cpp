@@ -35,6 +35,7 @@
 #include "VideoCommon/RenderBase.h"
 #include "VideoCommon/VideoBackendBase.h"
 #include "VideoCommon/VideoConfig.h"
+#include "Core/PrimeHack/HackConfig.h"
 
 #ifdef __APPLE__
 #include <ApplicationServices/ApplicationServices.h>
@@ -1444,6 +1445,9 @@ VideoConfigDiag::VideoConfigDiag(wxWindow* parent, const std::string& title)
     m_toggle_culling =
       CreateCheckBox(page_primehack, _("Disable Culling"), (culling_desc), Config::TOGGLE_CULLING);
 
+    m_toggle_secondaryFX =
+      CreateCheckBox(page_primehack, _("Enable Original Gamecube Gun Effects"), (""), Config::ENABLE_SECONDARY_GUNFX);
+
     auto_viewmodel->Bind(wxEVT_RADIOBUTTON, &VideoConfigDiag::Event_ViewModelUpdate, this);
     manual_viewmodel->Bind(wxEVT_RADIOBUTTON, &VideoConfigDiag::Event_ViewModelUpdate, this);
 
@@ -1463,6 +1467,14 @@ VideoConfigDiag::VideoConfigDiag(wxWindow* parent, const std::string& title)
     graphics_sizer->AddSpacer(space5);
     graphics_sizer->Add(m_toggle_culling, 0, wxEXPAND | wxLEFT | wxRIGHT, space5);
     graphics_sizer->AddSpacer(space5);
+    graphics_sizer->Add(m_toggle_secondaryFX, 0, wxEXPAND | wxLEFT | wxRIGHT, space5);
+    graphics_sizer->AddSpacer(space5);
+
+    if (prime::GetFov() > 96)
+      m_toggle_culling->Disable();
+
+    if (prime::GetEnableSecondaryGunFX())
+      m_toggle_secondaryFX->Disable();
 
     wxStaticBoxSizer* const viewmodel_group =
       new wxStaticBoxSizer(wxVERTICAL, page_primehack, _("ViewModel"));
@@ -2170,6 +2182,12 @@ void VideoConfigDiag::OnUpdateUI(wxUpdateUIEvent& ev)
       m_toggle_culling->Disable();
     }
 
+    if (prime::GetEnableSecondaryGunFX())
+      m_toggle_secondaryFX->Disable();
+
+    if (m_toggle_secondaryFX->IsChecked())
+      m_toggle_secondaryFX->Disable();
+
     if (vconfig.backend_info.bSupportsComputeTextureEncoding)
     {
       Compute_Shader_encoding->Disable();
@@ -2206,6 +2224,8 @@ void VideoConfigDiag::OnUpdateUI(wxUpdateUIEvent& ev)
   }
   else
   {
+    m_toggle_secondaryFX->Enable();
+    m_toggle_culling->Enable();
     // Predictive_FIFO->Enable(!vconfig.bWaitForShaderCompilation);
   }
   // Don't enable 'vertex rounding' at native
