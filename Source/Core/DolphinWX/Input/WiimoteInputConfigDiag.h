@@ -14,4 +14,5 @@ public:
   WiimoteInputConfigDialog(wxWindow* parent, InputConfig& config, const wxString& name,
                            int port_num = 0);
   void AddPrimeHackTab(wxNotebook* notebook);
+  void OnPageChanged(wxBookCtrlEvent& ev);
 };

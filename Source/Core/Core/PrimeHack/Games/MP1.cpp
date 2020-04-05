@@ -87,7 +87,7 @@ namespace prime
     }
 
     if (GetCulling() || GetFov() > 101.f)
-      disable_culling(culling_address(), &code_changes);
+      disable_culling(culling_address());
 
     DevInfo("CPlayer", cplayer());
     DevInfo("Beam_Base", beam_base);

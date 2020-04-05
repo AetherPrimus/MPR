@@ -102,6 +102,8 @@ protected:
   void Event_UpdateY(wxCommandEvent &ev);
   void Event_UpdateZ(wxCommandEvent &ev);
 
+  void Event_PageChanged(wxBookCtrlEvent &ev);
+
   void Event_ViewModelUpdate(wxCommandEvent &ev);
 
   void Event_Backend(wxCommandEvent &ev);

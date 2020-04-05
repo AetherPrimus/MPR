@@ -11,6 +11,8 @@
 
 #include "InputCommon/ControllerEmu/Setting/BooleanSetting.h"
 #include "InputCommon/ControllerEmu/Setting/NumericSetting.h"
+#include <Core/ConfigManager.h>
+#include <include\wx\msgdlg.h>
 
 WiimoteInputConfigDialog::WiimoteInputConfigDialog(wxWindow* const parent, InputConfig& config,
                                                    const wxString& name, const int port_num)
@@ -131,7 +133,16 @@ WiimoteInputConfigDialog::WiimoteInputConfigDialog(wxWindow* const parent, Input
   UpdateDeviceComboBox();
   UpdateProfileComboBox();
 
+  Bind(wxEVT_NOTEBOOK_PAGE_CHANGED, &WiimoteInputConfigDialog::OnPageChanged, this);
+
   UpdateGUI();
+}
+
+void WiimoteInputConfigDialog::OnPageChanged(wxBookCtrlEvent& ev)
+{
+  if (!SConfig::GetInstance().bEnablePrimeHack)
+    if (ev.GetSelection() == 2)
+      wxMessageBox("PrimeHack has not been enabled. None of the controls or settings in the PrimeHack tab will work until it is enabled in the Config window.", "PrimeHack Settings");
 }
 
 void WiimoteInputConfigDialog::AddPrimeHackTab(wxNotebook* notebook)

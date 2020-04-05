@@ -50,6 +50,8 @@ DolphinSlider* m_x_axis;
 DolphinSlider* m_y_axis;
 DolphinSlider* m_z_axis;
 
+int primetab_id;
+
 SettingCheckBox* toggle_viewmodel;
 
 // template instantiation
@@ -476,6 +478,8 @@ VideoConfigDiag::VideoConfigDiag(wxWindow* parent, const std::string& title)
   Bind(wxEVT_UPDATE_UI, &VideoConfigDiag::OnUpdateUI, this);
 
   wxNotebook* const notebook = new wxNotebook(this, wxID_ANY);
+
+  Bind(wxEVT_NOTEBOOK_PAGE_CHANGED, &VideoConfigDiag::Event_PageChanged, this);
 
   // -- GENERAL --
   {
@@ -1428,6 +1432,8 @@ VideoConfigDiag::VideoConfigDiag(wxWindow* parent, const std::string& title)
   {
     wxPanel* const page_primehack = new wxPanel(notebook, -1, wxDefaultPosition);
     notebook->AddPage(page_primehack, _("PrimeHack Misc"));
+    primetab_id = notebook->GetPageCount() - 1;
+
     wxBoxSizer* const szr_primehack = new wxBoxSizer(wxVERTICAL);
 
     toggle_viewmodel =
@@ -1796,6 +1802,13 @@ void VideoConfigDiag::Event_UpdateZ(wxCommandEvent& ev)
     z_counter->SetValue(ev.GetInt());
   }
   ev.Skip();
+}
+
+void VideoConfigDiag::Event_PageChanged(wxBookCtrlEvent& ev)
+{
+  if (!SConfig::GetInstance().bEnablePrimeHack)
+    if (ev.GetSelection() == primetab_id)
+      wxMessageBox("PrimeHack has not been enabled. None of the settings in the PrimeHack Misc tab will work until it is enabled in the Config window.", "PrimeHack Settings");
 }
 
 void VideoConfigDiag::Event_ViewModelUpdate(wxCommandEvent& ev)
