@@ -327,7 +327,7 @@ static wxString autoefb_desc =  _("Automatically disables 'Store EFB Copies to T
   "while the Scan Visor is active in Metroid Prime 2 and Metroid Prime 3. \n\n"
   "While 'Store EFB Copies to Texture Only' may improve performance, having it "
   "enabled will break the scan visor in Metroid Prime 2 and Metroid Prime 3.");
-static wxString prime3_bloom_desc =  _("Disables Bloom in Metroid Prime 3.\n\nSource: TheHatedGravity and dreamsyntax.");
+static wxString prime3_bloom_desc =  _("Disables Bloom in Metroid Prime 2 and Metroid Prime 3.\n\nSource: TheHatedGravity and dreamsyntax.");
 static wxString repositon_arm_desc =  _("Toggles repositioning of Samus's arms in the viewmodel. Repositioning her arms is visually beneficial for high Field Of Views.");
 static wxString culling_desc = _("Disables graphical culling. This allows for Field of Views above 101 in Metroid Prime 1 and Metroid Prime 2, and above 94 in Metroid Prime 3.");
 static wxString auto_arm_desc = _("Automatically adjusts the Samus's arm position in the view model, relative to the Field Of View.");
@@ -1466,7 +1466,7 @@ VideoConfigDiag::VideoConfigDiag(wxWindow* parent, const std::string& title)
     graphics_sizer->Add(CreateCheckBox(page_primehack, _("Auto Toggle \"EFB to Texture\" While Scanning"), (autoefb_desc),
       Config::AUTO_EFB), 0, wxEXPAND | wxLEFT | wxRIGHT, space5);
     graphics_sizer->AddSpacer(space5);
-    graphics_sizer->Add(CreateCheckBox(page_primehack, _("Disable Bloom In Prime 3 [TheHatedGravity, dreamsyntax]"), (prime3_bloom_desc),
+    graphics_sizer->Add(CreateCheckBox(page_primehack, _("Disable Bloom In Prime 2 and 3 [TheHatedGravity, dreamsyntax]"), (prime3_bloom_desc),
       Config::DISABLE_BLOOM_PRIME3), 0, wxEXPAND | wxLEFT | wxRIGHT, space5);
     graphics_sizer->AddSpacer(space5);
     graphics_sizer->Add(toggle_viewmodel, 0, wxEXPAND | wxLEFT | wxRIGHT, space5);

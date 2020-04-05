@@ -65,6 +65,8 @@ namespace prime
 
   void MP3::run_mod()
   {
+    ClrDevInfo();
+
     u32 base_address = PowerPC::HostRead_U32(
       PowerPC::HostRead_U32(PowerPC::HostRead_U32(camera_ctl_address()) + 0x04) + 0x2184);
     if (!mem_check(base_address))
@@ -171,9 +173,12 @@ namespace prime
       disable_culling(culling_address());
 
     if (GetBloom())
-      PowerPC::HostWrite_U32(0x4e800020, bloom_address());
+      write_if_different(bloom_address(), 0x4e800020);
     else
-      PowerPC::HostWrite_U32(0x9421fe00, bloom_address());
+      write_if_different(bloom_address(), 0x9421fe00);
+
+    DevInfo("CGameCamera", cgame_camera);
+    DevInfo("CPlayer", base_address);
   }
 
   uint32_t MP3NTSC::camera_ctl_address() const

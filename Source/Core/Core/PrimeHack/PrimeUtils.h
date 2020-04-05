@@ -27,6 +27,7 @@ void springball_check(u32 ball_address, u32 movement_address);
 
 bool mem_check(u32 address);
 void write_invalidate(u32 address, u32 value);
+void write_if_different(u32 address, u32 value);
 float getAspectRatio();
 
 void set_beam_owned(int index, bool owned);
