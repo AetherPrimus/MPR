@@ -95,7 +95,7 @@ namespace prime
 
   bool GetBloom()
   {
-    return Config::Get(Config::DISABLE_BLOOM_PRIME3);
+    return Config::Get(Config::DISABLE_BLOOM);
   }
 
   bool GetEnableSecondaryGunFX()
