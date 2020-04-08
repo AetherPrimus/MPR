@@ -133,6 +133,13 @@ bool CheckVisor(int visorcount)
   return wiimote->CheckVisorCtrl(visorcount);
 }
 
+bool CheckVisorScroll(bool direction)
+{
+  WiimoteEmu::Wiimote* wiimote = static_cast<WiimoteEmu::Wiimote*>(s_config.GetController(0));
+
+  return wiimote->CheckVisorScrollCtrl(direction);
+}
+
 bool CheckBeam(int beamcount)
 {
   WiimoteEmu::Wiimote* wiimote = static_cast<WiimoteEmu::Wiimote*>(s_config.GetController(0));

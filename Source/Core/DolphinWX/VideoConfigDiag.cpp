@@ -1466,14 +1466,14 @@ VideoConfigDiag::VideoConfigDiag(wxWindow* parent, const std::string& title)
     graphics_sizer->Add(CreateCheckBox(page_primehack, _("Auto Toggle \"EFB to Texture\" While Scanning"), (autoefb_desc),
       Config::AUTO_EFB), 0, wxEXPAND | wxLEFT | wxRIGHT, space5);
     graphics_sizer->AddSpacer(space5);
+    graphics_sizer->Add(m_toggle_secondaryFX, 0, wxEXPAND | wxLEFT | wxRIGHT, space5);
+    graphics_sizer->AddSpacer(space5);
     graphics_sizer->Add(CreateCheckBox(page_primehack, _("Disable Bloom In Prime 2 and 3 [TheHatedGravity, dreamsyntax]"), (prime3_bloom_desc),
       Config::DISABLE_BLOOM_PRIME3), 0, wxEXPAND | wxLEFT | wxRIGHT, space5);
     graphics_sizer->AddSpacer(space5);
     graphics_sizer->Add(toggle_viewmodel, 0, wxEXPAND | wxLEFT | wxRIGHT, space5);
     graphics_sizer->AddSpacer(space5);
     graphics_sizer->Add(m_toggle_culling, 0, wxEXPAND | wxLEFT | wxRIGHT, space5);
-    graphics_sizer->AddSpacer(space5);
-    graphics_sizer->Add(m_toggle_secondaryFX, 0, wxEXPAND | wxLEFT | wxRIGHT, space5);
     graphics_sizer->AddSpacer(space5);
 
     if (prime::GetFov() > 96)

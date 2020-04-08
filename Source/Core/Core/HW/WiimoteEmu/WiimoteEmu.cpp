@@ -376,6 +376,11 @@ Wiimote::Wiimote(const unsigned int index) : m_index(index), ir_sin(0), ir_cos(1
     m_primehack_beams->controls.emplace_back(new ControllerEmu::Input(prime_button, ui_name));
   }
 
+  m_primehack_beams->controls.emplace_back(
+    new ControllerEmu::Input("Next Beam", "Next Beam"));
+  m_primehack_beams->controls.emplace_back(
+    new ControllerEmu::Input("Previous Beam", "Previous Beam"));
+
   groups.emplace_back(m_primehack_visors =
     new ControllerEmu::ControlGroup(_trans("PrimeHack"), "Visors"));
   for (const char* prime_button : prime_visors)
@@ -383,6 +388,11 @@ Wiimote::Wiimote(const unsigned int index) : m_index(index), ir_sin(0), ir_cos(1
     const std::string& ui_name = prime_button;
     m_primehack_visors->controls.emplace_back(new ControllerEmu::Input(prime_button, ui_name));
   }
+
+  m_primehack_visors->controls.emplace_back(
+    new ControllerEmu::Input("Next Beam", "Next Beam"));
+  m_primehack_visors->controls.emplace_back(
+    new ControllerEmu::Input("Previous Beam", "Previous Beam"));
 
   groups.emplace_back(m_primehack_camera =
     new ControllerEmu::ControlGroup(_trans("PrimeHack"), "Camera"));
@@ -409,10 +419,6 @@ Wiimote::Wiimote(const unsigned int index) : m_index(index), ir_sin(0), ir_cos(1
 
   m_primehack_misc->controls.emplace_back(
     new ControllerEmu::Input("Spring Ball", "Spring Ball"));
-  m_primehack_misc->controls.emplace_back(
-    new ControllerEmu::Input("Next Beam", "Next Beam"));
-  m_primehack_misc->controls.emplace_back(
-    new ControllerEmu::Input("Previous Beam", "Previous Beam"));
 
   // --- reset eeprom/register/values to default ---
   Reset();
@@ -551,6 +557,11 @@ bool Wiimote::CheckVisorCtrl(int visorcount)
   return m_primehack_visors->controls[visorcount].get()->control_ref->State() > 0.5;
 }
 
+bool Wiimote::CheckVisorScrollCtrl(bool direction)
+{
+  return m_primehack_visors->controls[direction ? 4 : 5].get()->control_ref->State() > 0.5;
+}
+
 bool Wiimote::CheckBeamCtrl(int beamcount)
 {
   return m_primehack_beams->controls[beamcount].get()->control_ref->State() > 0.5;
@@ -558,7 +569,7 @@ bool Wiimote::CheckBeamCtrl(int beamcount)
 
 bool Wiimote::CheckBeamScrollCtrl(bool direction)
 {
-  return m_primehack_misc->controls[direction ? 1 : 2].get()->control_ref->State() > 0.5;
+  return m_primehack_beams->controls[direction ? 4 : 5].get()->control_ref->State() > 0.5;
 }
 
 bool Wiimote::CheckSpringBallCtrl()

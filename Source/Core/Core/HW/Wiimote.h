@@ -77,6 +77,7 @@ ControllerEmu::ControlGroup* GetDrumsGroup(int number, WiimoteEmu::DrumsGroup gr
 ControllerEmu::ControlGroup* GetTurntableGroup(int number, WiimoteEmu::TurntableGroup group);
 
 bool CheckVisor(int visor_count);
+bool CheckVisorScroll(bool direction);
 bool CheckBeam(int beam_count);
 bool CheckBeamScroll(bool direction);
 bool CheckSpringBall();

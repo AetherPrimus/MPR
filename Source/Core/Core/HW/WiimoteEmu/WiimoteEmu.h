@@ -211,6 +211,7 @@ public:
   bool CheckForButtonPress();
 
   bool CheckVisorCtrl(int visor_count);
+  bool CheckVisorScrollCtrl(bool direction);
   bool CheckBeamCtrl(int beam_count);
   bool CheckBeamScrollCtrl(bool direction);
   bool CheckSpringBallCtrl();
