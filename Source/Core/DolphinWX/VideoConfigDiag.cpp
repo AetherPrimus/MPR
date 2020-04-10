@@ -40,7 +40,7 @@
 #ifdef __APPLE__
 #include <ApplicationServices/ApplicationServices.h>
 #endif
-#include <include\wx\gbsizer.h>
+#include <include/wx/gbsizer.h>
 
 wxSpinCtrl* x_counter;
 wxSpinCtrl* y_counter;

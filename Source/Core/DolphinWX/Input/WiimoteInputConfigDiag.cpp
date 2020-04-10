@@ -12,7 +12,7 @@
 #include "InputCommon/ControllerEmu/Setting/BooleanSetting.h"
 #include "InputCommon/ControllerEmu/Setting/NumericSetting.h"
 #include <Core/ConfigManager.h>
-#include <include\wx\msgdlg.h>
+#include <include/wx/msgdlg.h>
 
 WiimoteInputConfigDialog::WiimoteInputConfigDialog(wxWindow* const parent, InputConfig& config,
                                                    const wxString& name, const int port_num)
