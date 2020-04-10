@@ -204,7 +204,7 @@ const ConfigInfo<bool> ARMPOSITION_MODE{{System::GFX, "PrimeHack Misc", "ArmPosi
 const ConfigInfo<bool> ENABLE_SECONDARY_GUNFX{{System::GFX, "PrimeHack Misc", "EnableSecondaryGunFX"}, false};
 
 const ConfigInfo<int> ARMPOSITION_LEFTRIGHT{{System::GFX, "PrimeHack Misc", "ArmPosition_LEFTRIGHT"}, 25};
-const ConfigInfo<int> ARMPOSITION_UPDOWN{{System::GFX, "PrimeHack Misc", "ArmPosition_UPDOWN"}, 30};
+const ConfigInfo<int> ARMPOSITION_UPDOWN{{System::GFX, "PrimeHack Misc", "ArmPosition_UPDOWN"}, -30};
 const ConfigInfo<int> ARMPOSITION_FORWARDBACK{{System::GFX, "PrimeHack Misc", "ArmPosition_FORWARDBACK"}, -35};
 
 const ConfigInfo<bool> TOGGLE_PRIMEHACK_INFO{{System::GFX, "Settings", "primehackInfo"}, false};

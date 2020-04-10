@@ -105,7 +105,7 @@ namespace prime
 
   bool GetAutoArmAdjust()
   {
-    return Config::Get(Config::ARMPOSITION_MODE) == 0;
+    return Config::Get(Config::ARMPOSITION_MODE) == 1;
   }
 
   bool GetToggleArmAdjust()
