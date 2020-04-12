@@ -390,9 +390,9 @@ Wiimote::Wiimote(const unsigned int index) : m_index(index), ir_sin(0), ir_cos(1
   }
 
   m_primehack_visors->controls.emplace_back(
-    new ControllerEmu::Input("Next Beam", "Next Beam"));
+    new ControllerEmu::Input("Next Visor", "Next Visor"));
   m_primehack_visors->controls.emplace_back(
-    new ControllerEmu::Input("Previous Beam", "Previous Beam"));
+    new ControllerEmu::Input("Previous Visor", "Previous Visor"));
 
   groups.emplace_back(m_primehack_camera =
     new ControllerEmu::ControlGroup(_trans("PrimeHack"), "Camera"));
@@ -1129,14 +1129,16 @@ void Wiimote::LoadDefaults(const ControllerInterface& ciface)
   m_primehack_beams->SetControlExpression(1, "`2` & !E");
   m_primehack_beams->SetControlExpression(2, "`3` & !E");
   m_primehack_beams->SetControlExpression(3, "`4` & !E");
-  m_primehack_beams->SetControlExpression(4, "Axis Z+"); // Next beam
-  m_primehack_beams->SetControlExpression(5, "Axis Z-"); // Previous beam
+  m_primehack_beams->SetControlExpression(4, "!LSHIFT & Axis Z+"); // Next beam
+  m_primehack_beams->SetControlExpression(5, "!LSHIFT & Axis Z+"); // Previous beam
 
   // Visors (Combination keys strongly recommended)
   m_primehack_visors->SetControlExpression(0, "E & (!`1` & !`2` & !`3`)");
   m_primehack_visors->SetControlExpression(1, "E & `2`");
   m_primehack_visors->SetControlExpression(2, "E & `3`");
   m_primehack_visors->SetControlExpression(3, "E & `4`");
+  m_primehack_visors->SetControlExpression(4, "LSHIFT & Axis Z+"); // Next visor
+  m_primehack_visors->SetControlExpression(5, "LSHIFT & Axis Z+"); // Previous visor
   // Misc. Defaults
   m_primehack_misc->SetControlExpression(0, "LMENU"); // Spring Ball
 }
