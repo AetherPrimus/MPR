@@ -1511,7 +1511,7 @@ VideoConfigDiag::VideoConfigDiag(wxWindow* parent, const std::string& title)
     viewmodel_group->Add(viewmodel_sizer, 0, wxEXPAND | wxLEFT | wxRIGHT, space5);
     viewmodel_group->AddSpacer(space5);
 
-    wxSize countersize = *new wxSize(50, 20);
+    wxSize countersize = *new wxSize(50, -1);
 
     m_x_axis = new DolphinSlider(page_primehack, wxID_ANY, Config::Get(Config::ARMPOSITION_LEFTRIGHT), -50, 50, wxDefaultPosition,
       wxDefaultSize, wxSL_HORIZONTAL | wxSL_BOTTOM);
@@ -1533,7 +1533,6 @@ VideoConfigDiag::VideoConfigDiag(wxWindow* parent, const std::string& title)
       wxDefaultSize, wxSL_HORIZONTAL | wxSL_BOTTOM);
 
     y_counter = new wxSpinCtrl(page_primehack, wxID_ANY, "", wxDefaultPosition, countersize, wxSP_ARROW_KEYS, -50, 50, Config::Get(Config::ARMPOSITION_UPDOWN));
-
     RegisterControl(m_y_axis, (y_axis_desc));
 
     view_labels->Add(new wxStaticText(page_primehack, wxID_ANY, _("Up/Down")), 0, wxEXPAND | wxLEFT, space5);
@@ -1550,12 +1549,11 @@ VideoConfigDiag::VideoConfigDiag(wxWindow* parent, const std::string& title)
       wxDefaultSize, wxSL_HORIZONTAL | wxSL_BOTTOM);
 
     z_counter = new wxSpinCtrl(page_primehack, wxID_ANY, "", wxDefaultPosition, countersize, wxSP_ARROW_KEYS, -50, 50, Config::Get(Config::ARMPOSITION_FORWARDBACK));
-
     RegisterControl(m_z_axis, (z_axis_desc));
 
     view_labels->Add(new wxStaticText(page_primehack, wxID_ANY, _("Forward/Backward")), 0, wxEXPAND | wxLEFT, space5);
     view_labels->AddSpacer(8);
-    view_z->Add(m_z_axis, 1, wxALIGN_CENTER_VERTICAL);
+    view_z->Add(m_z_axis, 1, wxEXPAND);
     view_z->Add(z_counter, 0, wxEXPAND | wxRIGHT, space2);
 
     m_z_axis->Bind(wxEVT_SLIDER, &VideoConfigDiag::Event_UpdateZ,
