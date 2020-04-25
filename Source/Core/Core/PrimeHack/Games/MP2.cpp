@@ -172,7 +172,7 @@ namespace prime
   }
   uint32_t MP2NTSC::tweakgun_address() const
   {
-    return 0x805CB274; //0x80840108;
+    return 0x805CB274;
   }
   uint32_t MP2NTSC::bloom_address() const
   {
@@ -230,7 +230,7 @@ namespace prime
   }
   uint32_t MP2PAL::tweakgun_address() const
   {
-    return 0x805D2CDC;//0x80847748;
+    return 0x805D2CDC;
   }
   uint32_t MP2PAL::bloom_address() const
   {

@@ -1532,19 +1532,6 @@ VideoConfigDiag::VideoConfigDiag(wxWindow* parent, const std::string& title)
     m_y_axis = new DolphinSlider(page_primehack, wxID_ANY, Config::Get(Config::ARMPOSITION_UPDOWN), -50, 50, wxDefaultPosition,
       wxDefaultSize, wxSL_HORIZONTAL | wxSL_BOTTOM);
 
-    y_counter = new wxSpinCtrl(page_primehack, wxID_ANY, "", wxDefaultPosition, countersize, wxSP_ARROW_KEYS, -50, 50, Config::Get(Config::ARMPOSITION_UPDOWN));
-    RegisterControl(m_y_axis, (y_axis_desc));
-
-    view_labels->Add(new wxStaticText(page_primehack, wxID_ANY, _("Up/Down")), 0, wxEXPAND | wxLEFT, space5);
-    view_labels->AddSpacer(8);
-    view_y->Add(m_y_axis, 1, wxEXPAND);
-    view_y->Add(y_counter, 0, wxRIGHT, space2);
-
-    m_y_axis->Bind(wxEVT_SLIDER, &VideoConfigDiag::Event_UpdateY,
-      this);
-    y_counter->Bind(wxEVT_SPINCTRL, &VideoConfigDiag::Event_UpdateY,
-      this);
-
     m_z_axis = new DolphinSlider(page_primehack, wxID_ANY, Config::Get(Config::ARMPOSITION_FORWARDBACK), -50, 50, wxDefaultPosition,
       wxDefaultSize, wxSL_HORIZONTAL | wxSL_BOTTOM);
 
@@ -1559,6 +1546,19 @@ VideoConfigDiag::VideoConfigDiag(wxWindow* parent, const std::string& title)
     m_z_axis->Bind(wxEVT_SLIDER, &VideoConfigDiag::Event_UpdateZ,
       this);
     z_counter->Bind(wxEVT_SPINCTRL, &VideoConfigDiag::Event_UpdateZ,
+      this);
+
+    y_counter = new wxSpinCtrl(page_primehack, wxID_ANY, "", wxDefaultPosition, countersize, wxSP_ARROW_KEYS, -50, 50, Config::Get(Config::ARMPOSITION_UPDOWN));
+    RegisterControl(m_y_axis, (y_axis_desc));
+
+    view_labels->Add(new wxStaticText(page_primehack, wxID_ANY, _("Up/Down")), 0, wxEXPAND | wxLEFT, space5);
+    view_labels->AddSpacer(8);
+    view_y->Add(m_y_axis, 1, wxEXPAND);
+    view_y->Add(y_counter, 0, wxRIGHT, space2);
+
+    m_y_axis->Bind(wxEVT_SLIDER, &VideoConfigDiag::Event_UpdateY,
+      this);
+    y_counter->Bind(wxEVT_SPINCTRL, &VideoConfigDiag::Event_UpdateY,
       this);
 
     szr_primehack->AddSpacer(space5);
