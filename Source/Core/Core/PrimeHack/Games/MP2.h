@@ -27,7 +27,7 @@ protected:
   virtual uint32_t camera_ptr_address() const = 0;
   virtual uint32_t camera_offset_address() const = 0;
   virtual uint32_t culling_address() const = 0;
-  virtual uint32_t armpos_address() const = 0;
+  virtual uint32_t tweakgun_address() const = 0;
   virtual uint32_t bloom_address() const = 0;
 
 private:
@@ -52,7 +52,7 @@ protected:
   uint32_t camera_ptr_address() const override;
   uint32_t camera_offset_address() const override;
   uint32_t culling_address() const override;
-  uint32_t armpos_address() const override;
+  uint32_t tweakgun_address() const override;
   uint32_t bloom_address() const override;
 };
 
@@ -74,7 +74,7 @@ protected:
   uint32_t camera_ptr_address() const override;
   uint32_t camera_offset_address() const override;
   uint32_t culling_address() const override;
-  uint32_t armpos_address() const override;
+  uint32_t tweakgun_address() const override;
   uint32_t bloom_address() const override;
 };
 
