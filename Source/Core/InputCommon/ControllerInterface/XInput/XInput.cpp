@@ -7,6 +7,7 @@
 #ifndef XINPUT_GAMEPAD_GUIDE
 #define XINPUT_GAMEPAD_GUIDE 0x0400
 #endif
+#include <algorithm>
 
 namespace ciface
 {
