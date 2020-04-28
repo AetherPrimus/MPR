@@ -43,3 +43,5 @@ hack_config.ini
 
 # Ignore cmake buildconfig
 .buildconfig
+/Externals/ed25519/ed25519.log
+/Externals/picojson/picojson.log
