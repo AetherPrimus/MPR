@@ -172,7 +172,7 @@ namespace prime
         PowerPC::HostRead_U32(
           PowerPC::HostRead_U32(camera_fov + 0x68) + 0x0c) + 0x18) + 0x14);
 
-    adjust_viewmodel(fov, PowerPC::HostRead_U32(PowerPC::HostRead_U32(tweakgun_address())) + 0xE0, cgame_camera + 0x8C);
+    adjust_viewmodel(fov, PowerPC::HostRead_U32(PowerPC::HostRead_U32(tweakgun_address())) + 0xE0, cgame_camera + 0x8C, 0x3dcccccd);
 
     if (GetCulling() || GetFov() > 96.f)
       disable_culling(culling_address());
@@ -250,6 +250,9 @@ namespace prime
     code_changes.emplace_back(0x8007fdc8, 0x480000e4);
     code_changes.emplace_back(0x8017f88c, 0x60000000);
 
+    // Remove visors menu
+    code_changes.emplace_back(0x800614EC, 0x48000018);
+
     control_state_hook(0x80005880, Region::NTSC);
     grapple_slide_no_lookat(0x8017f2a0);
     springball_code(0x801077D4, &code_changes);
@@ -279,6 +282,9 @@ namespace prime
     write_invalidate(0x80080d44, 0x4bffe9a5);
     write_invalidate(0x8007fdc8, 0x418200e4);
     write_invalidate(0x8017f88c, 0x4be8c4e5);
+
+    // Remove visors menu
+    code_changes.emplace_back(0x800614EC, 0x48000018);
   }
 
   uint32_t MP3PAL::camera_ctl_address() const
