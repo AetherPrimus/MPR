@@ -29,7 +29,7 @@ enum class GroupType
   Cursor,
   Triggers,
   Slider,
-  PrimeHackMisc
+  PrimeHackModes
 };
 
 class ControlGroup

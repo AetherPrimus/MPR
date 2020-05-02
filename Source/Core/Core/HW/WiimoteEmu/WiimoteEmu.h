@@ -34,7 +34,7 @@ class NumericSetting;
 class Output;
 class Tilt;
 class AnalogStick;
-class PrimeHackMisc;
+class PrimeHackModes;
 }
 
 namespace WiimoteReal
@@ -61,6 +61,7 @@ enum class WiimoteGroup
   Visors,
   Camera,
   Misc,
+  Modes,
   ControlStick
 };
 
@@ -284,8 +285,9 @@ private:
   ControllerEmu::ControlGroup* m_primehack_beams;
   ControllerEmu::ControlGroup* m_primehack_visors;
   ControllerEmu::ControlGroup* m_primehack_camera;
+  ControllerEmu::ControlGroup* m_primehack_misc;
   ControllerEmu::AnalogStick* m_primehack_stick;
-  ControllerEmu::PrimeHackMisc* m_primehack_misc;
+  ControllerEmu::PrimeHackModes* m_primehack_modes;
 
   ControllerEmu::NumericSetting* m_primehack_camera_sensitivity;
   ControllerEmu::NumericSetting* m_primehack_cursor_sensitivity;

@@ -10,7 +10,7 @@
 #include "InputCommon/ControlReference/ControlReference.h"
 #include "InputCommon/ControllerEmu/Control/Control.h"
 #include "InputCommon/ControllerEmu/ControlGroup/Extension.h"
-#include "InputCommon/ControllerEmu/ControlGroup/PrimeHackMisc.h"
+#include "InputCommon/ControllerEmu/ControlGroup/PrimeHackModes.h"
 #include "InputCommon/ControllerEmu/ControllerEmu.h"
 #include "InputCommon/ControllerEmu/Setting/BooleanSetting.h"
 #include "InputCommon/ControllerEmu/Setting/NumericSetting.h"
@@ -90,9 +90,9 @@ void ControlGroup::LoadConfig(IniFile::Section* sec, const std::string& defdev,
   }
 
   // PrimeHack misc
-  if (type == GroupType::PrimeHackMisc)
+  if (type == GroupType::PrimeHackModes)
   {
-    PrimeHackMisc* const misc = (PrimeHackMisc*)this;
+    PrimeHackModes* const misc = (PrimeHackModes*)this;
 
     std::string mode;
     sec->Get(base + name + "/Mode", &mode, "0");
@@ -142,9 +142,9 @@ void ControlGroup::SaveConfig(IniFile::Section* sec, const std::string& defdev,
   }
 
   // PrimeHack mode
-  if (type == GroupType::PrimeHackMisc)
+  if (type == GroupType::PrimeHackModes)
   {
-    PrimeHackMisc* const misc = (PrimeHackMisc*)this;
+    PrimeHackModes* const misc = (PrimeHackModes*)this;
     sec->Set(base + name + "/Mode", std::to_string(misc->GetSelectedDevice()), "0");
   }
 }

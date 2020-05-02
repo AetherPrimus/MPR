@@ -1199,9 +1199,6 @@ VideoConfigDiag::VideoConfigDiag(wxWindow* parent, const std::string& title)
     szr_efb->Add(CreateCheckBox(page_hacks, _("Store EFB copies to Texture Only"),
       (skip_efb_copy_to_ram_desc), Config::GFX_HACK_SKIP_EFB_COPY_TO_RAM),
       0, wxBOTTOM | wxLEFT, 5);
-    szr_efb->Add(CreateCheckBox(page_hacks, _("Automatically disable \"EFB to Texture\" while scanning in MP2 & MP3"),
-      _("This setting was added by PrimeHack."), Config::AUTO_EFB),
-      0, wxBOTTOM | wxLEFT, 5);
     szr_hacks->Add(szr_efb, 0, wxEXPAND | wxALL, 5);
 
     // Texture cache
@@ -1431,7 +1428,7 @@ VideoConfigDiag::VideoConfigDiag(wxWindow* parent, const std::string& title)
   // - PrimeHack Misc -
   {
     wxPanel* const page_primehack = new wxPanel(notebook, -1, wxDefaultPosition);
-    notebook->AddPage(page_primehack, _("PrimeHack Misc"));
+    notebook->AddPage(page_primehack, _("PrimeHack GFX"));
     primetab_id = notebook->GetPageCount() - 1;
 
     wxBoxSizer* const szr_primehack = new wxBoxSizer(wxVERTICAL);
@@ -1440,7 +1437,7 @@ VideoConfigDiag::VideoConfigDiag(wxWindow* parent, const std::string& title)
       CreateCheckBox(page_primehack, _("Toggle Viewmodel Adjustment"), (repositon_arm_desc), Config::TOGGLE_ARM_REPOSITION);
 
     auto_viewmodel =
-      new wxRadioButton(page_primehack, wxID_ANY, "Automatic ViewModel Adjustment", wxDefaultPosition);
+      new wxRadioButton(page_primehack, wxID_ANY, "Automatic Viewmodel Adjustment", wxDefaultPosition);
 
     manual_viewmodel =
       new wxRadioButton(page_primehack, wxID_ANY, "Manual Viewmodel Adjustment", wxDefaultPosition);
@@ -1452,7 +1449,7 @@ VideoConfigDiag::VideoConfigDiag(wxWindow* parent, const std::string& title)
       CreateCheckBox(page_primehack, _("Disable Culling"), (culling_desc), Config::TOGGLE_CULLING);
 
     m_toggle_secondaryFX =
-      CreateCheckBox(page_primehack, _("Enable Original Gamecube Gun Effects"), (""), Config::ENABLE_SECONDARY_GUNFX);
+      CreateCheckBox(page_primehack, _("Enable GCN Gun Effects"), (""), Config::ENABLE_SECONDARY_GUNFX);
 
     auto_viewmodel->Bind(wxEVT_RADIOBUTTON, &VideoConfigDiag::Event_ViewModelUpdate, this);
     manual_viewmodel->Bind(wxEVT_RADIOBUTTON, &VideoConfigDiag::Event_ViewModelUpdate, this);
@@ -1463,12 +1460,11 @@ VideoConfigDiag::VideoConfigDiag(wxWindow* parent, const std::string& title)
     wxStaticBoxSizer* const graphics_sizer =
       new wxStaticBoxSizer(wxVERTICAL, page_primehack, _("Graphics"));
     graphics_sizer->AddSpacer(space5);
-    graphics_sizer->Add(CreateCheckBox(page_primehack, _("Auto Toggle \"EFB to Texture\" While Scanning"), (autoefb_desc),
-      Config::AUTO_EFB), 0, wxEXPAND | wxLEFT | wxRIGHT, space5);
+    graphics_sizer->Add(CreateCheckBox(page_primehack, _("Auto Toggle EFB copies to Texture"), (autoefb_desc), Config::AUTO_EFB), 0, wxEXPAND | wxLEFT | wxRIGHT, space5);
     graphics_sizer->AddSpacer(space5);
     graphics_sizer->Add(m_toggle_secondaryFX, 0, wxEXPAND | wxLEFT | wxRIGHT, space5);
     graphics_sizer->AddSpacer(space5);
-    graphics_sizer->Add(CreateCheckBox(page_primehack, _("Disable Bloom [TheHatedGravity, dreamsyntax]"), (bloom_desc),
+    graphics_sizer->Add(CreateCheckBox(page_primehack, _("Disable Bloom"), (bloom_desc),
       Config::DISABLE_BLOOM), 0, wxEXPAND | wxLEFT | wxRIGHT, space5);
     graphics_sizer->AddSpacer(space5);
     graphics_sizer->Add(toggle_viewmodel, 0, wxEXPAND | wxLEFT | wxRIGHT, space5);
@@ -1483,9 +1479,10 @@ VideoConfigDiag::VideoConfigDiag(wxWindow* parent, const std::string& title)
       m_toggle_secondaryFX->Disable();
 
     wxStaticBoxSizer* const viewmodel_group =
-      new wxStaticBoxSizer(wxVERTICAL, page_primehack, _("ViewModel"));
+      new wxStaticBoxSizer(wxVERTICAL, page_primehack, _("Viewmodel"));
 
     wxBoxSizer* const viewmodel_modes = new wxBoxSizer(wxHORIZONTAL);
+    viewmodel_modes->AddSpacer(FromDIP(25));
     viewmodel_modes->Add(auto_viewmodel, 0, wxEXPAND | wxLEFT | wxRIGHT, space5);
     viewmodel_modes->Add(manual_viewmodel, 0, wxEXPAND | wxLEFT | wxRIGHT, space5);
 
@@ -1506,7 +1503,7 @@ VideoConfigDiag::VideoConfigDiag(wxWindow* parent, const std::string& title)
     viewmodel_sizer->Add(view_xyz, 1, wxEXPAND | wxLEFT | wxRIGHT);
 
     viewmodel_group->AddSpacer(space5);
-    viewmodel_group->Add(viewmodel_modes, 0, wxEXPAND | wxLEFT | wxRIGHT, space5);
+    viewmodel_group->Add(viewmodel_modes, 0, wxEXPAND | wxCENTER, space5);
     viewmodel_group->AddSpacer(FromDIP(20));
     viewmodel_group->Add(viewmodel_sizer, 0, wxEXPAND | wxLEFT | wxRIGHT, space5);
     viewmodel_group->AddSpacer(space5);

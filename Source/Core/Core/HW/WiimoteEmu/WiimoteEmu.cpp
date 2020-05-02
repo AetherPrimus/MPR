@@ -42,7 +42,7 @@
 #include "InputCommon/ControllerEmu/ControlGroup/ModifySettingsButton.h"
 #include "InputCommon/ControllerEmu/ControlGroup/Tilt.h"
 #include "InputCommon/ControllerEmu/ControlGroup/AnalogStick.h"
-#include "InputCommon/ControllerEmu/ControlGroup/PrimeHackMisc.h"
+#include "InputCommon/ControllerEmu/ControlGroup/PrimeHackModes.h"
 #include "InputCommon/ControllerEmu/Setting/BooleanSetting.h"
 #include "InputCommon/ControllerEmu/Setting/NumericSetting.h"
 
@@ -427,7 +427,10 @@ Wiimote::Wiimote(const unsigned int index) : m_index(index), ir_sin(0), ir_cos(1
     m_primehack_vertical_sensitivity = new ControllerEmu::NumericSetting(_trans("Vertical Sensitivity"), 0.35, 1, 100));
 
   groups.emplace_back(m_primehack_misc =
-    new ControllerEmu::PrimeHackMisc(_trans("Miscellaneous")));
+    new ControllerEmu::ControlGroup(_trans("Miscellaneous")));
+
+  groups.emplace_back(m_primehack_modes =
+    new ControllerEmu::PrimeHackModes(_trans("Control Mode")));
 
   m_primehack_misc->controls.emplace_back(
     new ControllerEmu::Input("Spring Ball", "Spring Ball"));
@@ -476,6 +479,8 @@ ControllerEmu::ControlGroup* Wiimote::GetWiimoteGroup(WiimoteGroup group)
     return m_primehack_camera;
   case WiimoteGroup::ControlStick:
     return m_primehack_stick;
+  case WiimoteGroup::Modes:
+    return m_primehack_modes;
   default:
     assert(false);
     return nullptr;
@@ -602,12 +607,12 @@ std::tuple<double, double> Wiimote::GetPrimeStickXY()
 
 bool Wiimote::PrimeControllerMode()
 {
-  return m_primehack_misc->GetSelectedDevice() == 1;
+  return m_primehack_modes->GetSelectedDevice() == 1;
 }
 
 void Wiimote::SetPrimeMode(bool controller)
 {
-  m_primehack_misc->SetSelectedDevice(controller ? 1 : 0);
+  m_primehack_modes->SetSelectedDevice(controller ? 1 : 0);
 }
 
 std::tuple<double, double, double, bool, bool> Wiimote::GetPrimeSettings()

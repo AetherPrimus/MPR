@@ -21,5 +21,5 @@ public:
   void OnButtonPress(wxCommandEvent& ev);
 
   ControlGroupBox* m_primehack_stick;
-  ControlGroupBox* m_primehack_misc;
+  ControlGroupBox* m_primehack_modes;
 };

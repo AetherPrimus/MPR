@@ -65,6 +65,7 @@
 #include "InputCommon/ControllerEmu/ControlGroup/ControlGroup.h"
 #include "InputCommon/ControllerEmu/ControlGroup/Extension.h"
 #include "InputCommon/ControllerEmu/ControllerEmu.h"
+#include "InputCommon/ControllerEmu/ControlGroup/PrimeHackModes.h"
 #include "InputCommon/ControllerEmu/Setting/BooleanSetting.h"
 #include "InputCommon/ControllerEmu/Setting/NumericSetting.h"
 #include "InputCommon/ControllerInterface/ControllerInterface.h"
@@ -72,7 +73,6 @@
 #include "InputCommon/InputConfig.h"
 
 #include "Core/PrimeHack/HackConfig.h"
-#include <InputCommon\ControllerEmu\ControlGroup\PrimeHackMisc.h>
 
 using ciface::ExpressionParser::ParseStatus;
 
@@ -380,7 +380,7 @@ void InputConfigDialog::UpdateGUI()
       padSetting->UpdateGUI();
     }
 
-    if (cgBox->control_group->name == "Miscellaneous") {
+    if (cgBox->control_group->name == "Mode") {
       bool checked = Wiimote::PrimeUseController();
       cgBox->mouse_but->SetValue(!checked);
       cgBox->controller_but->SetValue(checked);
@@ -1155,7 +1155,8 @@ ControlGroupBox::ControlGroupBox(ControllerEmu::ControlGroup* const group, wxWin
     AddSpacer(space3);
     Add(configure_btn, 0, wxEXPAND | wxLEFT | wxRIGHT, space3);
   }
-  case ControllerEmu::GroupType::PrimeHackMisc:
+  break;
+  case ControllerEmu::GroupType::PrimeHackModes:
   {
     mouse_but = new wxRadioButton(parent, wxID_ANY, "Mouse", wxDefaultPosition);
     controller_but = new wxRadioButton(parent, wxID_ANY, "Controller", wxDefaultPosition);
@@ -1163,12 +1164,12 @@ ControlGroupBox::ControlGroupBox(ControllerEmu::ControlGroup* const group, wxWin
     mouse_but->SetValue(!Wiimote::PrimeUseController());
     controller_but->SetValue(Wiimote::PrimeUseController());
 
-    auto* const misc_sizer = new wxBoxSizer(wxHORIZONTAL);
-    misc_sizer->Add(mouse_but);
-    misc_sizer->AddSpacer(30);
-    misc_sizer->Add(controller_but);
+    auto* const mode_sizer = new wxBoxSizer(wxHORIZONTAL);
+    mode_sizer->Add(mouse_but);
+    mode_sizer->AddSpacer(30);
+    mode_sizer->Add(controller_but);
 
-    Add(misc_sizer);
+    Add(mode_sizer);
   }
   break;
   default:

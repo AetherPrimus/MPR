@@ -169,8 +169,8 @@ void WiimoteInputConfigDialog::UpdateUI(bool checked)
 void WiimoteInputConfigDialog::OnButtonPress(wxCommandEvent& ev)
 {
   bool checked = Wiimote::PrimeUseController();
-  m_primehack_misc->mouse_but->SetValue(!checked);
-  m_primehack_misc->controller_but->SetValue(checked);
+  m_primehack_modes->mouse_but->SetValue(!checked);
+  m_primehack_modes->controller_but->SetValue(checked);
 }
 
 void WiimoteInputConfigDialog::OnModeChanged(wxCommandEvent& ex)
@@ -201,8 +201,11 @@ void WiimoteInputConfigDialog::AddPrimeHackTab(wxNotebook* notebook)
   auto* const m_primehack_camera = new ControlGroupBox(
       Wiimote::GetWiimoteGroup(0, WiimoteEmu::WiimoteGroup::Camera), tab_primehack, this);
 
-  m_primehack_misc = new ControlGroupBox(
+  auto* const m_primehack_misc = new ControlGroupBox(
     Wiimote::GetWiimoteGroup(0, WiimoteEmu::WiimoteGroup::Misc), tab_primehack, this);
+
+  m_primehack_modes = new ControlGroupBox(
+    Wiimote::GetWiimoteGroup(0, WiimoteEmu::WiimoteGroup::Modes), tab_primehack, this);
 
   m_primehack_stick = new ControlGroupBox(
     Wiimote::GetWiimoteGroup(0, WiimoteEmu::WiimoteGroup::ControlStick), tab_primehack, this);
@@ -216,6 +219,8 @@ void WiimoteInputConfigDialog::AddPrimeHackTab(wxNotebook* notebook)
   auto* const sub_sizer2 = new wxBoxSizer(wxVERTICAL);
 
   sub_sizer1->AddSpacer(space5);
+  sub_sizer1->Add(m_primehack_modes, 0, wxEXPAND | wxRIGHT, space5);
+  sub_sizer1->AddSpacer(space5);
   sub_sizer1->Add(m_primehack_misc, 0, wxEXPAND | wxRIGHT, space5);
   sub_sizer1->AddSpacer(space5);
   sub_sizer1->Add(m_primehack_beams, 0, wxEXPAND | wxTOP, space5);
@@ -223,7 +228,9 @@ void WiimoteInputConfigDialog::AddPrimeHackTab(wxNotebook* notebook)
   sub_sizer1->Add(m_primehack_visors, 0, wxEXPAND | wxTOP, space5);
   sub_sizer1->AddSpacer(space5);
 
+  general_sizer->AddSpacer(5);
   general_sizer->Add(sub_sizer1);
+  general_sizer->AddSpacer(5);
 
   sub_sizer2->AddSpacer(space5);
   sub_sizer2->Add(camera_sizer, 0, wxEXPAND | wxRIGHT, space5);
