@@ -81,6 +81,11 @@ bool CheckVisorScroll(bool direction);
 bool CheckBeam(int beam_count);
 bool CheckBeamScroll(bool direction);
 bool CheckSpringBall();
+bool PrimeUseController();
+
+void PrimeSetMode(bool controller);
+
+std::tuple<double, double> GetPrimeStickXY();
 
 std::tuple<double, double, double, bool, bool> PrimeSettings();
 

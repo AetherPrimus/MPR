@@ -115,7 +115,7 @@ namespace prime
 
     springball_check(base_address + 0x358, base_address + 0x29c);
 
-    int dx = g_mouse_input->GetDeltaHorizontalAxis(), dy = g_mouse_input->GetDeltaVerticalAxis();
+    int dx = GetHorizontalAxis(), dy = GetVerticalAxis();
     const float compensated_sens = GetSensitivity() * TURNRATE_RATIO / 60.0f;
 
     pitch += static_cast<float>(dy) * -compensated_sens * (InvertedY() ? -1.f : 1.f);

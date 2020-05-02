@@ -185,6 +185,22 @@ namespace prime
     inverted_x = inverted;
   }
 
+  double GetHorizontalAxis()
+  {
+    if (Wiimote::PrimeUseController())
+      return std::get<0>(Wiimote::GetPrimeStickXY());
+    else
+      return g_mouse_input->GetDeltaHorizontalAxis();
+  }
+
+  double GetVerticalAxis()
+  {
+    if (Wiimote::PrimeUseController())
+      return std::get<1>(Wiimote::GetPrimeStickXY());
+    else
+      return g_mouse_input->GetDeltaVerticalAxis();
+  }
+
   std::string const& GetCtlDeviceName()
   {
     return device_name;

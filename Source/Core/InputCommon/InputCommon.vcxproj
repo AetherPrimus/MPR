@@ -36,6 +36,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <ItemGroup>
+    <ClCompile Include="ControllerEmu\ControlGroup\PrimeHackMisc.cpp" />
     <ClCompile Include="ControllerEmu\ControllerEmu.cpp" />
     <ClCompile Include="ControllerEmu\Control\Control.cpp" />
     <ClCompile Include="ControllerEmu\Control\Input.cpp" />
@@ -75,6 +76,7 @@
     <ClCompile Include="GenericMouse.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ControllerEmu\ControlGroup\PrimeHackMisc.h" />
     <ClInclude Include="ControllerEmu\ControllerEmu.h" />
     <ClInclude Include="ControllerEmu\Control\Control.h" />
     <ClInclude Include="ControllerEmu\Control\Input.h" />

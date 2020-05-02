@@ -3,6 +3,8 @@
 // Refer to the license.txt file included.
 
 #include <wx/notebook.h>
+#include <wx/radiobut.h>
+#include <wx/stattext.h>
 
 #include "DolphinWX/Input/WiimoteInputConfigDiag.h"
 
@@ -134,6 +136,9 @@ WiimoteInputConfigDialog::WiimoteInputConfigDialog(wxWindow* const parent, Input
   UpdateProfileComboBox();
 
   Bind(wxEVT_NOTEBOOK_PAGE_CHANGED, &WiimoteInputConfigDialog::OnPageChanged, this);
+  Bind(wxEVT_RADIOBUTTON, &WiimoteInputConfigDialog::OnModeChanged, this);
+  Bind(wxEVT_UPDATE_UI, &WiimoteInputConfigDialog::OnUpdateUI, this);
+  //Bind(wx, &WiimoteInputConfigDialog::OnButtonPress, this);
 
   UpdateGUI();
 }
@@ -143,6 +148,41 @@ void WiimoteInputConfigDialog::OnPageChanged(wxBookCtrlEvent& ev)
   if (!SConfig::GetInstance().bEnablePrimeHack)
     if (ev.GetSelection() == 2)
       wxMessageBox("PrimeHack has not been enabled. None of the controls or settings in the PrimeHack tab will work until it is enabled in the Config window.", "PrimeHack Settings");
+}
+
+void WiimoteInputConfigDialog::OnUpdateUI(wxEvent& ev)
+{
+  UpdateUI(Wiimote::PrimeUseController());
+}
+
+void WiimoteInputConfigDialog::UpdateUI(bool checked)
+{
+  if (m_primehack_stick->control_buttons[0]->IsEnabled() != checked) {
+    for (ControlButton* cb : m_primehack_stick->control_buttons)
+      cb->Enable(checked);
+
+    for (PadSetting* cb : m_primehack_stick->options)
+      cb->wxcontrol->Enable(checked);
+  } 
+}
+
+void WiimoteInputConfigDialog::OnButtonPress(wxCommandEvent& ev)
+{
+  bool checked = Wiimote::PrimeUseController();
+  m_primehack_misc->mouse_but->SetValue(!checked);
+  m_primehack_misc->controller_but->SetValue(checked);
+}
+
+void WiimoteInputConfigDialog::OnModeChanged(wxCommandEvent& ex)
+{
+  wxRadioButton* const btn = (wxRadioButton*)ex.GetEventObject();
+  bool checked = btn->GetValue();
+
+  if (btn->GetLabel().StartsWith("M"))
+    checked = !checked;
+
+  Wiimote::PrimeSetMode(checked);
+  UpdateUI(checked);
 }
 
 void WiimoteInputConfigDialog::AddPrimeHackTab(wxNotebook* notebook)
@@ -161,32 +201,37 @@ void WiimoteInputConfigDialog::AddPrimeHackTab(wxNotebook* notebook)
   auto* const m_primehack_camera = new ControlGroupBox(
       Wiimote::GetWiimoteGroup(0, WiimoteEmu::WiimoteGroup::Camera), tab_primehack, this);
 
-    auto* const m_primehack_misc = new ControlGroupBox(
-      Wiimote::GetWiimoteGroup(0, WiimoteEmu::WiimoteGroup::Misc), tab_primehack, this);
+  m_primehack_misc = new ControlGroupBox(
+    Wiimote::GetWiimoteGroup(0, WiimoteEmu::WiimoteGroup::Misc), tab_primehack, this);
 
+  m_primehack_stick = new ControlGroupBox(
+    Wiimote::GetWiimoteGroup(0, WiimoteEmu::WiimoteGroup::ControlStick), tab_primehack, this);
 
   auto* const camera_sizer = new wxBoxSizer(wxVERTICAL);
   camera_sizer->Add(m_primehack_camera, 0, wxEXPAND | wxTOP, space5);
-  //camera_sizer->AddSpacer(space5);
-
-  
-  auto* const misc_sizer = new wxBoxSizer(wxVERTICAL);
-  camera_sizer->Add(m_primehack_misc, 0, wxEXPAND | wxTOP, space5);
-  //camera_sizer->AddSpacer(space5);
 
   auto* const general_sizer = new wxBoxSizer(wxHORIZONTAL);
-  general_sizer->AddSpacer(space5);
-  general_sizer->Add(m_primehack_beams, 0, wxEXPAND | wxTOP, space5);
-  general_sizer->AddSpacer(space5);
-  general_sizer->Add(m_primehack_visors, 0, wxEXPAND | wxTOP, space5);
-  general_sizer->AddSpacer(space5);
-  general_sizer->Add(camera_sizer, 0, wxEXPAND | wxRIGHT, space5);
-  //general_sizer->AddSpacer(space5);
-  general_sizer->Add(misc_sizer, 0, wxEXPAND | wxRIGHT, space5);
-  //general_sizer->AddSpacer(space5);
-  //general_sizer->AddSpacer(space5);
-  //general_sizer->Add(m_primehack_camera, 0, wxEXPAND | wxTOP, space5);
-  //camera_sizer->AddSpacer(space5);
+
+  auto* const sub_sizer1 = new wxBoxSizer(wxVERTICAL);
+  auto* const sub_sizer2 = new wxBoxSizer(wxVERTICAL);
+
+  sub_sizer1->AddSpacer(space5);
+  sub_sizer1->Add(m_primehack_misc, 0, wxEXPAND | wxRIGHT, space5);
+  sub_sizer1->AddSpacer(space5);
+  sub_sizer1->Add(m_primehack_beams, 0, wxEXPAND | wxTOP, space5);
+  sub_sizer1->AddSpacer(space5);
+  sub_sizer1->Add(m_primehack_visors, 0, wxEXPAND | wxTOP, space5);
+  sub_sizer1->AddSpacer(space5);
+
+  general_sizer->Add(sub_sizer1);
+
+  sub_sizer2->AddSpacer(space5);
+  sub_sizer2->Add(camera_sizer, 0, wxEXPAND | wxRIGHT, space5);
+  sub_sizer2->AddSpacer(space5);
+  sub_sizer2->Add(m_primehack_stick, 0, wxEXPAND | wxRIGHT, space5);
+  sub_sizer2->AddSpacer(space5);
+
+  general_sizer->Add(sub_sizer2);
 
   tab_primehack->SetSizerAndFit(general_sizer);
 

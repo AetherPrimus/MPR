@@ -41,6 +41,8 @@
 #include "InputCommon/ControllerEmu/ControlGroup/Force.h"
 #include "InputCommon/ControllerEmu/ControlGroup/ModifySettingsButton.h"
 #include "InputCommon/ControllerEmu/ControlGroup/Tilt.h"
+#include "InputCommon/ControllerEmu/ControlGroup/AnalogStick.h"
+#include "InputCommon/ControllerEmu/ControlGroup/PrimeHackMisc.h"
 #include "InputCommon/ControllerEmu/Setting/BooleanSetting.h"
 #include "InputCommon/ControllerEmu/Setting/NumericSetting.h"
 
@@ -409,16 +411,27 @@ Wiimote::Wiimote(const unsigned int index) : m_index(index), ir_sin(0), ir_cos(1
     m_primehack_fieldofview =
     new ControllerEmu::NumericSetting(_trans("Field of View"), 0.60, 1, 170));
 
-  groups.emplace_back(m_primehack_misc =
-    new ControllerEmu::ControlGroup(_trans("PrimeHack"), "Miscellaneous"));
   m_primehack_camera->boolean_settings.emplace_back(
     m_primehack_invert_x = new ControllerEmu::BooleanSetting("Invert X Axis", false));
 
   m_primehack_camera->boolean_settings.emplace_back(
     m_primehack_invert_y = new ControllerEmu::BooleanSetting("Invert Y Axis", false));
 
+  groups.emplace_back(m_primehack_stick = new ControllerEmu::AnalogStick(_trans("Camera Control"), 1.0f));
+
+  m_primehack_stick->numeric_settings.emplace_back(
+    m_primehack_horizontal_sensitivity = new ControllerEmu::NumericSetting(_trans("Horizontal Sensitivity"), 0.45, 1, 100));
+
+
+  m_primehack_stick->numeric_settings.emplace_back(
+    m_primehack_vertical_sensitivity = new ControllerEmu::NumericSetting(_trans("Vertical Sensitivity"), 0.35, 1, 100));
+
+  groups.emplace_back(m_primehack_misc =
+    new ControllerEmu::PrimeHackMisc(_trans("Miscellaneous")));
+
   m_primehack_misc->controls.emplace_back(
     new ControllerEmu::Input("Spring Ball", "Spring Ball"));
+
 
   // --- reset eeprom/register/values to default ---
   Reset();
@@ -461,6 +474,8 @@ ControllerEmu::ControlGroup* Wiimote::GetWiimoteGroup(WiimoteGroup group)
     return m_primehack_misc;
   case WiimoteGroup::Camera:
     return m_primehack_camera;
+  case WiimoteGroup::ControlStick:
+    return m_primehack_stick;
   default:
     assert(false);
     return nullptr;
@@ -575,6 +590,24 @@ bool Wiimote::CheckBeamScrollCtrl(bool direction)
 bool Wiimote::CheckSpringBallCtrl()
 {
   return m_primehack_misc->controls[0].get()->control_ref->State() > 0.5;
+}
+
+std::tuple<double, double> Wiimote::GetPrimeStickXY()
+{
+  double x,y;
+  m_primehack_stick->GetState(&x, &y);
+
+  return std::make_tuple(x * m_primehack_horizontal_sensitivity->GetValue() * 100, y * m_primehack_vertical_sensitivity->GetValue() * -100);
+}
+
+bool Wiimote::PrimeControllerMode()
+{
+  return m_primehack_misc->GetSelectedDevice() == 1;
+}
+
+void Wiimote::SetPrimeMode(bool controller)
+{
+  m_primehack_misc->SetSelectedDevice(controller ? 1 : 0);
 }
 
 std::tuple<double, double, double, bool, bool> Wiimote::GetPrimeSettings()

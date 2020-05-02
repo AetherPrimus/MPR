@@ -33,6 +33,8 @@ class ModifySettingsButton;
 class NumericSetting;
 class Output;
 class Tilt;
+class AnalogStick;
+class PrimeHackMisc;
 }
 
 namespace WiimoteReal
@@ -59,7 +61,7 @@ enum class WiimoteGroup
   Visors,
   Camera,
   Misc,
-
+  ControlStick
 };
 
 enum
@@ -215,6 +217,11 @@ public:
   bool CheckBeamCtrl(int beam_count);
   bool CheckBeamScrollCtrl(bool direction);
   bool CheckSpringBallCtrl();
+  bool PrimeControllerMode();
+
+  void SetPrimeMode(bool controller);
+  
+  std::tuple<double, double> GetPrimeStickXY();
 
   std::tuple<double, double, double, bool, bool> GetPrimeSettings();
 
@@ -276,11 +283,15 @@ private:
 
   ControllerEmu::ControlGroup* m_primehack_beams;
   ControllerEmu::ControlGroup* m_primehack_visors;
-  ControllerEmu::ControlGroup* m_primehack_misc;
   ControllerEmu::ControlGroup* m_primehack_camera;
+  ControllerEmu::AnalogStick* m_primehack_stick;
+  ControllerEmu::PrimeHackMisc* m_primehack_misc;
 
   ControllerEmu::NumericSetting* m_primehack_camera_sensitivity;
   ControllerEmu::NumericSetting* m_primehack_cursor_sensitivity;
+  ControllerEmu::NumericSetting* m_primehack_horizontal_sensitivity;
+  ControllerEmu::NumericSetting* m_primehack_vertical_sensitivity;
+
   ControllerEmu::NumericSetting* m_primehack_fieldofview;
   ControllerEmu::BooleanSetting* m_primehack_invert_y;
   ControllerEmu::BooleanSetting* m_primehack_invert_x;
