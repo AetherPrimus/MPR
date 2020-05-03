@@ -166,13 +166,6 @@ void WiimoteInputConfigDialog::UpdateUI(bool checked)
   } 
 }
 
-void WiimoteInputConfigDialog::OnButtonPress(wxCommandEvent& ev)
-{
-  bool checked = Wiimote::PrimeUseController();
-  m_primehack_modes->mouse_but->SetValue(!checked);
-  m_primehack_modes->controller_but->SetValue(checked);
-}
-
 void WiimoteInputConfigDialog::OnModeChanged(wxCommandEvent& ex)
 {
   wxRadioButton* const btn = (wxRadioButton*)ex.GetEventObject();

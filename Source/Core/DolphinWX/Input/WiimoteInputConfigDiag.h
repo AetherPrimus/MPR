@@ -18,7 +18,6 @@ public:
   void OnModeChanged(wxCommandEvent& ex);
   void OnUpdateUI(wxEvent& ex);
   void UpdateUI(bool checked);
-  void OnButtonPress(wxCommandEvent& ev);
 
   ControlGroupBox* m_primehack_stick;
   ControlGroupBox* m_primehack_modes;

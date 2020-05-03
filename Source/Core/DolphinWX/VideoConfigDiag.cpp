@@ -327,6 +327,8 @@ static wxString autoefb_desc =  _("Automatically disables 'Store EFB Copies to T
   "while the Scan Visor is active in Metroid Prime 2 and Metroid Prime 3. \n\n"
   "While 'Store EFB Copies to Texture Only' may improve performance, having it "
   "enabled will break the scan visor in Metroid Prime 2 and Metroid Prime 3.");
+static wxString guneffects_desc = _("Reintroduce the original secondary gun effects that were in the GameCube version of Metroid Prime.\n\n"
+                "These effects were disabled and cut in the Trilogy but still remained as unused assets.");
 static wxString bloom_desc =  _("Disables Bloom.\n\nSource: TheHatedGravity and dreamsyntax.");
 static wxString repositon_arm_desc =  _("Toggles repositioning of Samus's arms in the viewmodel. Repositioning her arms is visually beneficial for high Field Of Views.");
 static wxString culling_desc = _("Disables graphical culling. This allows for Field of Views above 101 in Metroid Prime 1 and Metroid Prime 2, and above 94 in Metroid Prime 3.");
@@ -1449,7 +1451,7 @@ VideoConfigDiag::VideoConfigDiag(wxWindow* parent, const std::string& title)
       CreateCheckBox(page_primehack, _("Disable Culling"), (culling_desc), Config::TOGGLE_CULLING);
 
     m_toggle_secondaryFX =
-      CreateCheckBox(page_primehack, _("Enable GCN Gun Effects"), (""), Config::ENABLE_SECONDARY_GUNFX);
+      CreateCheckBox(page_primehack, _("Enable GCN Gun Effects"), (guneffects_desc), Config::ENABLE_SECONDARY_GUNFX);
 
     auto_viewmodel->Bind(wxEVT_RADIOBUTTON, &VideoConfigDiag::Event_ViewModelUpdate, this);
     manual_viewmodel->Bind(wxEVT_RADIOBUTTON, &VideoConfigDiag::Event_ViewModelUpdate, this);
