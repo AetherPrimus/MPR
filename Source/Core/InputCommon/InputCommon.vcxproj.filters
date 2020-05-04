@@ -116,6 +116,9 @@
     <ClCompile Include="GenericMouse.cpp">
       <Filter>ControllerInterface</Filter>
     </ClCompile>
+    <ClCompile Include="ControllerEmu\ControlGroup\PrimeHackModes.cpp">
+      <Filter>ControllerEmu\ControlGroup</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GCAdapter.h" />
@@ -213,6 +216,9 @@
     </ClInclude>
     <ClInclude Include="GenericMouse.h">
       <Filter>ControllerInterface</Filter>
+    </ClInclude>
+    <ClInclude Include="ControllerEmu\ControlGroup\PrimeHackModes.h">
+      <Filter>ControllerEmu\ControlGroup</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -34,6 +34,7 @@ class wxListBox;
 class wxStaticBitmap;
 class wxStaticText;
 class wxTextCtrl;
+class wxRadioButton;
 
 namespace ControllerEmu
 {
@@ -182,6 +183,9 @@ public:
   wxStaticBitmap* static_bitmap;
   std::vector<ControlButton*> control_buttons;
   double m_scale;
+
+  wxRadioButton* mouse_but = nullptr;
+  wxRadioButton* controller_but = nullptr;
 };
 
 class InputConfigDialog : public wxDialog
@@ -220,7 +224,6 @@ public:
   void ClearAll(wxCommandEvent& event);
   void LoadDefaults(wxCommandEvent& event);
 
-  void AdjustControlOption(wxCommandEvent& event);
   void EnablePadSetting(const std::string& group_name, const std::string& name, bool enabled);
   void EnableControlButton(const std::string& group_name, const std::string& name, bool enabled);
   void AdjustSetting(wxCommandEvent& event);

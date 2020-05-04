@@ -28,7 +28,8 @@ enum class GroupType
   Tilt,
   Cursor,
   Triggers,
-  Slider
+  Slider,
+  PrimeHackModes
 };
 
 class ControlGroup

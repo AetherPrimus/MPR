@@ -85,6 +85,11 @@ bool CheckForward();
 bool CheckBack();
 bool CheckLeft();
 bool CheckRight();
+bool PrimeUseController();
+
+void PrimeSetMode(bool controller);
+
+std::tuple<double, double> GetPrimeStickXY();
 
 std::tuple<double, double, double, bool, bool> PrimeSettings();
 

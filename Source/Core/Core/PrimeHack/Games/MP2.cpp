@@ -41,44 +41,30 @@ namespace prime
   void MP2::run_mod()
   {
     ClrDevInfo();
-    // Load state should be 1, otherwise addresses may be invalid
-    if (PowerPC::HostRead_U32(load_state_address()) != 1)
-    {
-      return;
-    }
+
     u32 base_address = PowerPC::HostRead_U32(camera_ctl_address());
     if (!mem_check(base_address))
     {
       return;
     }
 
-    if (PowerPC::HostRead_U32(base_address + 0x390) != 5 && PowerPC::HostRead_U8(lockon_address()))
+    int beam_id = prime::get_beam_switch(prime_two_beams);
+    if (beam_id != -1)
     {
-      PowerPC::HostWrite_U32(0, base_address + 0x178);
-      return;
-    }
-
-    int dx = g_mouse_input->GetDeltaHorizontalAxis(), dy = g_mouse_input->GetDeltaVerticalAxis();
-    const float compensated_sens = GetSensitivity() * TURNRATE_RATIO / 60.0f;
-
-    pitch += static_cast<float>(dy) * -compensated_sens * (InvertedY() ? -1.f : 1.f);
-    pitch = std::clamp(pitch, -1.04f, 1.04f);
-    const float yaw_vel = dx * -GetSensitivity() * (InvertedX() ? -1.f : 1.f);
-
-    u32 arm_cannon_model_matrix = PowerPC::HostRead_U32(base_address + 0xea8) + 0x3b0;
-    PowerPC::HostWrite_U32(*reinterpret_cast<u32*>(&pitch), base_address + 0x5f0);
-    PowerPC::HostWrite_U32(*reinterpret_cast<u32*>(&pitch), arm_cannon_model_matrix + 0x24);
-    PowerPC::HostWrite_U32(*reinterpret_cast<u32 const*>(&yaw_vel), base_address + 0x178);
-
-    for (int i = 0; i < 4; i++) {
-      u32 beam_base = PowerPC::HostRead_U32(base_address + 0x12ec);
-      set_beam_owned(i, PowerPC::HostRead_U32(beam_base + (prime_two_beams[i] * 0x0c) + 0x5c) ? true : false);
+      PowerPC::HostWrite_U32(beam_id, new_beam_address());
+      PowerPC::HostWrite_U32(1, beamchange_flag_address());
     }
 
     u32 visor_base = PowerPC::HostRead_U32(base_address + 0x12ec);
 
-    for (int i = 0; i < 4; i++) {
-      set_visor_owned(i , PowerPC::HostRead_U32(visor_base + (std::get<1>(prime_two_visors[i]) * 0x8) + 0x30) ? true : false);
+    int visor_id, visor_off;
+    std::tie(visor_id, visor_off) = prime::get_visor_switch(prime_two_visors, PowerPC::HostRead_U32(visor_base + 0x34) == 0);
+    if (visor_id != -1)
+    {    
+      if (PowerPC::HostRead_U32(visor_base + (visor_off * 0x0c) + 0x5c) != 0)
+      {
+        PowerPC::HostWrite_U32(visor_id, visor_base + 0x34);
+      }
     }
 
     int beam_id = prime::get_beam_switch(prime_two_beams);
@@ -96,6 +82,40 @@ namespace prime
       {
         PowerPC::HostWrite_U32(visor_id, visor_base + 0x34);
       }
+    }
+
+    // Load state should be 1, otherwise addresses may be invalid
+    if (PowerPC::HostRead_U32(load_state_address()) != 1)
+    {
+      return;
+    }
+
+    if (PowerPC::HostRead_U32(base_address + 0x390) != 5 && PowerPC::HostRead_U8(lockon_address()))
+    {
+      PowerPC::HostWrite_U32(0, base_address + 0x178);
+      return;
+    }
+
+    int dx = GetHorizontalAxis(), dy = GetVerticalAxis();
+    const float compensated_sens = GetSensitivity() * TURNRATE_RATIO / 60.0f;
+
+    pitch += static_cast<float>(dy) * -compensated_sens * (InvertedY() ? -1.f : 1.f);
+    pitch = std::clamp(pitch, -1.04f, 1.04f);
+    const float yaw_vel = dx * -GetSensitivity() * (InvertedX() ? -1.f : 1.f);
+
+    u32 arm_cannon_model_matrix = PowerPC::HostRead_U32(base_address + 0xea8) + 0x3b0;
+    PowerPC::HostWrite_U32(*reinterpret_cast<u32*>(&pitch), base_address + 0x5f0);
+    PowerPC::HostWrite_U32(*reinterpret_cast<u32*>(&pitch), arm_cannon_model_matrix + 0x24);
+    PowerPC::HostWrite_U32(*reinterpret_cast<u32 const*>(&yaw_vel), base_address + 0x178);
+
+    u32 beam_base = PowerPC::HostRead_U32(base_address + 0x12ec);
+    for (int i = 0; i < 4; i++) {
+      set_beam_owned(i, PowerPC::HostRead_U32(beam_base + (prime_two_beams[i] * 0x0c) + 0x5c) ? true : false);
+    }
+
+    u32 visor_base = PowerPC::HostRead_U32(base_address + 0x12ec);
+    for (int i = 0; i < 4; i++) {
+      set_visor_owned(i , PowerPC::HostRead_U32(visor_base + (std::get<1>(prime_two_visors[i]) * 0x8) + 0x30) ? true : false);
     }
 
     if (UseMPAutoEFB())
@@ -120,7 +140,7 @@ namespace prime
     PowerPC::HostWrite_U32(*reinterpret_cast<u32 const*>(&fov), camera_base + 0x1e8);
     PowerPC::HostWrite_U32(*reinterpret_cast<u32 const*>(&fov), camera_base_tp + 0x1e8);
 
-    adjust_viewmodel(fov, PowerPC::HostRead_U32(PowerPC::HostRead_U32(tweakgun_address())) + 0x4c, camera_base + 0x1C4);
+    adjust_viewmodel(fov, PowerPC::HostRead_U32(PowerPC::HostRead_U32(tweakgun_address())) + 0x4c, camera_base + 0x1C4, 0x3d200000);
 
     if (GetCulling() || GetFov() > 101.f)
       disable_culling(culling_address());
@@ -158,6 +178,9 @@ namespace prime
     code_changes.emplace_back(0x803054a0, 0xd23f009c);
     code_changes.emplace_back(0x80169dbc, 0x60000000);
     code_changes.emplace_back(0x80143d00, 0x48000050);
+
+    // Remove Beams/Visors Menu
+    code_changes.emplace_back(0x8006FB58, 0x48000044);
 
     beam_change_code(0x8018cc88);
     springball_code(0x8010BD98, &code_changes);
@@ -219,6 +242,9 @@ namespace prime
     code_changes.emplace_back(0x80307d2c, 0xd23f009c);
     code_changes.emplace_back(0x8016b534, 0x60000000);
     code_changes.emplace_back(0x80145474, 0x48000050);
+
+    // Remove Beams/Visors Menu
+    code_changes.emplace_back(0x800710D0, 0x48000044);
 
     beam_change_code(0x8018e41c);
     springball_code(0x8010D440, &code_changes);

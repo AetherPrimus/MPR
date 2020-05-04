@@ -41,13 +41,32 @@ namespace prime
   {
     ClrDevInfo();
 
+    u32 powerup_base = PowerPC::HostRead_U32(powerups_base_address());
+
+    int beam_id = get_beam_switch(prime_one_beams);
+    if (beam_id != -1)
+    {
+      PowerPC::HostWrite_U32(beam_id, new_beam_address());
+      PowerPC::HostWrite_U32(1, beamchange_flag_address());
+    }
+
+    int visor_id, visor_off;
+    std::tie(visor_id, visor_off) = get_visor_switch(prime_one_visors, PowerPC::HostRead_U32(powerup_base + 0x1c) == 0);
+    if (visor_id != -1)
+    {
+      if (PowerPC::HostRead_U32(powerup_base + (visor_off * 0x08) + 0x30))
+      {
+        PowerPC::HostWrite_U32(visor_id, powerup_base + 0x1c);
+      }
+    }
+
     if (PowerPC::HostRead_U32(orbit_state_address()) != 5 && PowerPC::HostRead_U8(lockon_address()))
     {
       PowerPC::HostWrite_U32(0, yaw_vel_address());
       return;
     }
 
-    int dx = g_mouse_input->GetDeltaHorizontalAxis(), dy = g_mouse_input->GetDeltaVerticalAxis();
+    int dx = GetHorizontalAxis(), dy = GetVerticalAxis();
     const float compensated_sens = GetSensitivity() * TURNRATE_RATIO / 60.0f;
 
     pitch += static_cast<float>(dy) * -compensated_sens * (InvertedY() ? -1.f : 1.f);
@@ -70,24 +89,8 @@ namespace prime
       set_beam_owned(i , PowerPC::HostRead_U32(powerup_base + (prime_one_beams[i] * 0x08) + 0x30) ? true : false);
     }
 
-    int beam_id = get_beam_switch(prime_one_beams);
-    if (beam_id != -1)
-    {
-      PowerPC::HostWrite_U32(beam_id, new_beam_address());
-      PowerPC::HostWrite_U32(1, beamchange_flag_address());
-    }
-
     springball_check(cplayer() + 0x2f4, cplayer() + 0x25C);
 
-    int visor_id, visor_off;
-    std::tie(visor_id, visor_off) = get_visor_switch(prime_one_visors, PowerPC::HostRead_U32(powerup_base + 0x1c) == 0);
-    if (visor_id != -1)
-    {
-      if (PowerPC::HostRead_U32(powerup_base + (visor_off * 0x08) + 0x30))
-      {
-        PowerPC::HostWrite_U32(visor_id, powerup_base + 0x1c);
-      }
-    }
     {
       u32 camera_ptr = PowerPC::HostRead_U32(camera_pointer_address());
       u32 camera_offset = ((PowerPC::HostRead_U32(active_camera_offset_address()) >> 16) & 0x3ff)
@@ -98,7 +101,7 @@ namespace prime
       PowerPC::HostWrite_U32(*reinterpret_cast<u32 const*>(&fov), global_fov1());
       PowerPC::HostWrite_U32(*reinterpret_cast<u32 const*>(&fov), global_fov2());
 
-      adjust_viewmodel(fov, gunpos_address(), camera_base + 0x168);
+      adjust_viewmodel(fov, gunpos_address(), camera_base + 0x168, 0x3d200000);
 
       DevInfo("Camera_Base", camera_base);
       static bool press_once = false;
@@ -143,6 +146,9 @@ namespace prime
     code_changes.emplace_back(0x8017661c, 0x60000000);
     code_changes.emplace_back(0x802fb5b4, 0xd23f009c);
     code_changes.emplace_back(0x8019fbcc, 0x60000000);
+
+    // Disable Beams/Visor Menu
+    code_changes.emplace_back(0x80075CD0, 0x48000044);
 
     beam_change_code(0x8018e544);
     springball_code(0x801476D0, &code_changes);
@@ -245,6 +251,7 @@ namespace prime
     code_changes.emplace_back(0x801768b4, 0x60000000);
     code_changes.emplace_back(0x802fb84c, 0xd23f009c);
     code_changes.emplace_back(0x8019fe64, 0x60000000);
+    code_changes.emplace_back(0x80075D38, 0x48000044);
 
     beam_change_code(0x8018e7dc);
     prime::springball_code(0x80147820, &code_changes);

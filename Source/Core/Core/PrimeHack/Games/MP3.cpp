@@ -81,6 +81,18 @@ namespace prime
       return;
     }
 
+    u32 visor_base = PowerPC::HostRead_U32(base_address + 0x35a8);
+
+    int visor_id, visor_off;
+    std::tie(visor_id, visor_off) = get_visor_switch(prime_three_visors, PowerPC::HostRead_U32(visor_base + 0x34) == 0);
+    if (visor_id != -1)
+    {
+      if (PowerPC::HostRead_U32(visor_base + (visor_off * 0x0c) + 0x58) != 0)
+      {
+        PowerPC::HostWrite_U32(visor_id, visor_base + 0x34);
+      }
+    }
+
     if (PowerPC::HostRead_U8(cursor_enabled_address()) ||
       PowerPC::HostRead_U64(boss_id_address() - 1) == boss_id())
     {
@@ -115,7 +127,7 @@ namespace prime
 
     springball_check(base_address + 0x358, base_address + 0x29c);
 
-    int dx = g_mouse_input->GetDeltaHorizontalAxis(), dy = g_mouse_input->GetDeltaVerticalAxis();
+    int dx = GetHorizontalAxis(), dy = GetVerticalAxis();
     const float compensated_sens = GetSensitivity() * TURNRATE_RATIO / 60.0f;
 
     pitch += static_cast<float>(dy) * -compensated_sens * (InvertedY() ? -1.f : 1.f);
@@ -128,20 +140,8 @@ namespace prime
     PowerPC::HostWrite_U32(0, rtoc_min_turn_rate);
     PowerPC::HostWrite_U32(*reinterpret_cast<u32*>(&pitch), base_address + 0x784);
 
-    u32 visor_base = PowerPC::HostRead_U32(base_address + 0x35a8);
-
     for (int i = 0; i < 4; i++) {
       set_visor_owned(i , PowerPC::HostRead_U32(visor_base + (std::get<1>(prime_three_visors[i]) * 0x0c) + 0x58) ? true : false);
-    }
-
-    int visor_id, visor_off;
-    std::tie(visor_id, visor_off) = get_visor_switch(prime_three_visors, PowerPC::HostRead_U32(visor_base + 0x34) == 0);
-    if (visor_id != -1)
-    {
-      if (PowerPC::HostRead_U32(visor_base + (visor_off * 0x0c) + 0x58) != 0)
-      {
-        PowerPC::HostWrite_U32(visor_id, visor_base + 0x34);
-      }
     }
 
     if (UseMPAutoEFB())
@@ -172,7 +172,7 @@ namespace prime
         PowerPC::HostRead_U32(
           PowerPC::HostRead_U32(camera_fov + 0x68) + 0x0c) + 0x18) + 0x14);
 
-    adjust_viewmodel(fov, PowerPC::HostRead_U32(PowerPC::HostRead_U32(tweakgun_address())) + 0xE0, cgame_camera + 0x8C);
+    adjust_viewmodel(fov, PowerPC::HostRead_U32(PowerPC::HostRead_U32(tweakgun_address())) + 0xE0, cgame_camera + 0x8C, 0x3dcccccd);
 
     if (GetCulling() || GetFov() > 96.f)
       disable_culling(culling_address());
@@ -250,6 +250,9 @@ namespace prime
     code_changes.emplace_back(0x8007fdc8, 0x480000e4);
     code_changes.emplace_back(0x8017f88c, 0x60000000);
 
+    // Remove visors menu
+    code_changes.emplace_back(0x800614EC, 0x48000018);
+
     control_state_hook(0x80005880, Region::NTSC);
     grapple_slide_no_lookat(0x8017f2a0);
     springball_code(0x801077D4, &code_changes);
@@ -279,6 +282,9 @@ namespace prime
     write_invalidate(0x80080d44, 0x4bffe9a5);
     write_invalidate(0x8007fdc8, 0x418200e4);
     write_invalidate(0x8017f88c, 0x4be8c4e5);
+
+    // Remove visors menu
+    code_changes.emplace_back(0x800614EC, 0x48000018);
   }
 
   uint32_t MP3PAL::camera_ctl_address() const

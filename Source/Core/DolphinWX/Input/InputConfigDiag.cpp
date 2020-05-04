@@ -17,6 +17,7 @@
 #include <wx/button.h>
 #include <wx/checkbox.h>
 #include <wx/choice.h>
+#include <wx/radiobut.h>
 #include <wx/combobox.h>
 #include <wx/control.h>
 #include <wx/dcclient.h>
@@ -64,6 +65,7 @@
 #include "InputCommon/ControllerEmu/ControlGroup/ControlGroup.h"
 #include "InputCommon/ControllerEmu/ControlGroup/Extension.h"
 #include "InputCommon/ControllerEmu/ControllerEmu.h"
+#include "InputCommon/ControllerEmu/ControlGroup/PrimeHackModes.h"
 #include "InputCommon/ControllerEmu/Setting/BooleanSetting.h"
 #include "InputCommon/ControllerEmu/Setting/NumericSetting.h"
 #include "InputCommon/ControllerInterface/ControllerInterface.h"
@@ -376,6 +378,12 @@ void InputConfigDialog::UpdateGUI()
     for (PadSetting* padSetting : cgBox->options)
     {
       padSetting->UpdateGUI();
+    }
+
+    if (cgBox->control_group->name == "Mode") {
+      bool checked = Wiimote::PrimeUseController();
+      cgBox->mouse_but->SetValue(!checked);
+      cgBox->controller_but->SetValue(checked);
     }
   }
 }
@@ -867,7 +875,7 @@ void InputConfigDialog::LoadProfile(wxCommandEvent&)
 
   controller->LoadConfig(inifile.GetOrCreateSection("Profile"));
   controller->UpdateReferences(g_controller_interface);
-
+  
   UpdateGUI();
 }
 
@@ -1146,6 +1154,22 @@ ControlGroupBox::ControlGroupBox(ControllerEmu::ControlGroup* const group, wxWin
     Add(attachments->wxcontrol, 0, wxEXPAND | wxLEFT | wxRIGHT, space3);
     AddSpacer(space3);
     Add(configure_btn, 0, wxEXPAND | wxLEFT | wxRIGHT, space3);
+  }
+  break;
+  case ControllerEmu::GroupType::PrimeHackModes:
+  {
+    mouse_but = new wxRadioButton(parent, wxID_ANY, "Mouse", wxDefaultPosition);
+    controller_but = new wxRadioButton(parent, wxID_ANY, "Controller", wxDefaultPosition);
+
+    mouse_but->SetValue(!Wiimote::PrimeUseController());
+    controller_but->SetValue(Wiimote::PrimeUseController());
+
+    auto* const mode_sizer = new wxBoxSizer(wxHORIZONTAL);
+    mode_sizer->Add(mouse_but);
+    mode_sizer->AddSpacer(30);
+    mode_sizer->Add(controller_but);
+
+    Add(mode_sizer);
   }
   break;
   default:
