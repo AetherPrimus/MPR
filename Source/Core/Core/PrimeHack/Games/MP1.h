@@ -4,7 +4,6 @@
 
 namespace prime
 {
-
   class MP1 : public PrimeMod
   {
   public:
@@ -19,9 +18,9 @@ namespace prime
     virtual uint32_t orbit_state_address() const = 0;
     virtual uint32_t lockon_address() const = 0;
     virtual uint32_t yaw_vel_address() const = 0;
+    virtual uint32_t avel_limiter_address() const = 0;
     virtual uint32_t pitch_address() const = 0;
     virtual uint32_t pitch_goal_address() const = 0;
-    virtual uint32_t avel_limiter_address() const = 0;
     virtual uint32_t new_beam_address() const = 0;
     virtual uint32_t beamchange_flag_address() const = 0;
     virtual uint32_t powerups_base_address() const = 0;
@@ -56,9 +55,9 @@ namespace prime
     uint32_t orbit_state_address() const override;
     uint32_t lockon_address() const override;
     uint32_t yaw_vel_address() const override;
+    uint32_t avel_limiter_address() const override;
     uint32_t pitch_address() const override;
     uint32_t pitch_goal_address() const override;
-    uint32_t avel_limiter_address() const override;
     uint32_t new_beam_address() const override;
     uint32_t beamchange_flag_address() const override;
     uint32_t powerups_base_address() const override;
@@ -88,9 +87,9 @@ namespace prime
     uint32_t orbit_state_address() const override;
     uint32_t lockon_address() const override;
     uint32_t yaw_vel_address() const override;
+    uint32_t avel_limiter_address() const override;
     uint32_t pitch_address() const override;
     uint32_t pitch_goal_address() const override;
-    uint32_t avel_limiter_address() const override;
     uint32_t new_beam_address() const override;
     uint32_t beamchange_flag_address() const override;
     uint32_t powerups_base_address() const override;
