@@ -1474,8 +1474,12 @@ VideoConfigDiag::VideoConfigDiag(wxWindow* parent, const std::string& title)
     graphics_sizer->Add(m_toggle_culling, 0, wxEXPAND | wxLEFT | wxRIGHT, space5);
     graphics_sizer->AddSpacer(space5);
 
-    if (prime::GetFov() > 96)
+
+    if (prime::GetFov() > 94) {
       m_toggle_culling->Disable();
+      m_toggle_culling->SetValue(true);
+    }
+      
 
     if (prime::GetEnableSecondaryGunFX())
       m_toggle_secondaryFX->Disable();
@@ -2187,9 +2191,10 @@ void VideoConfigDiag::OnUpdateUI(wxUpdateUIEvent& ev)
 
   if (Core::IsRunning())
   {
-    if (m_toggle_culling->GetValue())
+    if (prime::GetFov() > 94)
     {
       m_toggle_culling->Disable();
+      m_toggle_culling->SetValue(true);
     }
 
     if (prime::GetEnableSecondaryGunFX())
