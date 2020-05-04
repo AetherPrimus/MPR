@@ -81,6 +81,10 @@ bool CheckVisorScroll(bool direction);
 bool CheckBeam(int beam_count);
 bool CheckBeamScroll(bool direction);
 bool CheckSpringBall();
+bool CheckForward();
+bool CheckBack();
+bool CheckLeft();
+bool CheckRight();
 
 std::tuple<double, double, double, bool, bool> PrimeSettings();
 

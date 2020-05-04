@@ -13,6 +13,8 @@ namespace prime {
     HackManager();
     void run_active_mods();
     void add_mod(std::unique_ptr<PrimeMod> mod);
+    Game get_active_game() const { return active_game; }
+    Region get_active_region() const { return active_region; }
 
   private:
     Game active_game;

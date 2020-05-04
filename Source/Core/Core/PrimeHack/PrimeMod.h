@@ -9,6 +9,7 @@ namespace prime {
 
   struct CodeChange {
     uint32_t address, var;
+    CodeChange() : CodeChange(0, 0) {}
     CodeChange(uint32_t address, uint32_t var) : address(address), var(var) {}
   };
 

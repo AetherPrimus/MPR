@@ -15,6 +15,10 @@ namespace prime
   bool CheckBeamScrollCtl(bool direction);
   bool CheckVisorScrollCtl(bool direction);
   bool CheckSpringBallCtl();
+  bool CheckForward();
+  bool CheckBack();
+  bool CheckLeft();
+  bool CheckRight();
 
   void SetEFBToTexture(bool toggle);
   bool UseMPAutoEFB();

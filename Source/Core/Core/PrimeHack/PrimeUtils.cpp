@@ -20,6 +20,12 @@ namespace prime
   static int current_visor = 0;
   static std::array<bool, 4> beam_owned = {false, false, false, false};
   static std::array<bool, 4> visor_owned = {false, false, false, false};
+  static bool noclip_enabled = false;
+
+  std::array<std::array<CodeChange, static_cast<int>(Game::MAX_VAL) + 1>,
+    static_cast<int>(Region::MAX_VAL) + 1> noclip_enable_codes;
+  std::array<std::array<CodeChange, static_cast<int>(Game::MAX_VAL) + 1>,
+    static_cast<int>(Region::MAX_VAL) + 1> noclip_disable_codes;
 
   void MenuNTSC::run_mod()
   {
@@ -301,6 +307,183 @@ namespace prime
 
       if ((ball_state == 1 || ball_state == 2) && movement_state == 0)
         PowerPC::HostWrite_U8(1, 0x80004164);
+    }
+  }
+
+  
+  struct vec3 {
+    vec3(float x, float y, float z)
+      : x(x), y(y), z(z) {}
+    vec3() : vec3(0, 0, 0) {}
+
+    float x, y, z;
+
+    vec3 operator*(float c) const {
+      return vec3(x * c, y * c, z * c);
+    }
+
+    vec3 operator+(vec3 const& other) const {
+      return vec3(x + other.x, y + other.y, z + other.z);
+    }
+
+    vec3 operator-() const {
+      return vec3(-x, -y, -z);
+    }
+  };
+  struct Transform {
+    float m[3][4];
+
+    vec3 right() const {
+      return vec3(m[0][0], m[1][0], m[2][0]);
+    }
+    vec3 fwd() const {
+      return vec3(m[0][1], m[1][1], m[2][1]);
+    }
+    vec3 up() const {
+      return vec3(m[0][2], m[1][2], m[2][2]);
+    }
+    vec3 loc() const {
+      return vec3(m[0][3], m[1][3], m[2][3]);
+    }
+    void update_loc(vec3 const &l) {
+      m[0][3] = l.x;
+      m[1][3] = l.y;
+      m[2][3] = l.z;
+    }
+  };
+  static Transform player_tf;
+  static vec3 player_pos;
+
+  static void get_tf(u32 transform_addr, Transform& tf_out) {
+    for (int i = 0; i < sizeof(Transform) / 4; i++) {
+      const u32 data = PowerPC::HostRead_U32(transform_addr + i * 4);
+      tf_out.m[i / 4][i % 4] = *reinterpret_cast<float const *>(&data);
+    }
+  }
+
+  void register_noclip_enable(CodeChange enable, CodeChange disable, Game game, Region region) {
+    noclip_enable_codes[static_cast<int>(region)][static_cast<int>(game)] = enable;
+    noclip_disable_codes[static_cast<int>(region)][static_cast<int>(game)] = disable;
+  }
+
+  void toggle_noclip(u32 player_tf_addr) {
+    int game = static_cast<int>(GetHackManager()->get_active_game());
+    int region = static_cast<int>(GetHackManager()->get_active_region());
+    noclip_enabled = !noclip_enabled;
+    if (noclip_enabled) {
+      get_tf(player_tf_addr, player_tf);
+      write_invalidate(noclip_enable_codes[region][game].address,
+        noclip_enable_codes[region][game].var);
+    }
+    else {
+      write_invalidate(noclip_disable_codes[region][game].address,
+        noclip_disable_codes[region][game].var);
+    }
+  }
+
+  void toggle_noclip_mp2(u32 player_pos_addr) {
+    int game = static_cast<int>(GetHackManager()->get_active_game());
+    int region = static_cast<int>(GetHackManager()->get_active_region());
+    noclip_enabled = !noclip_enabled;
+    if (noclip_enabled) {
+      *((u32*)&player_pos.x) = PowerPC::HostRead_U32(player_pos_addr);
+      *((u32*)&player_pos.y) = PowerPC::HostRead_U32(player_pos_addr + 4);
+      *((u32*)&player_pos.z) = PowerPC::HostRead_U32(player_pos_addr + 8);
+      write_invalidate(noclip_enable_codes[region][game].address,
+        noclip_enable_codes[region][game].var);
+    }
+    else {
+      write_invalidate(noclip_disable_codes[region][game].address,
+        noclip_disable_codes[region][game].var);
+    }
+  }
+
+  void noclip_mp2(u32 player_pos_addr, u32 camera_tf_addr, bool has_control) {
+    int game = static_cast<int>(GetHackManager()->get_active_game());
+    int region = static_cast<int>(GetHackManager()->get_active_region());
+    static bool was_controlling = true;
+    if (!has_control) {
+      was_controlling = has_control;
+      *((u32*)&player_pos.x) = PowerPC::HostRead_U32(player_pos_addr);
+      *((u32*)&player_pos.y) = PowerPC::HostRead_U32(player_pos_addr + 4);
+      *((u32*)&player_pos.z) = PowerPC::HostRead_U32(player_pos_addr + 8);
+      write_invalidate(noclip_disable_codes[region][game].address,
+        noclip_disable_codes[region][game].var);
+      return;
+    }
+    if (has_control && !was_controlling && noclip_enabled) {
+      write_invalidate(noclip_enable_codes[region][game].address,
+        noclip_enable_codes[region][game].var);
+    }
+
+
+    if (noclip_enabled) {
+      Transform camera_tf;
+      get_tf(camera_tf_addr, camera_tf);
+
+      vec3 movement_vec;
+      if (CheckForward()) {
+        movement_vec = movement_vec + camera_tf.fwd();
+      }
+      if (CheckBack()) {
+        movement_vec = movement_vec + -camera_tf.fwd();
+      }
+      if (CheckLeft()) {
+        movement_vec = movement_vec + -camera_tf.right();
+      }
+      if (CheckRight()) {
+        movement_vec = movement_vec + camera_tf.right();
+      }
+
+      movement_vec = (movement_vec * 0.5f) + player_pos;
+      player_pos = movement_vec;
+      PowerPC::HostWrite_F32(movement_vec.x, player_pos_addr);
+      PowerPC::HostWrite_F32(movement_vec.y, player_pos_addr + 0x04);
+      PowerPC::HostWrite_F32(movement_vec.z, player_pos_addr + 0x08);
+    }
+  }
+
+  void noclip(u32 player_tf_addr, u32 camera_tf_addr, bool has_control) {
+    int game = static_cast<int>(GetHackManager()->get_active_game());
+    int region = static_cast<int>(GetHackManager()->get_active_region());
+    static bool was_controlling = false;
+    if (!has_control) {
+      write_invalidate(noclip_disable_codes[region][game].address,
+        noclip_disable_codes[region][game].var);
+      was_controlling = has_control;
+      get_tf(player_tf_addr, player_tf);
+      return;
+    }
+    if (has_control && !was_controlling && noclip_enabled) {
+      write_invalidate(noclip_enable_codes[region][game].address,
+        noclip_enable_codes[region][game].var);
+    }
+
+    was_controlling = has_control;
+    
+    if (noclip_enabled) {
+      Transform camera_tf;
+      get_tf(camera_tf_addr, camera_tf);
+
+      vec3 movement_vec;
+      if (CheckForward()) {
+        movement_vec = movement_vec + camera_tf.fwd();
+      }
+      if (CheckBack()) {
+        movement_vec = movement_vec + -camera_tf.fwd();
+      }
+      if (CheckLeft()) {
+        movement_vec = movement_vec + -camera_tf.right();
+      }
+      if (CheckRight()) {
+        movement_vec = movement_vec + camera_tf.right();
+      }
+
+      movement_vec = (movement_vec * 0.5f) + player_tf.loc();
+      player_tf.update_loc(movement_vec);
+      PowerPC::HostWrite_F32(movement_vec.x, player_tf_addr + 0x0C);
+      PowerPC::HostWrite_F32(movement_vec.y, player_tf_addr + 0x1C);
+      PowerPC::HostWrite_F32(movement_vec.z, player_tf_addr + 0x2C);
     }
   }
 }  // namespace prime

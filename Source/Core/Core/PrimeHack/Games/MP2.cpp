@@ -2,6 +2,8 @@
 
 #include "Core/PrimeHack/Games/MP2.h"
 
+#include <windows.h>
+
 namespace prime
 {
   static std::array<int, 4> prime_two_beams = {0, 1, 2, 3};
@@ -22,6 +24,18 @@ namespace prime
     code_changes.emplace_back(base_offset + 0x1c, 0x38600000);  // li     r3, 0           ; reset flag
     code_changes.emplace_back(base_offset + 0x20, 0x90640000);  // stw    r3, 0(r4)       ;
     code_changes.emplace_back(base_offset + 0x24, 0x48000048);  // b      0x48            ; jump forward to beam assign
+  }
+
+  void MP2::noclip_code(uint32_t base_offset, uint32_t return_location) {
+    u32 local_player = camera_ctl_address();
+    u32 delta = return_location - (base_offset + 0x18);
+    code_changes.emplace_back(base_offset + 0x00, 0x3CA00000 | ((local_player >> 16) & 0xFFFF));
+    code_changes.emplace_back(base_offset + 0x04, 0x60A50000 | (local_player & 0xFFFF));
+    code_changes.emplace_back(base_offset + 0x08, 0x80A50000);
+    code_changes.emplace_back(base_offset + 0x0C, 0x7C032800);
+    code_changes.emplace_back(base_offset + 0x10, 0x4D820020);
+    code_changes.emplace_back(base_offset + 0x14, 0xc0040000);
+    code_changes.emplace_back(base_offset + 0x18, 0x48000000 | (delta & 0x3FFFFFC));
   }
 
   void MP2::run_mod()
@@ -116,6 +130,17 @@ namespace prime
     else
       write_if_different(bloom_address(), 0x3c03c406);
 
+    static bool press_once = false;
+    if (GetAsyncKeyState(VK_INSERT) && !press_once) {
+      press_once = true;
+      toggle_noclip_mp2(base_address + 0x50);
+    }
+    else if (!GetAsyncKeyState(VK_INSERT)) {
+      press_once = false;
+    }
+    noclip_mp2(base_address + 0x50, camera_base + 0x20,
+      PowerPC::HostRead_U32(0x805373f8) == 1);
+
     DevInfo("Camera_Base", camera_base);
     DevInfo("CPlayer", base_address);
     DevInfo("TweakGun_Addr", tweakgun_address());
@@ -136,6 +161,9 @@ namespace prime
 
     beam_change_code(0x8018cc88);
     springball_code(0x8010BD98, &code_changes);
+    noclip_code(0x800053a4, 0x8000d694);
+    register_noclip_enable(CodeChange(0x8000d690, 0x4bff7d14),
+      CodeChange(0x8000d690, 0xc0040000), Game::PRIME_2, Region::NTSC);
   }
 
   uint32_t MP2NTSC::load_state_address() const

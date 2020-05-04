@@ -30,6 +30,8 @@ protected:
   virtual uint32_t tweakgun_address() const = 0;
   virtual uint32_t bloom_address() const = 0;
 
+  void noclip_code(uint32_t base_offset, uint32_t return_location);
+
 private:
   float pitch = 0;
 };

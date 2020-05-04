@@ -36,8 +36,10 @@ namespace prime
     virtual uint32_t transform_ctor_offset() const = 0;
     virtual uint32_t advance_particles_offset() const = 0;
     virtual uint32_t bloom_address() const = 0;
+    virtual uint32_t control_state_address() const = 0;
 
     void beam_change_code(uint32_t base_offset);
+    void noclip_code(uint32_t base_offset, uint32_t return_location);
 
   private:
     float pitch = 0;
@@ -73,6 +75,7 @@ namespace prime
     uint32_t transform_ctor_offset() const override;
     uint32_t advance_particles_offset() const override;
     uint32_t bloom_address() const override;
+    uint32_t control_state_address() const override;
   };
 
   class MP1PAL : public MP1
@@ -105,6 +108,7 @@ namespace prime
     uint32_t transform_ctor_offset() const override;
     uint32_t advance_particles_offset() const override;
     uint32_t bloom_address() const override;
+    uint32_t control_state_address() const override;
   };
 
 }

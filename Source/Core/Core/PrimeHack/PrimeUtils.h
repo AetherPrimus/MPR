@@ -41,6 +41,12 @@ void DevInfo(std::string line, u32 hex);
 std::string GetDevInfo();
 void ClrDevInfo();
 
+void register_noclip_enable(CodeChange enable, CodeChange disable, Game game, Region region);
+void toggle_noclip(u32 player_tf_addr);
+void toggle_noclip_mp2(u32 player_pos_addr);
+void noclip(u32 player_tf_addr, u32 camera_tf_addr, bool has_control);
+void noclip_mp2(u32 player_pos_addr, u32 camera_tf_addr, bool has_control);
+
 class MenuNTSC : public PrimeMod
 {
 public:

@@ -77,6 +77,22 @@ namespace prime
   {
     return Wiimote::CheckSpringBall();
   }
+  
+  bool CheckForward() {
+    return Wiimote::CheckForward();
+  }
+
+  bool CheckBack() {
+    return Wiimote::CheckBack();
+  }
+
+  bool CheckLeft() {
+    return Wiimote::CheckLeft();
+  }
+
+  bool CheckRight() {
+    return Wiimote::CheckRight();
+  }
 
   void SetEFBToTexture(bool toggle)
   {

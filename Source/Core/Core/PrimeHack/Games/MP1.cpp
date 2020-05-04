@@ -2,6 +2,8 @@
 
 #include "Core/PrimeHack/Games/MP1.h"
 
+#include <windows.h>
+
 namespace prime
 {
   static std::array<int, 4> prime_one_beams = {0, 2, 1, 3};
@@ -22,6 +24,17 @@ namespace prime
     code_changes.emplace_back(base_offset + 0x1c, 0x38600000);  // li     r3, 0           ; reset flag
     code_changes.emplace_back(base_offset + 0x20, 0x90640000);  // stw    r3, 0(r4)       ;
     code_changes.emplace_back(base_offset + 0x24, 0x48000044);  // b      0x44            ; jump forward to beam assign
+  }
+
+  void MP1::noclip_code(uint32_t base_offset, uint32_t return_location) {
+    u32 local_player = cplayer();
+    u32 delta = return_location - (base_offset + 0x14);
+    code_changes.emplace_back(base_offset + 0x00, 0x3CA00000 | ((local_player >> 16) & 0xFFFF));
+    code_changes.emplace_back(base_offset + 0x04, 0x60A50000 | (local_player & 0xFFFF));
+    code_changes.emplace_back(base_offset + 0x08, 0x7C032800);
+    code_changes.emplace_back(base_offset + 0x0C, 0x4D820020);
+    code_changes.emplace_back(base_offset + 0x10, 0x800300E8);
+    code_changes.emplace_back(base_offset + 0x14, 0x48000000 | (delta & 0x3FFFFFC));
   }
 
   void MP1::run_mod()
@@ -88,6 +101,18 @@ namespace prime
       adjust_viewmodel(fov, gunpos_address(), camera_base + 0x168);
 
       DevInfo("Camera_Base", camera_base);
+      static bool press_once = false;
+      if (GetAsyncKeyState(VK_INSERT) && !press_once) {
+        press_once = true;
+        toggle_noclip(cplayer() + 0x2c);
+      }
+      else if (!GetAsyncKeyState(VK_INSERT)) {
+        press_once = false;
+      }
+
+      u32 scan_state = PowerPC::HostRead_U32(cplayer() + 0x398);
+      noclip(cplayer() + 0x2c, camera_base + 0x2c,
+        (PowerPC::HostRead_U32(control_state_address()) == 1) || (scan_state != 0));
     }
 
     if (GetCulling() || GetFov() > 101.f)
@@ -121,6 +146,9 @@ namespace prime
 
     beam_change_code(0x8018e544);
     springball_code(0x801476D0, &code_changes);
+    noclip_code(0x800053A4, 0x8000BB80);
+    register_noclip_enable(CodeChange(0x8000bb7c, 0x4bff9828),
+      CodeChange(0x8000bb7c, 0x800300e8), Game::PRIME_1, Region::NTSC);
   }
 
   uint32_t MP1NTSC::orbit_state_address() const
@@ -204,6 +232,10 @@ namespace prime
     return 0x80290edc;
   }
 
+  uint32_t MP1NTSC::control_state_address() const {
+    return 0x8052e9b8;
+  }
+
   MP1PAL::MP1PAL()
   {
     code_changes.emplace_back(0x80099068, 0xec010072);
@@ -213,6 +245,12 @@ namespace prime
     code_changes.emplace_back(0x801768b4, 0x60000000);
     code_changes.emplace_back(0x802fb84c, 0xd23f009c);
     code_changes.emplace_back(0x8019fe64, 0x60000000);
+
+    beam_change_code(0x8018e7dc);
+    prime::springball_code(0x80147820, &code_changes);
+    noclip_code(0x800053A4, 0x8000BB80);
+    register_noclip_enable(CodeChange(0x8000bb7c, 0x4bff9828),
+      CodeChange(0x8000bb7c, 0x800300e8), Game::PRIME_1, Region::PAL);
   }
 
   uint32_t MP1PAL::orbit_state_address() const
@@ -294,6 +332,10 @@ namespace prime
   uint32_t MP1PAL::bloom_address() const
   {
     return 0x80291258;
+  }
+
+  uint32_t MP1PAL::control_state_address() const {
+    return 0x80532b38;
   }
 
   void MP1::EnableSecondaryGunFX()

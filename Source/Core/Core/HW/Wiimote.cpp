@@ -24,6 +24,8 @@
 
 #include "Core/PrimeHack/HackConfig.h"
 
+#include "InputCommon/ControllerEmu/Control/Control.h"
+
 // Limit the amount of wiimote connect requests, when a button is pressed in disconnected state
 static std::array<u8, MAX_BBMOTES> s_last_connect_request_counter;
 
@@ -160,6 +162,34 @@ bool CheckSpringBall()
   WiimoteEmu::Wiimote* wiimote = static_cast<WiimoteEmu::Wiimote*>(s_config.GetController(0));
 
   return wiimote->CheckSpringBallCtrl();
+}
+
+bool CheckForward() {
+  WiimoteEmu::Wiimote* wiimote = static_cast<WiimoteEmu::Wiimote*>(s_config.GetController(0));
+  
+  return wiimote->GetNunchukGroup(WiimoteEmu::NunchukGroup::Stick)->
+    controls[0].get()->control_ref->State() > 0.5;
+}
+
+bool CheckBack() {
+  WiimoteEmu::Wiimote* wiimote = static_cast<WiimoteEmu::Wiimote*>(s_config.GetController(0));
+
+  return wiimote->GetNunchukGroup(WiimoteEmu::NunchukGroup::Stick)->
+    controls[1].get()->control_ref->State() > 0.5;
+}
+
+bool CheckLeft() {
+  WiimoteEmu::Wiimote* wiimote = static_cast<WiimoteEmu::Wiimote*>(s_config.GetController(0));
+
+  return wiimote->GetNunchukGroup(WiimoteEmu::NunchukGroup::Stick)->
+    controls[2].get()->control_ref->State() > 0.5;
+}
+
+bool CheckRight() {
+  WiimoteEmu::Wiimote* wiimote = static_cast<WiimoteEmu::Wiimote*>(s_config.GetController(0));
+
+  return wiimote->GetNunchukGroup(WiimoteEmu::NunchukGroup::Stick)->
+    controls[3].get()->control_ref->State() > 0.5;
 }
 
 std::tuple<double, double, double, bool, bool> PrimeSettings()
