@@ -169,6 +169,9 @@
     <Filter Include="PrimeHack\Games">
       <UniqueIdentifier>{4e9f21bb-7786-4855-8519-dd68f0c700e4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="PrimeHack\Mods">
+      <UniqueIdentifier>{a85575b5-3c59-477b-9c34-6724ddbc351a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BootManager.cpp" />
@@ -912,6 +915,9 @@
     <ClCompile Include="PrimeHack\PrimeUtils.cpp">
       <Filter>PrimeHack</Filter>
     </ClCompile>
+    <ClCompile Include="PrimeHack\Games\LockedReticle.cpp">
+      <Filter>PrimeHack\Mods</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BootManager.h" />
@@ -1600,6 +1606,9 @@
     </ClInclude>
     <ClInclude Include="PrimeHack\PrimeUtils.h">
       <Filter>PrimeHack</Filter>
+    </ClInclude>
+    <ClInclude Include="PrimeHack\Games\LockedReticle.h">
+      <Filter>PrimeHack\Mods</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -37,12 +37,18 @@ namespace prime
     virtual uint32_t advance_particles_offset() const = 0;
     virtual uint32_t bloom_address() const = 0;
     virtual uint32_t control_state_address() const = 0;
+    virtual CodeChange noclip_enable_code() const = 0;
+    virtual CodeChange noclip_disable_code() const = 0;
 
     void beam_change_code(uint32_t base_offset);
     void noclip_code(uint32_t base_offset, uint32_t return_location);
+    void toggle_noclip(u32 player_tf_addr);
+    void noclip(u32 player_tf_addr, u32 camera_tf_addr, bool has_control);
 
   private:
     float pitch = 0;
+    Transform player_tf;
+    bool was_controlling;
   };
 
   class MP1NTSC : public MP1

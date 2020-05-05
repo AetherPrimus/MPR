@@ -5,9 +5,7 @@
 
 #include "Common/IniFile.h"
 #include "Core/PrimeHack/PrimeUtils.h"
-#include "Core/PrimeHack/Games/MP1.h"
-#include "Core/PrimeHack/Games/MP2.h"
-#include "Core/PrimeHack/Games/MP3.h"
+#include "Core/PrimeHack/Mods/FpsControls.h"
 
 #include "InputCommon/ControllerInterface/ControllerInterface.h"
 
@@ -40,14 +38,14 @@ namespace prime
     if (isRunning) return; isRunning = true;
 
     // Create mods for all games/regions.
-    hack_mgr.add_mod(std::make_unique<MP1NTSC>());
-    hack_mgr.add_mod(std::make_unique<MP1PAL>());
-    hack_mgr.add_mod(std::make_unique<MP2NTSC>());
-    hack_mgr.add_mod(std::make_unique<MP2PAL>());
-    hack_mgr.add_mod(std::make_unique<MP3NTSC>());
-    hack_mgr.add_mod(std::make_unique<MP3PAL>());
-    hack_mgr.add_mod(std::make_unique<MenuNTSC>());
-    hack_mgr.add_mod(std::make_unique<MenuPAL>());
+    hack_mgr.add_mod(std::make_unique<FpsControls>());
+    //hack_mgr.add_mod(std::make_unique<MP1PAL>());
+    //hack_mgr.add_mod(std::make_unique<MP2NTSC>());
+    //hack_mgr.add_mod(std::make_unique<MP2PAL>());
+    //hack_mgr.add_mod(std::make_unique<MP3NTSC>());
+    //hack_mgr.add_mod(std::make_unique<MP3PAL>());
+    //hack_mgr.add_mod(std::make_unique<MenuNTSC>());
+    //hack_mgr.add_mod(std::make_unique<MenuPAL>());
 
     device_name = mkb_device_name;
     device_source = mkb_device_source;
@@ -206,7 +204,7 @@ namespace prime
     if (Wiimote::PrimeUseController())
       return std::get<0>(Wiimote::GetPrimeStickXY());
     else
-      return g_mouse_input->GetDeltaHorizontalAxis();
+      return static_cast<double>(g_mouse_input->GetDeltaHorizontalAxis());
   }
 
   double GetVerticalAxis()
@@ -214,7 +212,7 @@ namespace prime
     if (Wiimote::PrimeUseController())
       return std::get<1>(Wiimote::GetPrimeStickXY());
     else
-      return g_mouse_input->GetDeltaVerticalAxis();
+      return static_cast<double>(g_mouse_input->GetDeltaVerticalAxis());
   }
 
   std::string const& GetCtlDeviceName()

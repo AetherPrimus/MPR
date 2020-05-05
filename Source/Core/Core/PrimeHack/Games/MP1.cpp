@@ -37,6 +37,51 @@ namespace prime
     code_changes.emplace_back(base_offset + 0x14, 0x48000000 | (delta & 0x3FFFFFC));
   }
 
+  void MP1::noclip(u32 player_tf_addr, u32 camera_tf_addr, bool has_control) {
+    if (!has_control) {
+      write_invalidate(noclip_disable_code().address,
+        noclip_disable_code().var);
+      was_controlling = has_control;
+      player_tf.read_from(player_tf_addr);
+      return;
+    }
+    if (has_control && !was_controlling && noclip_enabled()) {
+      write_invalidate(noclip_enable_code().address,
+        noclip_enable_code().var);
+    }
+
+    was_controlling = has_control;
+    
+    if (noclip_enabled) {
+      Transform camera_tf;
+      camera_tf.read_from(camera_tf_addr);
+
+      vec3 movement_vec;
+      if (CheckForward()) {
+        movement_vec = movement_vec + camera_tf.fwd();
+      }
+      if (CheckBack()) {
+        movement_vec = movement_vec + -camera_tf.fwd();
+      }
+      if (CheckLeft()) {
+        movement_vec = movement_vec + -camera_tf.right();
+      }
+      if (CheckRight()) {
+        movement_vec = movement_vec + camera_tf.right();
+      }
+
+      movement_vec = (movement_vec * 0.5f) + player_tf.loc();
+      player_tf.update_loc(movement_vec);
+      PowerPC::HostWrite_F32(movement_vec.x, player_tf_addr + 0x0C);
+      PowerPC::HostWrite_F32(movement_vec.y, player_tf_addr + 0x1C);
+      PowerPC::HostWrite_F32(movement_vec.z, player_tf_addr + 0x2C);
+    }
+  }
+
+  void MP1::togle_noclip(u32 player_tf_addr) {
+
+  }
+
   void MP1::run_mod()
   {
     ClrDevInfo();

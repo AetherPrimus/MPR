@@ -27,15 +27,53 @@ namespace prime
   std::array<std::array<CodeChange, static_cast<int>(Game::MAX_VAL) + 1>,
     static_cast<int>(Region::MAX_VAL) + 1> noclip_disable_codes;
 
-  void MenuNTSC::run_mod()
-  {
+  void MenuNTSC::run_mod() {
     handle_cursor(0x80913c9c, 0x80913d5c, 0.95f, 0.90f);
   }
 
-  void MenuPAL::run_mod()
-  {
+  void MenuPAL::run_mod() {
     u32 cursor_base = PowerPC::HostRead_U32(0x80621ffc);
     handle_cursor(cursor_base + 0xdc, cursor_base + 0x19c, 0.95f, 0.90f);
+  }
+
+  constexpr u8 read8(u32 addr) {
+    return PowerPC::HostRead_U8(addr);
+  }
+
+  constexpr u16 read16(u32 addr) {
+    return PowerPC::HostRead_U16(addr);
+  }
+
+  constexpr u32 read32(u32 addr) {
+    return PowerPC::HostRead_U32(addr);
+  }
+
+  constexpr u32 readi(u32 addr) {
+    return PowerPC::HostRead_Instruction(addr);
+  }
+
+  constexpr u64 read64(u32 addr) {
+    return PowerPC::HostRead_U64(addr);
+  }
+
+  constexpr void write8(u8 var, u32 addr) {
+    PowerPC::HostWrite_U8(var, addr);
+  }
+
+  constexpr void write16(u16 var, u32 addr) {
+    PowerPC::HostWrite_U16(var, addr);
+  }
+
+  constexpr void write32(u32 var, u32 addr) {
+    PowerPC::HostWrite_U32(var, addr);
+  }
+
+  constexpr void write64(u64 var, u32 addr) {
+    PowerPC::HostWrite_U64(var, addr);
+  }
+
+  constexpr void writef32(float var, u32 addr) {
+    PowerPC::HostWrite_F32(var, addr);
   }
 
   void set_beam_owned(int index, bool owned)
@@ -318,55 +356,8 @@ namespace prime
   }
 
   
-  struct vec3 {
-    vec3(float x, float y, float z)
-      : x(x), y(y), z(z) {}
-    vec3() : vec3(0, 0, 0) {}
-
-    float x, y, z;
-
-    vec3 operator*(float c) const {
-      return vec3(x * c, y * c, z * c);
-    }
-
-    vec3 operator+(vec3 const& other) const {
-      return vec3(x + other.x, y + other.y, z + other.z);
-    }
-
-    vec3 operator-() const {
-      return vec3(-x, -y, -z);
-    }
-  };
-  struct Transform {
-    float m[3][4];
-
-    vec3 right() const {
-      return vec3(m[0][0], m[1][0], m[2][0]);
-    }
-    vec3 fwd() const {
-      return vec3(m[0][1], m[1][1], m[2][1]);
-    }
-    vec3 up() const {
-      return vec3(m[0][2], m[1][2], m[2][2]);
-    }
-    vec3 loc() const {
-      return vec3(m[0][3], m[1][3], m[2][3]);
-    }
-    void update_loc(vec3 const &l) {
-      m[0][3] = l.x;
-      m[1][3] = l.y;
-      m[2][3] = l.z;
-    }
-  };
   static Transform player_tf;
   static vec3 player_pos;
-
-  static void get_tf(u32 transform_addr, Transform& tf_out) {
-    for (int i = 0; i < sizeof(Transform) / 4; i++) {
-      const u32 data = PowerPC::HostRead_U32(transform_addr + i * 4);
-      tf_out.m[i / 4][i % 4] = *reinterpret_cast<float const *>(&data);
-    }
-  }
 
   void register_noclip_enable(CodeChange enable, CodeChange disable, Game game, Region region) {
     noclip_enable_codes[static_cast<int>(region)][static_cast<int>(game)] = enable;

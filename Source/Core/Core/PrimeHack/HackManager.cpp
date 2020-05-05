@@ -63,10 +63,19 @@ namespace prime {
       active_region = Region::INVALID_REGION;
     }
 
+    if (active_game != last_game || active_region != last_region) {
+      for (std::size_t i = 0; i < mod_list.size(); i++) {
+        mod_list[i]->reset_mod();
+      }
+    }
+
     if (active_game != Game::INVALID_GAME && active_region != Region::INVALID_REGION) {
-      std::vector<std::unique_ptr<PrimeMod>>& active_mods = mod_list[static_cast<int>(active_game)][static_cast<int>(active_region)];
+      std::vector<std::unique_ptr<PrimeMod>>& active_mods = mod_list;
 
       for (std::size_t i = 0; i < active_mods.size(); i++) {
+        if (!active_mods[i]->is_initialized()) {
+          active_mods[i]->init_mod(active_game, active_region);
+        }
         if (active_mods[i]->should_apply_changes()) {
           auto const& changes = active_mods[i]->get_instruction_changes();
           for (CodeChange const& change : changes) {
@@ -79,15 +88,13 @@ namespace prime {
       last_game = active_game;
       last_region = active_region;
       for (std::size_t i = 0; i < active_mods.size(); i++) {
-        active_mods[i]->run_mod();
+        active_mods[i]->run_mod(active_game, active_region);
       }
     }
     prime::g_mouse_input->ResetDeltas();
   }
 
   void HackManager::add_mod(std::unique_ptr<PrimeMod> mod) {
-    if (mod->region() != Region::INVALID_REGION && mod->game() != Game::INVALID_GAME) {
-      mod_list[static_cast<int>(mod->game())][static_cast<int>(mod->region())].emplace_back(std::move(mod));
-    }
+    mod_list.emplace_back(std::move(mod));
   }
 }

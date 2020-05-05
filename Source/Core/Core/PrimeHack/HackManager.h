@@ -16,13 +16,14 @@ namespace prime {
     Game get_active_game() const { return active_game; }
     Region get_active_region() const { return active_region; }
 
+
   private:
     Game active_game;
     Region active_region;
     Game last_game;
     Region last_region;
 
-    std::array<std::array<std::vector<std::unique_ptr<PrimeMod>>, REGION_SZ>, GAME_SZ> mod_list;
+    std::vector<std::unique_ptr<PrimeMod>> mod_list;
   };
   
 }
