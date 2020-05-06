@@ -289,7 +289,8 @@
     <ClCompile Include="PowerPC\PPCSymbolDB.cpp" />
     <ClCompile Include="PowerPC\PPCTables.cpp" />
     <ClCompile Include="PowerPC\Profiler.cpp" />
-    <ClCompile Include="PrimeHack\Games\LockedReticle.cpp" />
+    <ClCompile Include="primehack\mods\FovModifier.cpp" />
+    <ClCompile Include="PrimeHack\Mods\FpsControls.cpp" />
     <ClCompile Include="PrimeHack\PrimeUtils.cpp" />
     <ClCompile Include="PrimeHack\Games\MP1.cpp" />
     <ClCompile Include="PrimeHack\Games\MP2.cpp" />
@@ -531,7 +532,14 @@
     <ClInclude Include="PowerPC\PPCSymbolDB.h" />
     <ClInclude Include="PowerPC\PPCTables.h" />
     <ClInclude Include="PowerPC\Profiler.h" />
-    <ClInclude Include="PrimeHack\Games\LockedReticle.h" />
+    <ClInclude Include="primehack\mods\CutBeamFxMP1.h" />
+    <ClInclude Include="primehack\mods\DeveloperInfo.h" />
+    <ClInclude Include="primehack\mods\FovModifier.h" />
+    <ClInclude Include="PrimeHack\Mods\FpsControls.h" />
+    <ClInclude Include="primehack\mods\Noclip.h" />
+    <ClInclude Include="primehack\mods\ReflectiveInvulnerability.h" />
+    <ClInclude Include="primehack\mods\SkipCutscene.h" />
+    <ClInclude Include="primehack\mods\SpringballButton.h" />
     <ClInclude Include="PrimeHack\PrimeUtils.h" />
     <ClInclude Include="PrimeHack\Games\MP1.h" />
     <ClInclude Include="PrimeHack\Games\MP2.h" />

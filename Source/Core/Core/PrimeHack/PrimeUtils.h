@@ -103,6 +103,19 @@ struct Transform {
     m[2][3] = l.z;
   }
 
+  Transform& operator*=(Transform const& other) {
+    Transform temp;
+    for (int i = 0; i < 3; i++) {
+      for (int j = 0; j < 3; j++) {
+        temp.m[i][j] = m[i][0] * other.m[0][j] +
+                       m[i][1] * other.m[1][j] +
+                       m[i][2] * other.m[2][j];
+      }
+    }
+    memcpy(m, temp.m, sizeof(float) * 3 * 4);
+    return *this;
+  }
+
   void read_from(u32 transform_addr) {
     for (int i = 0; i < sizeof(Transform) / 4; i++) {
       const u32 data = PowerPC::HostRead_U32(transform_addr + i * 4);
