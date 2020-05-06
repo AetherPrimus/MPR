@@ -15,7 +15,51 @@ void FovModifier::run_mod(Game game, Region region) {
   case Game::PRIME_3:
     run_mod_mp3();
     break;
+  default:
+    break;
   }
+}
+
+void FovModifier::disable_culling(u32 start_point) {
+  write_invalidate(start_point, 0x38600001);
+  write_invalidate(start_point + 0x4, 0x4e800020);
+}
+
+void FovModifier::adjust_viewmodel(float fov, u32 arm_address, u32 znear_address, u32 znear_value)
+{
+  float left = 0.25f;
+  float forward = 0.30f;
+  float up = -0.35f;
+  bool apply_znear = false;
+
+  if (GetToggleArmAdjust()) {
+    if (GetAutoArmAdjust()) {
+      if (fov > 125) {
+        left = 0.22f;
+        forward = -0.02f;
+
+        apply_znear = true;
+      }
+      else if (fov >= 75) {
+        left = -0.00020000000000000017f * fov + 0.265f;
+        forward = -0.005599999999999999f * fov + 0.72f;
+
+        apply_znear = true;
+      }
+    }
+    else {
+      std::tie<float, float, float>(left, forward, up) = GetArmXYZ();
+      apply_znear = true;
+    }
+  }
+
+  if (apply_znear) {
+    write32(znear_value, znear_address);
+  }
+
+  writef32(left, arm_address);
+  writef32(forward, arm_address + 0x4);
+  writef32(up, arm_address + 0x8);
 }
 
 void FovModifier::run_mod_mp1() {
@@ -99,6 +143,7 @@ void FovModifier::init_mod(Game game, Region region) {
     init_mod_mp3(region);
     break;
   }
+  initialized = true;
 }
 
 void FovModifier::init_mod_mp1(Region region) {
@@ -151,5 +196,4 @@ void FovModifier::init_mod_mp3(Region region) {
   }
   else {}
 }
-
 }

@@ -19,6 +19,9 @@ public:
   void init_mod(Game game, Region region) override;
 
 private:
+  void disable_culling(u32 start_point);
+  void adjust_viewmodel(float fov, u32 arm_address, u32 znear_address, u32 znear_value);
+
   void run_mod_mp1();
   void run_mod_mp2();
   void run_mod_mp3();

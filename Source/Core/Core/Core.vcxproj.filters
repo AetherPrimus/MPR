@@ -166,9 +166,6 @@
     <Filter Include="PrimeHack">
       <UniqueIdentifier>{2a376c18-c401-407a-a689-4e706b2e1fb1}</UniqueIdentifier>
     </Filter>
-    <Filter Include="PrimeHack\Games">
-      <UniqueIdentifier>{4e9f21bb-7786-4855-8519-dd68f0c700e4}</UniqueIdentifier>
-    </Filter>
     <Filter Include="PrimeHack\Mods">
       <UniqueIdentifier>{a85575b5-3c59-477b-9c34-6724ddbc351a}</UniqueIdentifier>
     </Filter>
@@ -903,15 +900,6 @@
     <ClCompile Include="PrimeHack\HackConfig.cpp">
       <Filter>PrimeHack</Filter>
     </ClCompile>
-    <ClCompile Include="PrimeHack\Games\MP3.cpp">
-      <Filter>PrimeHack\Games</Filter>
-    </ClCompile>
-    <ClCompile Include="PrimeHack\Games\MP2.cpp">
-      <Filter>PrimeHack\Games</Filter>
-    </ClCompile>
-    <ClCompile Include="PrimeHack\Games\MP1.cpp">
-      <Filter>PrimeHack\Games</Filter>
-    </ClCompile>
     <ClCompile Include="PrimeHack\PrimeUtils.cpp">
       <Filter>PrimeHack</Filter>
     </ClCompile>
@@ -919,6 +907,21 @@
       <Filter>PrimeHack\Mods</Filter>
     </ClCompile>
     <ClCompile Include="primehack\mods\FovModifier.cpp">
+      <Filter>PrimeHack\Mods</Filter>
+    </ClCompile>
+    <ClCompile Include="primehack\mods\SpringballButton.cpp">
+      <Filter>PrimeHack\Mods</Filter>
+    </ClCompile>
+    <ClCompile Include="primehack\mods\CutBeamFxMP1.cpp">
+      <Filter>PrimeHack\Mods</Filter>
+    </ClCompile>
+    <ClCompile Include="primehack\mods\Noclip.cpp">
+      <Filter>PrimeHack\Mods</Filter>
+    </ClCompile>
+    <ClCompile Include="primehack\Transform.cpp">
+      <Filter>PrimeHack</Filter>
+    </ClCompile>
+    <ClCompile Include="primehack\mods\AutoEFB.cpp">
       <Filter>PrimeHack\Mods</Filter>
     </ClCompile>
   </ItemGroup>
@@ -1598,22 +1601,10 @@
     <ClInclude Include="PrimeHack\HackConfig.h">
       <Filter>PrimeHack</Filter>
     </ClInclude>
-    <ClInclude Include="PrimeHack\Games\MP3.h">
-      <Filter>PrimeHack\Games</Filter>
-    </ClInclude>
-    <ClInclude Include="PrimeHack\Games\MP2.h">
-      <Filter>PrimeHack\Games</Filter>
-    </ClInclude>
-    <ClInclude Include="PrimeHack\Games\MP1.h">
-      <Filter>PrimeHack\Games</Filter>
-    </ClInclude>
     <ClInclude Include="PrimeHack\PrimeUtils.h">
       <Filter>PrimeHack</Filter>
     </ClInclude>
     <ClInclude Include="primehack\mods\SpringballButton.h">
-      <Filter>PrimeHack\Mods</Filter>
-    </ClInclude>
-    <ClInclude Include="primehack\mods\DeveloperInfo.h">
       <Filter>PrimeHack\Mods</Filter>
     </ClInclude>
     <ClInclude Include="primehack\mods\CutBeamFxMP1.h">
@@ -1632,6 +1623,15 @@
       <Filter>PrimeHack\Mods</Filter>
     </ClInclude>
     <ClInclude Include="PrimeHack\Mods\FpsControls.h">
+      <Filter>PrimeHack\Mods</Filter>
+    </ClInclude>
+    <ClInclude Include="PrimeHack\Transform.h">
+      <Filter>PrimeHack</Filter>
+    </ClInclude>
+    <ClInclude Include="PrimeHack\Mods\DisableBloom.h">
+      <Filter>PrimeHack\Mods</Filter>
+    </ClInclude>
+    <ClInclude Include="PrimeHack\Mods\AutoEFB.h">
       <Filter>PrimeHack\Mods</Filter>
     </ClInclude>
   </ItemGroup>
