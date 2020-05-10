@@ -142,7 +142,7 @@ void HackManager::revert_all_code_changes() {
   for (auto& mod : mods) {
     if (mod.second->is_initialized()) {
       mod.second->set_state(ModState::DISABLED);
-      mod.second->apply_instruction_changes(false);
+      mod.second->apply_instruction_changes();
     }
   }
 }
