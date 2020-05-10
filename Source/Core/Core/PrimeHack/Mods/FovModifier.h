@@ -45,6 +45,7 @@ private:
       u32 camera_offset_address;
       u32 tweakgun_ptr_address;
       u32 culling_address;
+      u32 load_state_address;
     } mp2_static;
 
     struct {

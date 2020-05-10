@@ -1,7 +1,7 @@
 #include "Core/PrimeHack/Mods/Noclip.h"
 
 #include "Core/PrimeHack/PrimeUtils.h"
-
+#pragma optimize("", off)
 namespace prime {
 
 void Noclip::run_mod(Game game, Region region) {
@@ -18,10 +18,7 @@ void Noclip::run_mod(Game game, Region region) {
   }
 }
 
-vec3 Noclip::get_movement_vec(u32 transform_offset) {
-  const u32 camera_ptr = read32(camera_ptr_address);
-  const u32 camera_offset = ((read32(camera_offset_address) >> 16) & 0x3ff) << 3;
-  const u32 camera_tf_addr = read32(camera_ptr + camera_offset + 4) + transform_offset;
+vec3 Noclip::get_movement_vec(u32 camera_tf_addr) {
   Transform camera_tf(camera_tf_addr);
 
   vec3 movement_vec;
@@ -42,18 +39,27 @@ vec3 Noclip::get_movement_vec(u32 transform_offset) {
 }
 
 void Noclip::run_mod_mp1(bool has_control) {
-  if (!has_control && had_control) {
+  if (initial_run) {
+    player_tf.read_from(cplayer_address + 0x2c);
+    initial_run = false;
+  }
+  if (!has_control) {
     player_tf.read_from(cplayer_address + 0x2c);
     set_state(ModState::CODE_DISABLED);
+    apply_instruction_changes();
     had_control = has_control;
     return;
   }
   if (has_control && !had_control) {
     set_state(ModState::ENABLED);
+    had_control = has_control;
+    return;
   }
-  had_control = has_control;
   
-  vec3 movement_vec = (get_movement_vec(0x2c) * 0.5f) + player_tf.loc();
+  const u32 camera_ptr = read32(camera_ptr_address);
+  const u32 camera_offset = (((read32(camera_offset_address) + 10) >> 16) & 0x3ff) << 3;
+  const u32 camera_tf_addr = read32(camera_ptr + camera_offset + 4) + 0x2c;
+  vec3 movement_vec = (get_movement_vec(camera_tf_addr) * 0.5f) + player_tf.loc();
 
   player_tf.set_loc(movement_vec);
   writef32(movement_vec.x, cplayer_address + 0x2c + 0x0c);
@@ -63,46 +69,58 @@ void Noclip::run_mod_mp1(bool has_control) {
 
 void Noclip::run_mod_mp2(bool has_control) {
   const u32 _cplayer_address = read32(cplayer_address);
-  if (!has_control && had_control) {
+  if (initial_run) {
+    player_tf.read_from(_cplayer_address + 0x2c);
+    initial_run = false;
+  }
+  if (!has_control) {
+    player_vec.read_from(_cplayer_address + 0x50);
     set_state(ModState::CODE_DISABLED);
+    apply_instruction_changes();
     had_control = has_control;
     return;
   }
   if (has_control && !had_control) {
-    player_vec.read_from(_cplayer_address + 0x50);
     set_state(ModState::ENABLED);
+    had_control = has_control;
+    return;
   }
-  had_control = has_control;
 
-  player_vec = (get_movement_vec(0x20) * 0.5f) + player_vec;
-  player_vec.write_to(cplayer_address + 0x50);
+  player_vec = (get_movement_vec(read32(mp2_camera_ptr_address) + 0x20) * 0.5f) + player_vec;
+  player_vec.write_to(_cplayer_address + 0x50);
 }
 
 void Noclip::init_mod(Game game, Region region) {
   initialized = true;
+  initial_run = true;
   switch (game) {
   case Game::PRIME_1:
     if (region == Region::NTSC) {
       noclip_code_mp1(0x804d3c20, 0x800053a4, 0x8000bb80);
       control_flag_address = 0x8052e9b8;
       cplayer_address = 0x804d3c20;
+      camera_ptr_address = 0x804bfc30;
+      camera_offset_address = 0x804c4a08;
     }
     else if (region == Region::PAL) {
       noclip_code_mp1(0x804d7b60, 0x800053a4, 0x8000bb80);
       control_flag_address = 0x80532b38;
       cplayer_address = 0x804d7b60;
+      camera_ptr_address = 0x804c3b70;
+      camera_offset_address = 0x804c8948;
     }
     else {}
     break;
   case Game::PRIME_2:
     if (region == Region::NTSC) {
-      noclip_code_mp2(0x804e87dc, 0x800053a4, 0x8000d690);
+      noclip_code_mp2(0x804e87dc, 0x800053a4, 0x8000d694);
       control_flag_address = 0x805373f8;
       load_state_address = 0x804e8824;
       cplayer_address = 0x804e87dc;
+      mp2_camera_ptr_address = 0x804eb9b4;
     }
     else if (region == Region::PAL) {
-      noclip_code_mp2(0x804efc2c, 0x800053a4, 0x8000d690);
+      noclip_code_mp2(0x804efc2c, 0x800053a4, 0x8000d694);
       control_flag_address = 0x8053ebf8;
       load_state_address = 0x804efc74;
       cplayer_address = 0x804efc2c;

@@ -291,7 +291,7 @@
     <ClCompile Include="PowerPC\Profiler.cpp" />
     <ClCompile Include="primehack\mods\AutoEFB.cpp" />
     <ClCompile Include="primehack\mods\CutBeamFxMP1.cpp" />
-    <ClCompile Include="primehack\mods\FovModifier.cpp" />
+    <ClCompile Include="PrimeHack\Mods\FovModifier.cpp" />
     <ClCompile Include="PrimeHack\Mods\FpsControls.cpp" />
     <ClCompile Include="primehack\mods\Noclip.cpp" />
     <ClCompile Include="primehack\mods\SpringballButton.cpp" />
@@ -537,7 +537,7 @@
     <ClInclude Include="PrimeHack\Mods\AutoEFB.h" />
     <ClInclude Include="primehack\mods\CutBeamFxMP1.h" />
     <ClInclude Include="PrimeHack\Mods\DisableBloom.h" />
-    <ClInclude Include="primehack\mods\FovModifier.h" />
+    <ClInclude Include="PrimeHack\Mods\FovModifier.h" />
     <ClInclude Include="PrimeHack\Mods\FpsControls.h" />
     <ClInclude Include="primehack\mods\Noclip.h" />
     <ClInclude Include="primehack\mods\ReflectiveInvulnerability.h" />

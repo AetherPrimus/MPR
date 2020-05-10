@@ -36,24 +36,38 @@ bool is_running = false;
 }
 
 void InitializeHack(std::string const& mkb_device_name, std::string const& mkb_device_source) {
-  if (!SConfig::GetInstance().bEnablePrimeHack) {
-    is_running = false;
-    return;
-  }
-
   if (is_running) return; is_running = true;
 
   // Create all mods
-  hack_mgr.add_mod(std::make_unique<AutoEFB>());
-  hack_mgr.add_mod(std::make_unique<CutBeamFxMP1>());
-  hack_mgr.add_mod(std::make_unique<DisableBloom>());
-  hack_mgr.add_mod(std::make_unique<FovModifier>());
-  hack_mgr.add_mod(std::make_unique<FpsControls>());
-  hack_mgr.add_mod(std::make_unique<Noclip>());
-  hack_mgr.add_mod(std::make_unique<SpringballButton>());
+  hack_mgr.add_mod("auto_efb", std::make_unique<AutoEFB>());
+  hack_mgr.add_mod("cut_beam_fx_mp1", std::make_unique<CutBeamFxMP1>());
+  hack_mgr.add_mod("disable_bloom", std::make_unique<DisableBloom>());
+  hack_mgr.add_mod("fov_modifier", std::make_unique<FovModifier>());
+  hack_mgr.add_mod("fps_controls", std::make_unique<FpsControls>());
+  hack_mgr.add_mod("noclip", std::make_unique<Noclip>());
+  hack_mgr.add_mod("springball_button", std::make_unique<SpringballButton>());
 
   device_name = mkb_device_name;
   device_source = mkb_device_source;
+
+  // enable NO mods!!!
+  if (!SConfig::GetInstance().bEnablePrimeHack) {
+    return;
+  }
+
+  //if (UseMPAutoEFB()) {
+  //  hack_mgr.enable_mod("auto_efb");
+  //}
+  //if (GetBloom()) {
+  //  hack_mgr.enable_mod("disable_bloom");
+  //}
+  //if (GetEnableSecondaryGunFX()) {
+  //  hack_mgr.enable_mod("cut_beam_fx_mp1");
+  //}
+  //hack_mgr.enable_mod("fov_modifier");
+  //hack_mgr.enable_mod("fps_controls");
+  //hack_mgr.enable_mod("springball_button");
+  //hack_mgr.enable_mod("noclip");
 }
 
 bool CheckBeamCtl(int beam_num) {

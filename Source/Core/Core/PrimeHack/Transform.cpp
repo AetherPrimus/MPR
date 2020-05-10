@@ -15,7 +15,7 @@ void vec3::read_from(u32 address) {
 
 void vec3::write_to(u32 address) {
   for (int i = 0; i < 3; i++) {
-    PowerPC::HostWrite_F32(arr[i], address);
+    PowerPC::HostWrite_F32(arr[i], address + i * 4);
   }
 }
 

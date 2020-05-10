@@ -3,7 +3,7 @@
 #include "Core/PrimeHack/HackConfig.h"
 #include "Core/PowerPC/PowerPC.h"
 #include "InputCommon/GenericMouse.h"
-
+#pragma optimize("", off)
 namespace prime {
 HackManager::HackManager()
   : active_game(Game::INVALID_GAME),
@@ -64,39 +64,86 @@ void HackManager::run_active_mods() {
   }
 
   if (active_game != last_game || active_region != last_region) {
-    for (std::size_t i = 0; i < mod_list.size(); i++) {
-      mod_list[i]->reset_mod();
+    for (auto& mod : mods) {
+      mod.second->reset_mod();
     }
   }
 
   if (active_game != Game::INVALID_GAME && active_region != Region::INVALID_REGION) {
-    for (std::size_t i = 0; i < mod_list.size(); i++) {
-      if (!mod_list[i]->is_initialized()) {
-        mod_list[i]->init_mod(active_game, active_region);
-        mod_list[i]->save_original_instructions();
+    for (auto& mod : mods) {
+      if (!mod.second->is_initialized()) {
+        mod.second->init_mod(active_game, active_region);
+        mod.second->save_original_instructions();
       }
-      if (mod_list[i]->should_apply_changes()) {
-        auto const& changes = mod_list[i]->get_instruction_changes();
-        for (CodeChange const& change : changes) {
-          PowerPC::HostWrite_U32(change.var, change.address);
-          PowerPC::ScheduleInvalidateCacheThreadSafe(change.address);
-        }
+      if (mod.second->should_apply_changes()) {
+        mod.second->apply_instruction_changes();
       }
     }
       
     last_game = active_game;
     last_region = active_region;
-    for (std::size_t i = 0; i < mod_list.size(); i++) {
-      if (mod_list[i]->mod_state() == ModState::ENABLED ||
-          mod_list[i]->mod_state() == ModState::CODE_DISABLED) {
-        mod_list[i]->run_mod(active_game, active_region);
+    for (auto& mod : mods) {
+      if (mod.second->mod_state() == ModState::ENABLED ||
+          mod.second->mod_state() == ModState::CODE_DISABLED) {
+        mod.second->run_mod(active_game, active_region);
       }
     }
   }
   prime::g_mouse_input->ResetDeltas();
 }
 
-void HackManager::add_mod(std::unique_ptr<PrimeMod> mod) {
-  mod_list.emplace_back(std::move(mod));
+void HackManager::add_mod(std::string const &name, std::unique_ptr<PrimeMod> mod) {
+  mods[name] = std::move(mod);
+}
+
+void HackManager::disable_mod(std::string const& name) {
+  auto result = mods.find(name);
+  if (result == mods.end()) {
+    return;
+  }
+  result->second->set_state(ModState::DISABLED);
+}
+
+void HackManager::enable_mod(std::string const& name) {
+  auto result = mods.find(name);
+  if (result == mods.end()) {
+    return;
+  }
+  result->second->set_state(ModState::ENABLED);
+}
+
+bool HackManager::is_mod_active(std::string const& name) {
+  auto result = mods.find(name);
+  if (result == mods.end()) {
+    return false;
+  }
+  return result->second->mod_state() != ModState::DISABLED;
+}
+
+void HackManager::save_mod_states() {
+  for (auto& mod : mods) {
+    mod_state_backup[mod.first] = mod.second->mod_state();
+  }
+}
+
+void HackManager::restore_mod_states() {
+  for (auto& mod : mods) {
+    auto result = mod_state_backup.find(mod.first);
+    if (result == mod_state_backup.end()) {
+      continue;
+    }
+    if (mod.second->is_initialized()) {
+      mod.second->set_state(result->second);
+    }
+  }
+}
+
+void HackManager::revert_all_code_changes() {
+  for (auto& mod : mods) {
+    if (mod.second->is_initialized()) {
+      mod.second->set_state(ModState::DISABLED);
+      mod.second->apply_instruction_changes(false);
+    }
+  }
 }
 }

@@ -1,7 +1,7 @@
 #include "Core/PrimeHack/Mods/FovModifier.h"
 
 #include "Core/PrimeHack/PrimeUtils.h"
-
+#pragma optimize("", off)
 namespace prime {
 
 void FovModifier::run_mod(Game game, Region region) {
@@ -25,8 +25,7 @@ void FovModifier::disable_culling(u32 start_point) {
   write_invalidate(start_point + 0x4, 0x4e800020);
 }
 
-void FovModifier::adjust_viewmodel(float fov, u32 arm_address, u32 znear_address, u32 znear_value)
-{
+void FovModifier::adjust_viewmodel(float fov, u32 arm_address, u32 znear_address, u32 znear_value) {
   float left = 0.25f;
   float forward = 0.30f;
   float up = -0.35f;
@@ -83,6 +82,9 @@ void FovModifier::run_mod_mp1() {
 
 void FovModifier::run_mod_mp2() {
   u32 camera_ptr = read32(mp2_static.camera_ptr_address);
+  if (!mem_check(camera_ptr) || read32(mp2_static.load_state_address) != 1) {
+    return;
+  }
   u32 camera_offset =
     ((read32(read32(mp2_static.camera_offset_address)) >> 16) & 0x3ff) << 3;
   u32 camera_offset_tp =
@@ -173,12 +175,14 @@ void FovModifier::init_mod_mp2(Region region) {
     mp2_static.camera_offset_address = 0x804eb9ac;
     mp2_static.tweakgun_ptr_address = 0x805cb274;
     mp2_static.culling_address = 0x802c8114;
+    mp2_static.load_state_address = 0x804e8824;
   }
   else if (region == Region::PAL) {
     mp2_static.camera_ptr_address = 0x804eef48;
     mp2_static.camera_offset_address = 0x804f2f4c;
     mp2_static.tweakgun_ptr_address = 0x805d2cdc;
     mp2_static.culling_address = 0x802ca730;
+    mp2_static.load_state_address = 0x804efc74;
   }
   else {}
 }
@@ -197,3 +201,4 @@ void FovModifier::init_mod_mp3(Region region) {
   else {}
 }
 }
+#pragma optimize("", on)

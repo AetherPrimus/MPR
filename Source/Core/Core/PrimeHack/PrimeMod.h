@@ -37,7 +37,7 @@ enum class ModState {
   // running, active instruction changes
   ENABLED,
 };
-
+#pragma optimize("", off)
 // Skeleton for a game mod
 class PrimeMod {
 public:
@@ -66,7 +66,16 @@ public:
   }
 
   virtual ~PrimeMod() {};
-  
+
+  void apply_instruction_changes(bool invalidate = true) {
+    auto active_changes = get_instruction_changes();
+    for (CodeChange const& change : active_changes) {
+      PowerPC::HostWrite_U32(change.var, change.address);
+      if (invalidate) {
+        PowerPC::ScheduleInvalidateCacheThreadSafe(change.address);
+      }
+    }
+  }
   std::vector<CodeChange> const& get_instruction_changes() const {
     if (state == ModState::CODE_DISABLED ||
         state == ModState::DISABLED) {
@@ -102,6 +111,8 @@ protected:
 
 private:
   std::vector<CodeChange> original_instructions;
-  ModState state;
+  ModState state = ModState::DISABLED;
 };
 }
+
+#pragma optimize("", on)

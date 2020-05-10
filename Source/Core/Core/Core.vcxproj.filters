@@ -906,9 +906,6 @@
     <ClCompile Include="PrimeHack\Mods\FpsControls.cpp">
       <Filter>PrimeHack\Mods</Filter>
     </ClCompile>
-    <ClCompile Include="primehack\mods\FovModifier.cpp">
-      <Filter>PrimeHack\Mods</Filter>
-    </ClCompile>
     <ClCompile Include="primehack\mods\SpringballButton.cpp">
       <Filter>PrimeHack\Mods</Filter>
     </ClCompile>
@@ -922,6 +919,9 @@
       <Filter>PrimeHack</Filter>
     </ClCompile>
     <ClCompile Include="primehack\mods\AutoEFB.cpp">
+      <Filter>PrimeHack\Mods</Filter>
+    </ClCompile>
+    <ClCompile Include="PrimeHack\Mods\FovModifier.cpp">
       <Filter>PrimeHack\Mods</Filter>
     </ClCompile>
   </ItemGroup>
@@ -1619,9 +1619,6 @@
     <ClInclude Include="primehack\mods\SkipCutscene.h">
       <Filter>PrimeHack\Mods</Filter>
     </ClInclude>
-    <ClInclude Include="primehack\mods\FovModifier.h">
-      <Filter>PrimeHack\Mods</Filter>
-    </ClInclude>
     <ClInclude Include="PrimeHack\Mods\FpsControls.h">
       <Filter>PrimeHack\Mods</Filter>
     </ClInclude>
@@ -1632,6 +1629,9 @@
       <Filter>PrimeHack\Mods</Filter>
     </ClInclude>
     <ClInclude Include="PrimeHack\Mods\AutoEFB.h">
+      <Filter>PrimeHack\Mods</Filter>
+    </ClInclude>
+    <ClInclude Include="PrimeHack\Mods\FovModifier.h">
       <Filter>PrimeHack\Mods</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,7 +1,7 @@
 #include "Core/PrimeHack/Mods/FpsControls.h"
 
 #include "Core/PrimeHack/PrimeUtils.h"
-
+#pragma optimize("", off)
 namespace prime {
 namespace {  
   const std::array<int, 4> prime_one_beams = {0, 2, 1, 3};
@@ -43,7 +43,7 @@ void FpsControls::calculate_pitch_delta() {
 
   pitch += static_cast<float>(GetVerticalAxis()) * compensated_sens *
     (InvertedY() ? 1.f : -1.f);
-  pitch = std::clamp(pitch, -1.22f, 1.22f);
+  pitch = std::clamp(pitch, -1.58f, 1.58f);
 }
 
 float FpsControls::calculate_yaw_vel() {
@@ -82,7 +82,7 @@ void FpsControls::handle_beam_visor_switch(std::array<int, 4> const &beams,
   std::tie(visor_id, visor_off) = get_visor_switch(visors,
     read32(powerups_array_base + 0x1c) == 0);
 
-  if (visor_id != 1) {
+  if (visor_id != -1) {
     if (read32(powerups_array_base + (visor_off * powerups_size) + powerups_offset)) {
       write32(visor_id, powerups_array_base + active_visor_offset);
     }
@@ -128,17 +128,17 @@ void FpsControls::run_mod_mp2() {
   if (!mem_check(cplayer_address)) {
     return;
   }
+
+  if (read32(mp2_static.load_state_address) != 1) {
+    return;
+  }
   
   // HACK ooo
   powerups_ptr_address = cplayer_address + 0x12ec;
   handle_beam_visor_switch(prime_two_beams, prime_two_visors);
 
-  if (read32(mp2_static.load_state_address) != 1)
-  {
-    return;
-  }
 
-  if (read32(cplayer_address + 0x390) != ORBIT_STATE_GRAPPLE ||
+  if (read32(cplayer_address + 0x390) != ORBIT_STATE_GRAPPLE &&
       read32(mp2_static.lockon_address)) {
     // Angular velocity (not really, but momentum) is being messed with like mp1
     // just being accessed relative to cplayer
@@ -202,7 +202,7 @@ void FpsControls::run_mod_mp3() {
     mp3_handle_cursor(true);
   }
 
-  if (read8(cplayer_address + 0x378) && read8(mp3_static.lockon_address)) {
+  if (!read8(cplayer_address + 0x378) && read8(mp3_static.lockon_address)) {
     write32(0, cplayer_address + 0x174);
     return;
   }
@@ -409,7 +409,7 @@ void FpsControls::init_mod_mp2(Region region) {
   powerups_offset = 0x5c;
   // They match again, serendipity
   new_beam_address = 0x804cd254;
-  new_beam_address = 0x804cd250;
+  beamchange_flag_address = 0x804cd250;
   has_beams = true;
 }
 
@@ -473,3 +473,4 @@ void FpsControls::init_mod_mp3(Region region) {
 }
 
 }
+#pragma optimize("", on)
