@@ -31,6 +31,7 @@ private:
   wxPanel* CreateStereoscopic3DPanel();
   wxPanel* CreateSaveAndLoadStatePanel();
   wxPanel* CreateOtherStateManagementPanel();
+  wxPanel* CreatePrimeHackPanel();
 
   void OnBackgroundInputChanged(wxCommandEvent& event);
   void OnIterativeInputChanged(wxCommandEvent& event);

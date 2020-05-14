@@ -25,6 +25,8 @@ bool UseMPAutoEFB();
 bool GetEFBTexture();
 bool GetBloom();
 
+bool GetNoclip();
+
 bool GetEnableSecondaryGunFX();
 
 bool GetAutoArmAdjust();

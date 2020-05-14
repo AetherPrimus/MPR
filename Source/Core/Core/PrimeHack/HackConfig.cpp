@@ -52,22 +52,12 @@ void InitializeHack(std::string const& mkb_device_name, std::string const& mkb_d
 
   // enable NO mods!!!
   if (!SConfig::GetInstance().bEnablePrimeHack) {
-  return;
+    return;
   }
 
-  //if (UseMPAutoEFB()) {
-  //  hack_mgr.enable_mod("auto_efb");
-  //}
-  //if (GetBloom()) {
-  //  hack_mgr.enable_mod("disable_bloom");
-  //}
-  //if (GetEnableSecondaryGunFX()) {
-  //  hack_mgr.enable_mod("cut_beam_fx_mp1");
-  //}
-  //hack_mgr.enable_mod("fov_modifier");
-  //hack_mgr.enable_mod("fps_controls");
-  //hack_mgr.enable_mod("springball_button");
-  //hack_mgr.enable_mod("noclip");
+  hack_mgr.enable_mod("fov_modifier");
+  hack_mgr.enable_mod("fps_controls");
+  hack_mgr.enable_mod("springball_button");
 }
 
 bool CheckBeamCtl(int beam_num) {
@@ -112,6 +102,10 @@ void SetEFBToTexture(bool toggle) {
 
 bool UseMPAutoEFB() {
   return Config::Get(Config::AUTO_EFB);
+}
+
+bool GetNoclip() {
+  return SConfig::GetInstance().bPrimeNoclip;
 }
 
 bool GetEFBTexture() {

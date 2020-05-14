@@ -76,6 +76,7 @@ public:
       }
     }
   }
+
   std::vector<CodeChange> const& get_instruction_changes() const {
     if (state == ModState::CODE_DISABLED ||
         state == ModState::DISABLED) {
@@ -85,6 +86,7 @@ public:
       return code_changes;
     }
   }
+
   bool has_saved_instructions() const {
     return !original_instructions.empty();
   }
