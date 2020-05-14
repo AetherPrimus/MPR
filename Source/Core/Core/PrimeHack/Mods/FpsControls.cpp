@@ -87,6 +87,8 @@ void FpsControls::handle_beam_visor_switch(std::array<int, 4> const &beams,
       write32(visor_id, powerups_array_base + active_visor_offset);
     }
   }
+
+  DevInfo("Powerups_Base", "%08X", powerups_array_base);
 }
 
 void FpsControls::run_mod_menu(Region region) {

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Core/PrimeHack/PrimeMod.h"
+#include "Core/PrimeHack/Transform.h"
 
 #include <cmath>
 #include <sstream>
@@ -40,7 +41,9 @@ void set_beam_owned(int index, bool owned);
 void set_visor_owned(int index, bool owned);
 void set_cursor_pos(float x, float y);
 
-void DevInfo(std::string line, u32 hex);
+void DevInfo(const char* name, const char* format, ...);
+void DevInfoMatrix(const char* name, const Transform& t);
+
 std::string GetDevInfo();
 void ClrDevInfo();
 

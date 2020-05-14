@@ -35,6 +35,8 @@ vec3 Noclip::get_movement_vec(u32 camera_tf_addr) {
     movement_vec = movement_vec + camera_tf.right();
   }
 
+  DevInfoMatrix("Camera", camera_tf);
+
   return movement_vec;
 }
 

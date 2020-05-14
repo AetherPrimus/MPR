@@ -78,6 +78,8 @@ void FovModifier::run_mod_mp1() {
   if (GetCulling() || GetFov() > 101.f) {
     disable_culling(mp1_static.culling_address);
   }
+
+  DevInfo("Camera_Addr", "%08X", camera_address);
 }
 
 void FovModifier::run_mod_mp2() {
@@ -102,6 +104,8 @@ void FovModifier::run_mod_mp2() {
   if (GetCulling() || GetFov() > 101.f) {
     disable_culling(mp2_static.culling_address);
   }
+
+  DevInfo("Camera_Base", "%08X", camera_base);
 }
 
 void FovModifier::run_mod_mp3() {
@@ -131,6 +135,8 @@ void FovModifier::run_mod_mp3() {
   if (GetCulling() || GetFov() > 96.f) {
     disable_culling(mp3_static.culling_address);
   }
+
+  DevInfo("CGame_Camera", "%08X", cgame_camera);
 }
 
 void FovModifier::init_mod(Game game, Region region) {

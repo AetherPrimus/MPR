@@ -191,9 +191,41 @@ int get_beam_switch(std::array<int, 4> const& beams) {
 }
 
 std::stringstream ss;
-void DevInfo(std::string line, u32 hex)
+void DevInfo(const char* name, const char* format, ...)
 {
-  ss << line << ": " << std::hex << hex << std::endl;
+  va_list args1;
+  va_start(args1, format);
+  va_list args2;
+  va_copy(args2, args1);
+
+  std::vector<char> buf(1+std::vsnprintf(nullptr, 0, format, args1));
+  std::vsnprintf(buf.data(), buf.size(), format, args2);
+
+  ss << name << ": " << buf.data() << std::endl;
+  va_end(args2);
+}
+
+void DevInfoMatrix(const char* name, const Transform& t)
+{
+  const char* format =
+    "\n   %.3f    %.3f    %.3f    %.3f"
+    "\n   %.3f    %.3f    %.3f    %.3f"
+    "\n   %.3f    %.3f    %.3f    %.3f";
+
+  ssize_t bufsize = snprintf(NULL, 0, format, 
+    t.m[0][0], t.m[0][1], t.m[0][2], t.m[0][3], 
+    t.m[1][0], t.m[1][1], t.m[1][2], t.m[1][3], 
+    t.m[2][0], t.m[2][1], t.m[2][2], t.m[2][3]);
+
+  std::vector<char> buf;
+  buf.resize(bufsize + 1);
+
+  snprintf(buf.data(), bufsize + 1, format,
+    t.m[0][0], t.m[0][1], t.m[0][2], t.m[0][3], 
+    t.m[1][0], t.m[1][1], t.m[1][2], t.m[1][3], 
+    t.m[2][0], t.m[2][1], t.m[2][2], t.m[2][3]);
+
+  ss << name << ":" << buf.data() << std::endl;
 }
 
 std::string GetDevInfo()

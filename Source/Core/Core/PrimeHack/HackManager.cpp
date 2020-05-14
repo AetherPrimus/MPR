@@ -1,6 +1,7 @@
 #include "Core/PrimeHack/HackManager.h"
 
 #include "Core/PrimeHack/HackConfig.h"
+#include "Core/PrimeHack/PrimeUtils.h"
 #include "Core/PowerPC/PowerPC.h"
 #include "InputCommon/GenericMouse.h"
 #pragma optimize("", off)
@@ -68,6 +69,8 @@ void HackManager::run_active_mods() {
       mod.second->reset_mod();
     }
   }
+
+  ClrDevInfo(); // Clear the dev info stream before the mods print again.
 
   if (active_game != Game::INVALID_GAME && active_region != Region::INVALID_REGION) {
     for (auto& mod : mods) {
