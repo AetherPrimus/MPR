@@ -34,6 +34,9 @@
 #include "Core/Movie.h"
 #include "Core/NetPlayClient.h"
 #include "Core/PowerPC/PowerPC.h"
+#include "Core/PrimeHack/HackManager.h"
+#include "Core/PrimeHack/HackConfig.h"
+
 
 #include "VideoCommon/AVIDump.h"
 #include "VideoCommon/OnScreenDisplay.h"
@@ -384,6 +387,9 @@ static void CompressAndDumpState(CompressAndDumpState_args save_args)
 
 void SaveAs(const std::string& filename, bool wait)
 {
+  prime::GetHackManager()->save_mod_states();
+  prime::GetHackManager()->revert_all_code_changes();
+
   Core::RunAsCPUThread([&] {
     // Measure the size of the buffer.
     u8* ptr = nullptr;
@@ -422,6 +428,8 @@ void SaveAs(const std::string& filename, bool wait)
       Core::DisplayMessage("Unable to save: Internal DoState Error", 4000);
     }
   });
+
+  prime::GetHackManager()->restore_mod_states();
 }
 
 bool ReadHeader(const std::string& filename, StateHeader& header)

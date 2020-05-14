@@ -71,6 +71,7 @@ void HackManager::run_active_mods() {
   }
 
   ClrDevInfo(); // Clear the dev info stream before the mods print again.
+
   update_mod_states();
 
   if (active_game != Game::INVALID_GAME && active_region != Region::INVALID_REGION) {
