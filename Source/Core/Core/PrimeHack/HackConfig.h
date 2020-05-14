@@ -19,6 +19,7 @@ bool CheckForward();
 bool CheckBack();
 bool CheckLeft();
 bool CheckRight();
+bool CheckJump();
 
 void SetEFBToTexture(bool toggle);
 bool UseMPAutoEFB();

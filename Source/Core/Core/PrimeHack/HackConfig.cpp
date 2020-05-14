@@ -96,6 +96,10 @@ bool CheckRight() {
   return Wiimote::CheckRight();
 }
 
+bool CheckJump() {
+  return Wiimote::CheckJump();
+}
+
 void SetEFBToTexture(bool toggle) {
   return Config::SetCurrent(Config::GFX_HACK_SKIP_EFB_COPY_TO_RAM, toggle);
 }

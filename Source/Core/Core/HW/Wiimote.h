@@ -85,6 +85,7 @@ bool CheckForward();
 bool CheckBack();
 bool CheckLeft();
 bool CheckRight();
+bool CheckJump();
 bool PrimeUseController();
 
 void PrimeSetMode(bool controller);
