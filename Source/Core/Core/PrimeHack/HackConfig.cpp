@@ -9,7 +9,7 @@
 #include "Core/PrimeHack/Mods/AutoEFB.h"
 #include "Core/PrimeHack/Mods/CutBeamFxMP1.h"
 #include "Core/PrimeHack/Mods/DisableBloom.h"
-#include "Core/PrimeHack/Mods/FovModifier.h"
+#include "Core/PrimeHack/Mods/ViewModifier.h"
 #include "Core/PrimeHack/Mods/FpsControls.h"
 #include "Core/PrimeHack/Mods/Noclip.h"
 #include "Core/PrimeHack/Mods/SpringballButton.h"
@@ -42,7 +42,7 @@ void InitializeHack(std::string const& mkb_device_name, std::string const& mkb_d
   hack_mgr.add_mod("auto_efb", std::make_unique<AutoEFB>());
   hack_mgr.add_mod("cut_beam_fx_mp1", std::make_unique<CutBeamFxMP1>());
   hack_mgr.add_mod("disable_bloom", std::make_unique<DisableBloom>());
-  hack_mgr.add_mod("fov_modifier", std::make_unique<FovModifier>());
+  hack_mgr.add_mod("fov_modifier", std::make_unique<ViewModifier>());
   hack_mgr.add_mod("fps_controls", std::make_unique<FpsControls>());
   hack_mgr.add_mod("noclip", std::make_unique<Noclip>());
   hack_mgr.add_mod("springball_button", std::make_unique<SpringballButton>());
@@ -52,7 +52,7 @@ void InitializeHack(std::string const& mkb_device_name, std::string const& mkb_d
 
   // enable NO mods!!!
   if (!SConfig::GetInstance().bEnablePrimeHack) {
-    return;
+  return;
   }
 
   //if (UseMPAutoEFB()) {
