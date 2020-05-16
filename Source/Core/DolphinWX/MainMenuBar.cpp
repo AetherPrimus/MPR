@@ -343,6 +343,7 @@ wxMenu* MainMenuBar::CreateViewMenu() const
     view_menu->AppendCheckItem(IDM_JIT_WINDOW, _("&JIT"));
     view_menu->AppendCheckItem(IDM_SOUND_WINDOW, _("&Sound"));
     view_menu->AppendCheckItem(IDM_VIDEO_WINDOW, _("&Video"));
+    view_menu->AppendCheckItem(IDM_PRIME_TRANSFORM, _("Apply Transform"));
     view_menu->AppendSeparator();
   }
   else

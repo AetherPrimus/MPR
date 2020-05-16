@@ -31,7 +31,11 @@ struct vec3 {
   vec3 operator-() const {
     return vec3(-x, -y, -z);
   }
-  
+
+  float dot(vec3 other) {
+    return x * other.x + y * other.y + z * other.z;
+  }
+
   void read_from(u32 address);
   void write_to(u32 address);
 };

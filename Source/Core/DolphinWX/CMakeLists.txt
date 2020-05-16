@@ -40,6 +40,7 @@ set(SRCS
   Debugger/RegisterWindow.cpp
   Debugger/WatchView.cpp
   Debugger/WatchWindow.cpp
+  Debugger/MatrixPanel.cpp
   ISOProperties/FilesystemPanel.cpp
   ISOProperties/InfoPanel.cpp
   ISOProperties/ISOProperties.cpp

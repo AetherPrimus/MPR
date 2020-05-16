@@ -51,6 +51,7 @@
 #include "DolphinWX/Debugger/MemoryWindow.h"
 #include "DolphinWX/Debugger/RegisterWindow.h"
 #include "DolphinWX/Debugger/WatchWindow.h"
+#include "DolphinWX/Debugger/MatrixPanel.h"
 #include "DolphinWX/Frame.h"
 #include "DolphinWX/Globals.h"
 #include "DolphinWX/WxUtils.h"
@@ -76,7 +77,7 @@ void CCodeWindow::Load()
     DebuggerFont.SetNativeFontInfoUserDesc(StrToWxStr(fontDesc));
 
   const char* SettingName[] = { "Log",    "LogConfig", "Console", "Registers", "Breakpoints",
-    "Memory", "JIT",       "Sound",   "Video",     "Code" };
+    "Memory", "JIT",       "Sound",   "Matrix", "Video",     "Code" };
 
   // Decide what windows to show
   for (int i = 0; i <= IDM_VIDEO_WINDOW - IDM_LOG_WINDOW; i++)
@@ -106,7 +107,7 @@ void CCodeWindow::Save()
   general->Set("BootToPause", GetParentMenuBar()->IsChecked(IDM_BOOT_TO_PAUSE));
 
   const char* SettingName[] = { "Log",    "LogConfig", "Console", "Registers", "Breakpoints",
-    "Memory", "JIT",       "Sound",   "Video",     "Code" };
+    "Memory", "JIT",       "Sound",   "Matrix", "Video",     "Code" };
 
   // Save windows settings
   for (int i = IDM_LOG_WINDOW; i <= IDM_VIDEO_WINDOW; i++)
@@ -581,6 +582,9 @@ wxPanel* CCodeWindow::CreateSiblingPanel(int id)
     break;
   case IDM_VIDEO_WINDOW:
     panel = new GFXDebuggerPanel(Parent, IDM_VIDEO_WINDOW);
+    break;
+  case IDM_PRIME_TRANSFORM:
+    panel = new MatrixPanel(Parent, IDM_PRIME_TRANSFORM);
     break;
   case IDM_CODE_WINDOW:
     panel = this;
