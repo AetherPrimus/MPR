@@ -12,11 +12,13 @@ class HackManager {
 public:
   HackManager();
   void run_active_mods();
+  void update_mod_states();
   void add_mod(std::string const &name, std::unique_ptr<PrimeMod> mod);
   Game get_active_game() const { return active_game; }
   Region get_active_region() const { return active_region; }
   void disable_mod(std::string const &name);
   void enable_mod(std::string const &name);
+  void set_mod_enabled(std::string const &name, bool enabled);
   bool is_mod_active(std::string const &name);
 
   // Saves the enablements of all mods (single internal state)

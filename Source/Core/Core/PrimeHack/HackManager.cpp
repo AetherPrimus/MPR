@@ -1,6 +1,7 @@
 #include "Core/PrimeHack/HackManager.h"
 
 #include "Core/PrimeHack/HackConfig.h"
+#include "Core/PrimeHack/PrimeUtils.h"
 #include "Core/PowerPC/PowerPC.h"
 #include "InputCommon/GenericMouse.h"
 
@@ -85,6 +86,10 @@ void HackManager::run_active_mods() {
     }
   }
 
+  ClrDevInfo(); // Clear the dev info stream before the mods print again.
+
+  update_mod_states();
+
   if (active_game != Game::INVALID_GAME && active_region != Region::INVALID_REGION) {
     for (auto& mod : mods) {
       if (!mod.second->is_initialized()) {
@@ -108,6 +113,14 @@ void HackManager::run_active_mods() {
   prime::g_mouse_input->ResetDeltas();
 }
 
+void HackManager::update_mod_states()
+{
+  set_mod_enabled("auto_efb", UseMPAutoEFB());
+  set_mod_enabled("disable_bloom", GetBloom());
+  set_mod_enabled("cut_beam_fx_mp1", GetEnableSecondaryGunFX());
+  set_mod_enabled("noclip", GetNoclip());
+}
+
 void HackManager::add_mod(std::string const &name, std::unique_ptr<PrimeMod> mod) {
   mods[name] = std::move(mod);
 }
@@ -126,6 +139,15 @@ void HackManager::enable_mod(std::string const& name) {
     return;
   }
   result->second->set_state(ModState::ENABLED);
+}
+
+void HackManager::set_mod_enabled(std::string const& name, bool enabled) {
+  if (enabled) {
+    enable_mod(name);
+  }
+  else {
+    disable_mod(name);
+  }
 }
 
 bool HackManager::is_mod_active(std::string const& name) {

@@ -921,7 +921,7 @@
     <ClCompile Include="primehack\mods\AutoEFB.cpp">
       <Filter>PrimeHack\Mods</Filter>
     </ClCompile>
-    <ClCompile Include="PrimeHack\Mods\FovModifier.cpp">
+    <ClCompile Include="PrimeHack\Mods\ViewModifier.cpp">
       <Filter>PrimeHack\Mods</Filter>
     </ClCompile>
   </ItemGroup>
@@ -1631,7 +1631,7 @@
     <ClInclude Include="PrimeHack\Mods\AutoEFB.h">
       <Filter>PrimeHack\Mods</Filter>
     </ClInclude>
-    <ClInclude Include="PrimeHack\Mods\FovModifier.h">
+    <ClInclude Include="PrimeHack\Mods\ViewModifier.h">
       <Filter>PrimeHack\Mods</Filter>
     </ClInclude>
   </ItemGroup>

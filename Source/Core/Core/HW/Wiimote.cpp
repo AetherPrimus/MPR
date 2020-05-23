@@ -212,6 +212,12 @@ bool CheckRight() {
     controls[3].get()->control_ref->State() > 0.5;
 }
 
+bool CheckJump() {
+  WiimoteEmu::Wiimote* wiimote = static_cast<WiimoteEmu::Wiimote*>(s_config.GetController(0));
+
+  return wiimote->groups[0].get()->controls[1]->control_ref->State() > 0.5;
+}
+
 std::tuple<double, double, double, bool, bool> PrimeSettings()
 {
   WiimoteEmu::Wiimote* wiimote = static_cast<WiimoteEmu::Wiimote*>(s_config.GetController(0));

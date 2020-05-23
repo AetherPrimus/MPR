@@ -34,6 +34,11 @@ vec3 Noclip::get_movement_vec(u32 camera_tf_addr) {
   if (CheckRight()) {
     movement_vec = movement_vec + camera_tf.right();
   }
+  if (CheckJump()) {
+    movement_vec = movement_vec + vec3(0, 0, 1);
+  }
+
+  DevInfoMatrix("Camera", camera_tf);
 
   return movement_vec;
 }
@@ -60,6 +65,8 @@ void Noclip::run_mod_mp1(bool has_control) {
   const u32 camera_offset = (((read32(camera_offset_address) + 10) >> 16) & 0x3ff) << 3;
   const u32 camera_tf_addr = read32(camera_ptr + camera_offset + 4) + 0x2c;
   vec3 movement_vec = (get_movement_vec(camera_tf_addr) * 0.5f) + player_tf.loc();
+
+  DevInfo("Camera_Tf_Addr", "%08X", camera_tf_addr);
 
   player_tf.set_loc(movement_vec);
   writef32(movement_vec.x, cplayer_address + 0x2c + 0x0c);

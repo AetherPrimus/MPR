@@ -9,7 +9,7 @@
 #include "Core/PrimeHack/Mods/AutoEFB.h"
 #include "Core/PrimeHack/Mods/CutBeamFxMP1.h"
 #include "Core/PrimeHack/Mods/DisableBloom.h"
-#include "Core/PrimeHack/Mods/FovModifier.h"
+#include "Core/PrimeHack/Mods/ViewModifier.h"
 #include "Core/PrimeHack/Mods/FpsControls.h"
 #include "Core/PrimeHack/Mods/Noclip.h"
 #include "Core/PrimeHack/Mods/SpringballButton.h"
@@ -42,7 +42,7 @@ void InitializeHack(std::string const& mkb_device_name, std::string const& mkb_d
   hack_mgr.add_mod("auto_efb", std::make_unique<AutoEFB>());
   hack_mgr.add_mod("cut_beam_fx_mp1", std::make_unique<CutBeamFxMP1>());
   hack_mgr.add_mod("disable_bloom", std::make_unique<DisableBloom>());
-  hack_mgr.add_mod("fov_modifier", std::make_unique<FovModifier>());
+  hack_mgr.add_mod("fov_modifier", std::make_unique<ViewModifier>());
   hack_mgr.add_mod("fps_controls", std::make_unique<FpsControls>());
   hack_mgr.add_mod("noclip", std::make_unique<Noclip>());
   hack_mgr.add_mod("springball_button", std::make_unique<SpringballButton>());
@@ -55,19 +55,9 @@ void InitializeHack(std::string const& mkb_device_name, std::string const& mkb_d
     return;
   }
 
-  //if (UseMPAutoEFB()) {
-  //  hack_mgr.enable_mod("auto_efb");
-  //}
-  //if (GetBloom()) {
-  //  hack_mgr.enable_mod("disable_bloom");
-  //}
-  //if (GetEnableSecondaryGunFX()) {
-  //  hack_mgr.enable_mod("cut_beam_fx_mp1");
-  //}
-  //hack_mgr.enable_mod("fov_modifier");
-  //hack_mgr.enable_mod("fps_controls");
-  //hack_mgr.enable_mod("springball_button");
-  //hack_mgr.enable_mod("noclip");
+  hack_mgr.enable_mod("fov_modifier");
+  hack_mgr.enable_mod("fps_controls");
+  hack_mgr.enable_mod("springball_button");
 }
 
 bool CheckBeamCtl(int beam_num) {
@@ -106,12 +96,20 @@ bool CheckRight() {
   return Wiimote::CheckRight();
 }
 
+bool CheckJump() {
+  return Wiimote::CheckJump();
+}
+
 void SetEFBToTexture(bool toggle) {
   return Config::SetCurrent(Config::GFX_HACK_SKIP_EFB_COPY_TO_RAM, toggle);
 }
 
 bool UseMPAutoEFB() {
   return Config::Get(Config::AUTO_EFB);
+}
+
+bool GetNoclip() {
+  return SConfig::GetInstance().bPrimeNoclip;
 }
 
 bool GetEFBTexture() {

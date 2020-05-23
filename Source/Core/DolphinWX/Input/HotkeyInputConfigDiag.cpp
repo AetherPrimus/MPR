@@ -123,6 +123,7 @@ void HotkeyInputConfigDialog::InitializeNotebook()
   m_notebook->AddPage(CreateStereoscopic3DPanel(), _("3D"));
   m_notebook->AddPage(CreateSaveAndLoadStatePanel(), _("Save and Load State"));
   m_notebook->AddPage(CreateOtherStateManagementPanel(), _("Other State Management"));
+  m_notebook->AddPage(CreatePrimeHackPanel(), _("PrimeHack"));
 
   m_notebook->SetSelection(0);
 }
@@ -310,4 +311,22 @@ wxPanel* HotkeyInputConfigDialog::CreateOtherStateManagementPanel()
 
   other_state_panel->SetSizerAndFit(other_state_sizer);
   return other_state_panel;
+}
+
+
+wxPanel* HotkeyInputConfigDialog::CreatePrimeHackPanel()
+{
+  const int space5 = FromDIP(5);
+  auto* const primehack_panel = new wxPanel(m_notebook);
+
+  auto* const groupbox_prime = new ControlGroupBox(
+    HotkeyManagerEmu::GetHotkeyGroup(HKGP_PRIMEHACK), primehack_panel, this);
+
+  auto* const primehack_sizer = new wxBoxSizer(wxHORIZONTAL);
+  primehack_sizer->AddSpacer(space5);
+  primehack_sizer->Add(groupbox_prime, 0, wxEXPAND | wxTOP, space5);
+  primehack_sizer->AddSpacer(space5);
+
+  primehack_panel->SetSizerAndFit(primehack_sizer);
+  return primehack_panel;
 }

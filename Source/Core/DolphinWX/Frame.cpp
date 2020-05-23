@@ -1576,6 +1576,11 @@ void CFrame::ParseHotkeys()
     Config::SetCurrent(Config::GFX_HIRES_MATERIAL_MAPS, !Config::Get(Config::GFX_HIRES_MATERIAL_MAPS));
   }
 
+  if (IsHotkey(HK_NOCLIP_TOGGLE))
+  {
+    SConfig::GetInstance().bPrimeNoclip = !SConfig::GetInstance().bPrimeNoclip;
+  }
+
   static float debugSpeed = 1.0f;
   if (IsHotkey(HK_FREELOOK_DECREASE_SPEED, true))
     debugSpeed /= 1.1f;

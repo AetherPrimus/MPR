@@ -19,11 +19,14 @@ bool CheckForward();
 bool CheckBack();
 bool CheckLeft();
 bool CheckRight();
+bool CheckJump();
 
 void SetEFBToTexture(bool toggle);
 bool UseMPAutoEFB();
 bool GetEFBTexture();
 bool GetBloom();
+
+bool GetNoclip();
 
 bool GetEnableSecondaryGunFX();
 
