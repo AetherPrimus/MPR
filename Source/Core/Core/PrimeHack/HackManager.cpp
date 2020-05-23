@@ -3,13 +3,18 @@
 #include "Core/PrimeHack/HackConfig.h"
 #include "Core/PowerPC/PowerPC.h"
 #include "InputCommon/GenericMouse.h"
-#pragma optimize("", off)
+
 namespace prime {
 HackManager::HackManager()
   : active_game(Game::INVALID_GAME),
     active_region(Region::INVALID_REGION),
     last_game(Game::INVALID_GAME),
     last_region(Region::INVALID_REGION) {}
+
+#define FOURCC(a, b, c, d) (((static_cast<u32>(a) << 24) & 0xff000000) | \
+                            ((static_cast<u32>(b) << 16) & 0x00ff0000) | \
+                            ((static_cast<u32>(c) << 8) & 0x0000ff00) | \
+                            (static_cast<u32>(d) & 0x000000ff))
 
 void HackManager::run_active_mods() {
   u32 game_sig = PowerPC::HostRead_Instruction(0x80074000);
@@ -59,8 +64,19 @@ void HackManager::run_active_mods() {
     }
     break;
   default:
-    active_game = Game::INVALID_GAME;
-    active_region = Region::INVALID_REGION;
+    u32 region_code = PowerPC::HostRead_U32(0x80000000);
+    if (region_code == FOURCC('G', 'M', '8', 'E')) {
+      active_game = Game::PRIME_1_GCN;
+      active_region = Region::NTSC;
+    }
+    else if (region_code == FOURCC('G', 'M', '8', 'P')) {
+      active_game = Game::PRIME_1_GCN;
+      active_region = Region::PAL;
+    }
+    else {
+      active_game = Game::INVALID_GAME;
+      active_region = Region::INVALID_REGION;
+    }
   }
 
   if (active_game != last_game || active_region != last_region) {

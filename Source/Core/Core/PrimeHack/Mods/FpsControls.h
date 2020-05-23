@@ -32,6 +32,7 @@ private:
   void run_mod_mp1();
   void run_mod_mp2();
   void run_mod_mp3();
+  void run_mod_mp1_gc();
 
   // ------------------------
   // -----Init Functions-----
@@ -40,10 +41,14 @@ private:
   void add_beam_change_code_mp2(u32 start_point);
   void add_grapple_slide_code_mp3(u32 start_point);
   void add_control_state_hook_mp3(u32 start_point, Region region);
+  // Very large code, apologies for anyone who reads this
+  // corresponding assembly is in comments :)
+  void add_strafe_code_mp1_ntsc();
 
   void init_mod_mp1(Region region);
   void init_mod_mp2(Region region);
   void init_mod_mp3(Region region);
+  void init_mod_mp1_gc(Region region);
 
   // All 3 of these games have this in common (MP3 just ignores beams)
   u32 active_visor_offset;
@@ -84,6 +89,14 @@ private:
       u32 lockon_address;
       u32 gun_lag_toc_offset;
     } mp3_static;
+
+    struct {
+      u32 yaw_vel_address;
+      u32 pitch_address;
+      u32 angvel_max_address;
+      u32 orbit_state_address;
+      u32 lockon_address;
+    } mp1_gc_static;
   };
 
   // We store our pitch value interally to have full control over it

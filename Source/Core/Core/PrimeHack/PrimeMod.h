@@ -37,7 +37,7 @@ enum class ModState {
   // running, active instruction changes
   ENABLED,
 };
-#pragma optimize("", off)
+
 // Skeleton for a game mod
 class PrimeMod {
 public:
@@ -114,5 +114,3 @@ private:
   ModState state = ModState::DISABLED;
 };
 }
-
-#pragma optimize("", on)

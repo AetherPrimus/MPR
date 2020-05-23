@@ -1,7 +1,7 @@
 #include "Core/PrimeHack/Mods/FovModifier.h"
 
 #include "Core/PrimeHack/PrimeUtils.h"
-#pragma optimize("", off)
+
 namespace prime {
 
 void FovModifier::run_mod(Game game, Region region) {
@@ -14,6 +14,9 @@ void FovModifier::run_mod(Game game, Region region) {
     break;
   case Game::PRIME_3:
     run_mod_mp3();
+    break;
+  case Game::PRIME_1_GCN:
+    run_mod_mp1_gc();
     break;
   default:
     break;
@@ -77,6 +80,32 @@ void FovModifier::run_mod_mp1() {
 
   if (GetCulling() || GetFov() > 101.f) {
     disable_culling(mp1_static.culling_address);
+  }
+}
+
+void FovModifier::run_mod_mp1_gc() {
+  const u16 camera_uid = read16(mp1_gc_static.camera_mgr_address);
+  if (camera_uid == -1) {
+    return;
+  }
+
+  const u32 camera_offset = (camera_uid & 0x3ff) << 3;
+  const u32 camera_address = read32(read32(mp1_gc_static.object_list_address) + 4 + camera_offset);
+  if (!mem_check(camera_address)) {
+    return;
+  }
+
+  const u32 r13 = GPR(13);
+  const float fov = std::min(GetFov(), 170.f);
+  writef32(fov, camera_address + 0x15c);
+  writef32(fov, r13 + mp1_gc_static.global_fov1_table_off);
+  writef32(fov, r13 + mp1_gc_static.global_fov2_table_off);
+
+  adjust_viewmodel(fov, mp1_gc_static.gun_pos_address, camera_address + 0x160,
+    0x3d200000);
+
+  if (GetCulling() || GetFov() > 101.f) {
+    disable_culling(mp1_gc_static.culling_address);
   }
 }
 
@@ -144,6 +173,9 @@ void FovModifier::init_mod(Game game, Region region) {
   case Game::PRIME_3:
     init_mod_mp3(region);
     break;
+  case Game::PRIME_1_GCN:
+    init_mod_mp1_gc(region);
+    break;
   }
   initialized = true;
 }
@@ -200,5 +232,19 @@ void FovModifier::init_mod_mp3(Region region) {
   }
   else {}
 }
+
+void FovModifier::init_mod_mp1_gc(Region region) {
+  if (region == Region::NTSC) {
+    mp1_gc_static.camera_mgr_address = 0x8045c5b4;
+    mp1_gc_static.object_list_address = 0x8045a9b8;
+    mp1_gc_static.global_fov1_table_off = -0x7ff0;
+    mp1_gc_static.global_fov1_table_off = -0x7fec;
+    mp1_gc_static.gun_pos_address = 0x8045bce8;
+    mp1_gc_static.culling_address = 0x80337a24;
+  }
+  else if (region == Region::PAL) {
+
+  }
+  else {}
 }
-#pragma optimize("", on)
+}
