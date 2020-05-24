@@ -46,6 +46,7 @@ public:
   // Init the mod, called when a new game / new region is loaded
   // Should NOT do any modifying of the game!!!
   virtual void init_mod(Game game, Region region) = 0;
+  virtual void on_state_change(ModState old_state) {}
 
   virtual bool should_apply_changes() const {
     std::vector<CodeChange> const *cc_vec;
@@ -99,7 +100,11 @@ public:
     original_instructions.clear();
     initialized = false;
   }
-  void set_state(ModState state) { this->state = state; }
+  void set_state(ModState state) {
+    ModState original = this->state;
+    this->state = state;
+    on_state_change(original);
+  }
   void save_original_instructions() {
     for (CodeChange const& change : code_changes) {
       original_instructions.emplace_back(change.address,

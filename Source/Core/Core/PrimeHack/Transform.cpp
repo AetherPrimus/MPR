@@ -8,7 +8,7 @@ namespace prime {
 
 void vec3::read_from(u32 address) {
   for (int i = 0; i < 3; i++) {
-    u32 const val = PowerPC::HostRead_U32(address);
+    u32 const val = PowerPC::HostRead_U32(address + i * 4);
     arr[i] = *reinterpret_cast<float const *>(&val);
   }
 }

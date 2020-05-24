@@ -18,51 +18,40 @@ HackManager::HackManager()
                             (static_cast<u32>(d) & 0x000000ff))
 
 void HackManager::run_active_mods() {
-  u32 game_sig = PowerPC::HostRead_Instruction(0x80074000);
+  u32 game_sig = PowerPC::HostRead_Instruction(0x8046d340);
   switch (game_sig)
   {
-  case 0x90010024:
+  case 0x38000018:
     active_game = Game::MENU;
     active_region = Region::NTSC;
     break;
-  case 0x93FD0008:
+  case 0x7c0000d0:
     active_game = Game::MENU;
     active_region = Region::PAL;
     break;
-  case 0x480008D1:
+  case 0x4e800020:
     active_game = Game::PRIME_1;
     active_region = Region::NTSC;
     break;
-  case 0x7EE3BB78:
+  case 0x7c962378:
     active_game = Game::PRIME_1;
     active_region = Region::PAL;
     break;
-  case 0x7C6F1B78:
+  case 0x4bff64e1:
     active_game = Game::PRIME_2;
     active_region = Region::NTSC;
     break;
-  case 0x90030028:
+  case 0x80830000:
     active_game = Game::PRIME_2;
     active_region = Region::PAL;
     break;
-  case 0x90010020:
+  case 0x80010070:
     active_game = Game::PRIME_3;
-    {
-      u32 region_diff = PowerPC::HostRead_U32(0x800CC000);
-      if (region_diff == 0x981D005E)
-      {
-        active_region = Region::NTSC;
-      }
-      else if (region_diff == 0x8803005D)
-      {
-        active_region = Region::PAL;
-      }
-      else
-      {
-        active_game = Game::INVALID_GAME;
-        active_region = Region::INVALID_REGION;
-      }
-    }
+    active_region = Region::NTSC;
+    break;
+  case 0x3a800000:
+    active_game = Game::PRIME_3;
+    active_region = Region::PAL;
     break;
   default:
     u32 region_code = PowerPC::HostRead_U32(0x80000000);
