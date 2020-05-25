@@ -29,7 +29,7 @@ bool Noclip::has_control_mp1_gc() {
   int camera_state = read32(mp1_gc_static.cplayer_address + 0x2f4);
   u8 statemgr_flags = read8(mp1_gc_static.state_mgr_address + 0xf94);
   return (world_load_state == 5) &&
-         (camera_state < 3) &&
+         (camera_state != 4) &&
          (statemgr_flags & 0x80);
 }
 
@@ -277,13 +277,29 @@ void Noclip::noclip_code_mp2(u32 cplayer_address, u32 start_point, u32 return_lo
 }
 
 void Noclip::on_state_change(ModState old_state) {
-  if (mod_state() == ModState::ENABLED) {
+  if (mod_state() == ModState::ENABLED && old_state != ModState::ENABLED) {
     switch (GetHackManager()->get_active_game()) {
     case Game::PRIME_1:
       player_tf.read_from(mp1_static.cplayer_address + 0x2c);
       break;
     case Game::PRIME_1_GCN:
       player_tf.read_from(mp1_gc_static.cplayer_address + 0x34);
+      old_matexclude_list = read64(mp1_gc_static.cplayer_address + 0x78);
+      write64(0xffffffffffffffff, mp1_gc_static.cplayer_address + 0x78);
+      break;
+    case Game::PRIME_2:
+      const u32 cplayer_address = read32(mp2_static.cplayer_ptr_address);
+      player_vec.read_from(cplayer_address + 0x50);
+      break;
+    }
+  }
+  else if ((mod_state() == ModState::DISABLED || mod_state() == ModState::CODE_DISABLED) && old_state == ModState::ENABLED) {
+    switch (GetHackManager()->get_active_game()) {
+    case Game::PRIME_1:
+      player_tf.read_from(mp1_static.cplayer_address + 0x2c);
+      break;
+    case Game::PRIME_1_GCN:
+      write64(old_matexclude_list, mp1_gc_static.cplayer_address + 0x78);
       break;
     case Game::PRIME_2:
       const u32 cplayer_address = read32(mp2_static.cplayer_ptr_address);

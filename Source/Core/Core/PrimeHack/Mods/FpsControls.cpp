@@ -485,6 +485,13 @@ void FpsControls::add_strafe_code_mp1_ntsc() {
   code_changes.emplace_back(0x80287288, 0x60000000);
 
   // Clamp current xy velocity @ 802872A4
+  // lfs f1, -0x7ec0(r2)
+  // fmuls f0, f30, f30
+  // fcmpo cr0, f0, f1
+  // ble 0x134
+  // fmuls f0, f31, f31
+  // fcmpo cr0, f0, f1
+  // ble 0x128
   // lfs f0, 0x138(r29)
   // lfs f1, 0x13c(r29)
   // fmuls f0, f0, f0
@@ -496,7 +503,7 @@ void FpsControls::add_strafe_code_mp1_ntsc() {
   // add r3, r0, r3
   // lfs f0, 0(r3)
   // fcmpo cr0, f1, f0
-  // ble 0x114
+  // ble 0xf8
   // lfs f3, 0xe8(r29)
   // lfs f2, 0x138(r29)
   // fdivs f2, f2, f1
@@ -510,33 +517,40 @@ void FpsControls::add_strafe_code_mp1_ntsc() {
   // stfs f2, 0x13c(r29)
   // fmuls f2, f3, f2
   // stfs f2, 0x100(r29)
-  // b 0xDC
-  code_changes.emplace_back(0x802872a4, 0xc01d0138);
-  code_changes.emplace_back(0x802872a8, 0xc03d013c);
-  code_changes.emplace_back(0x802872ac, 0xec000032);
-  code_changes.emplace_back(0x802872b0, 0xec21007a);
-  code_changes.emplace_back(0x802872b4, 0xfc200834);
-  code_changes.emplace_back(0x802872b8, 0xec200830);
-  code_changes.emplace_back(0x802872bc, 0x3862dfc0);
-  code_changes.emplace_back(0x802872c0, 0x5400103a);
-  code_changes.emplace_back(0x802872c4, 0x7c601a14);
-  code_changes.emplace_back(0x802872c8, 0xc0030000);
-  code_changes.emplace_back(0x802872cc, 0xfc010040);
-  code_changes.emplace_back(0x802872d0, 0x40810114);
-  code_changes.emplace_back(0x802872d4, 0xc07d00e8);
-  code_changes.emplace_back(0x802872d8, 0xc05d0138);
-  code_changes.emplace_back(0x802872dc, 0xec420824);
-  code_changes.emplace_back(0x802872e0, 0xec4000b2);
-  code_changes.emplace_back(0x802872e4, 0xd05d0138);
-  code_changes.emplace_back(0x802872e8, 0xec4300b2);
-  code_changes.emplace_back(0x802872ec, 0xd05d00fc);
-  code_changes.emplace_back(0x802872f0, 0xc05d013c);
-  code_changes.emplace_back(0x802872f4, 0xec420824);
-  code_changes.emplace_back(0x802872f8, 0xec4000b2);
-  code_changes.emplace_back(0x802872fc, 0xd05d013c);
-  code_changes.emplace_back(0x80287300, 0xec4300b2);
-  code_changes.emplace_back(0x80287304, 0xd05d0100);
-  code_changes.emplace_back(0x80287308, 0x480000dc);
+  // b 0xc0
+  code_changes.emplace_back(0x802872a4, 0xc0228140);
+  code_changes.emplace_back(0x802872a8, 0xec1e07b2);
+  code_changes.emplace_back(0x802872ac, 0xfc000840);
+  code_changes.emplace_back(0x802872b0, 0x40810134);
+  code_changes.emplace_back(0x802872b4, 0xec1f07f2);
+  code_changes.emplace_back(0x802872b8, 0xfc000840);
+  code_changes.emplace_back(0x802872bc, 0x40810128);
+  code_changes.emplace_back(0x802872c0, 0xc01d0138);
+  code_changes.emplace_back(0x802872c4, 0xc03d013c);
+  code_changes.emplace_back(0x802872c8, 0xec000032);
+  code_changes.emplace_back(0x802872cc, 0xec21007a);
+  code_changes.emplace_back(0x802872d0, 0xfc200834);
+  code_changes.emplace_back(0x802872d4, 0xec200830);
+  code_changes.emplace_back(0x802872d8, 0x3862dfc0);
+  code_changes.emplace_back(0x802872dc, 0x5400103a);
+  code_changes.emplace_back(0x802872e0, 0x7c601a14);
+  code_changes.emplace_back(0x802872e4, 0xc0030000);
+  code_changes.emplace_back(0x802872e8, 0xfc010040);
+  code_changes.emplace_back(0x802872ec, 0x408100f8);
+  code_changes.emplace_back(0x802872f0, 0xc07d00e8);
+  code_changes.emplace_back(0x802872f4, 0xc05d0138);
+  code_changes.emplace_back(0x802872f8, 0xec420824);
+  code_changes.emplace_back(0x802872fc, 0xec4000b2);
+  code_changes.emplace_back(0x80287300, 0xd05d0138);
+  code_changes.emplace_back(0x80287304, 0xec4300b2);
+  code_changes.emplace_back(0x80287308, 0xd05d00fc);
+  code_changes.emplace_back(0x8028730c, 0xc05d013c);
+  code_changes.emplace_back(0x80287310, 0xec420824);
+  code_changes.emplace_back(0x80287314, 0xec4000b2);
+  code_changes.emplace_back(0x80287318, 0xd05d013c);
+  code_changes.emplace_back(0x8028731c, 0xec4300b2);
+  code_changes.emplace_back(0x80287320, 0xd05d0100);
+  code_changes.emplace_back(0x80287324, 0x480000c0);
 
   // max speed values table @ 805afce0
   code_changes.emplace_back(0x805afce0, 0x41480000);

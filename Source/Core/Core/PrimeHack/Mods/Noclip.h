@@ -47,6 +47,8 @@ private:
     } mp2_static;
   };
 
+  u64 old_matexclude_list;
+
   Transform player_tf;
   bool had_control = true;
 
