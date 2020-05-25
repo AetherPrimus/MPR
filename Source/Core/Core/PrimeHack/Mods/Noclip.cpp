@@ -281,6 +281,8 @@ void Noclip::on_state_change(ModState old_state) {
     switch (GetHackManager()->get_active_game()) {
     case Game::PRIME_1:
       player_tf.read_from(mp1_static.cplayer_address + 0x2c);
+      old_matexclude_list = read64(mp1_gc_static.cplayer_address + 0x70);
+      write64(0xffffffffffffffff, mp1_gc_static.cplayer_address + 0x70);
       break;
     case Game::PRIME_1_GCN:
       player_tf.read_from(mp1_gc_static.cplayer_address + 0x34);
@@ -289,21 +291,27 @@ void Noclip::on_state_change(ModState old_state) {
       break;
     case Game::PRIME_2:
       const u32 cplayer_address = read32(mp2_static.cplayer_ptr_address);
-      player_vec.read_from(cplayer_address + 0x50);
+      if (mem_check(cplayer_address)) {
+        player_vec.read_from(cplayer_address + 0x50);
+        old_matexclude_list = read64(cplayer_address + 0x70);
+        write64(0xffffffffffffffff, cplayer_address + 0x70);
+      }
       break;
     }
   }
   else if ((mod_state() == ModState::DISABLED || mod_state() == ModState::CODE_DISABLED) && old_state == ModState::ENABLED) {
     switch (GetHackManager()->get_active_game()) {
     case Game::PRIME_1:
-      player_tf.read_from(mp1_static.cplayer_address + 0x2c);
+      write64(old_matexclude_list, mp1_gc_static.cplayer_address + 0x70);
       break;
     case Game::PRIME_1_GCN:
       write64(old_matexclude_list, mp1_gc_static.cplayer_address + 0x78);
       break;
     case Game::PRIME_2:
       const u32 cplayer_address = read32(mp2_static.cplayer_ptr_address);
-      player_vec.read_from(cplayer_address + 0x50);
+      if (mem_check(cplayer_address)) {
+        write64(old_matexclude_list, cplayer_address + 0x70);
+      }
       break;
     }
   }
