@@ -540,7 +540,7 @@
     <ClInclude Include="PrimeHack\Mods\ViewModifier.h" />
     <ClInclude Include="PrimeHack\Mods\FpsControls.h" />
     <ClInclude Include="primehack\mods\Noclip.h" />
-    <ClInclude Include="primehack\mods\ReflectiveInvulnerability.h" />
+    <ClInclude Include="primehack\mods\Invulnerability.h" />
     <ClInclude Include="primehack\mods\SkipCutscene.h" />
     <ClInclude Include="primehack\mods\SpringballButton.h" />
     <ClInclude Include="PrimeHack\PrimeUtils.h" />

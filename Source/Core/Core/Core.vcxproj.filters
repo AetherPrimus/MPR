@@ -1613,9 +1613,6 @@
     <ClInclude Include="primehack\mods\Noclip.h">
       <Filter>PrimeHack\Mods</Filter>
     </ClInclude>
-    <ClInclude Include="primehack\mods\ReflectiveInvulnerability.h">
-      <Filter>PrimeHack\Mods</Filter>
-    </ClInclude>
     <ClInclude Include="primehack\mods\SkipCutscene.h">
       <Filter>PrimeHack\Mods</Filter>
     </ClInclude>
@@ -1632,6 +1629,9 @@
       <Filter>PrimeHack\Mods</Filter>
     </ClInclude>
     <ClInclude Include="PrimeHack\Mods\ViewModifier.h">
+      <Filter>PrimeHack\Mods</Filter>
+    </ClInclude>
+    <ClInclude Include="primehack\mods\Invulnerability.h">
       <Filter>PrimeHack\Mods</Filter>
     </ClInclude>
   </ItemGroup>
