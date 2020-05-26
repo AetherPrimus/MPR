@@ -148,7 +148,7 @@ void FpsControls::run_mod_mp1_gc() {
     writef32(1.f, mp1_gc_static.angvel_max_address + i * 4 - 32);
   }
 }
-#pragma optimize("", off)
+
 void FpsControls::run_mod_mp2(Region region) {
   // VERY similar to mp1, this time CPlayer isn't TOneStatic (presumably because
   // of multiplayer mode in the GCN version?)
@@ -194,7 +194,6 @@ void FpsControls::run_mod_mp2(Region region) {
   }
   writef32(calculate_yaw_vel(), cplayer_address + 0x178);
 }
-#pragma optimize("", on)
 
 void FpsControls::mp3_handle_cursor(bool lock) {
   u32 cursor_base = read32(read32(mp3_static.cursor_ptr_address) + mp3_static.cursor_offset);
