@@ -218,6 +218,14 @@ void Noclip::init_mod(Game game, Region region) {
   case Game::PRIME_2:
     if (region == Region::NTSC) {
       noclip_code_mp2(0x804e87dc, 0x800053a4, 0x8000d694);
+      code_changes.emplace_back(0x80160d68, 0x60000000);
+      code_changes.emplace_back(0x80160d70, 0x60000000);
+      code_changes.emplace_back(0x80160d78, 0x60000000);
+      code_changes.emplace_back(0x80160d80, 0xd0410084);
+      code_changes.emplace_back(0x80160d84, 0xd0210094);
+      code_changes.emplace_back(0x80160d88, 0xd00100a4);
+      code_changes.emplace_back(0x80160d8c, 0x4bead525);
+
       mp2_static.cplayer_ptr_address = 0x804e87dc;
       mp2_static.object_list_ptr_address = 0x804e7af8;
       mp2_static.camera_uid_address = 0x804eb9b0;
@@ -226,6 +234,14 @@ void Noclip::init_mod(Game game, Region region) {
     }
     else if (region == Region::PAL) {
       noclip_code_mp2(0x804efc2c, 0x800053a4, 0x8000d694);
+      code_changes.emplace_back(0x801624e0, 0x60000000);
+      code_changes.emplace_back(0x801624e8, 0x60000000);
+      code_changes.emplace_back(0x801624f0, 0x60000000);
+      code_changes.emplace_back(0x801624f8, 0xd0410084);
+      code_changes.emplace_back(0x801624fc, 0xd0210094);
+      code_changes.emplace_back(0x80162500, 0xd00100a4);
+      code_changes.emplace_back(0x80162504, 0x4beabdad);
+
       mp2_static.cplayer_ptr_address = 0x804efc2c;
       mp2_static.object_list_ptr_address = 0x804eef48;
       mp2_static.camera_uid_address = 0x804f2f50;
