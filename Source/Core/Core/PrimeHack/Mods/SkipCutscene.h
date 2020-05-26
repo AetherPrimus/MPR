@@ -39,6 +39,7 @@ public:
       }
       break;
     }
+    initialized = true;
   }
 
 private:
