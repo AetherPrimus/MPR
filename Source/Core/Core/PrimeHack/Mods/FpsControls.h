@@ -30,7 +30,7 @@ private:
 
   void run_mod_menu(Region region);
   void run_mod_mp1();
-  void run_mod_mp2();
+  void run_mod_mp2(Region region);
   void run_mod_mp3();
   void run_mod_mp1_gc();
 
@@ -71,7 +71,17 @@ private:
       u32 angvel_limiter_address;
       u32 orbit_state_address;
       u32 lockon_address;
+      u32 tweak_player_address;
     } mp1_static;
+
+    struct {
+      u32 yaw_vel_address;
+      u32 pitch_address;
+      u32 angvel_max_address;
+      u32 orbit_state_address;
+      u32 lockon_address;
+      u32 tweak_player_address;
+    } mp1_gc_static;
 
     struct {
       u32 cplayer_ptr_address;
@@ -89,14 +99,6 @@ private:
       u32 lockon_address;
       u32 gun_lag_toc_offset;
     } mp3_static;
-
-    struct {
-      u32 yaw_vel_address;
-      u32 pitch_address;
-      u32 angvel_max_address;
-      u32 orbit_state_address;
-      u32 lockon_address;
-    } mp1_gc_static;
   };
 
   // We store our pitch value interally to have full control over it

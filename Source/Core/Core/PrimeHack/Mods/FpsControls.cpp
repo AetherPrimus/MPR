@@ -28,7 +28,7 @@ void FpsControls::run_mod(Game game, Region region) {
     run_mod_mp1();
     break;
   case Game::PRIME_2:
-    run_mod_mp2();
+    run_mod_mp2(region);
     break;
   case Game::PRIME_3:
     run_mod_mp3();
@@ -46,7 +46,7 @@ void FpsControls::calculate_pitch_delta() {
 
   pitch += static_cast<float>(GetVerticalAxis()) * compensated_sens *
     (InvertedY() ? 1.f : -1.f);
-  pitch = std::clamp(pitch, -1.58f, 1.58f);
+  pitch = std::clamp(pitch, -1.52f, 1.52f);
 }
 
 float FpsControls::calculate_yaw_vel() {
@@ -121,6 +121,8 @@ void FpsControls::run_mod_mp1() {
   calculate_pitch_delta();
   writef32(pitch, mp1_static.pitch_address);
   writef32(pitch, mp1_static.pitch_goal_address);
+  // Max pitch angle, as abs val (any higher = gimbal lock)
+  writef32(1.52f, mp1_static.tweak_player_address + 0x134);
 
   // Setting this to 0 allows yaw velocity (Z component of an angular momentum
   // vector) to affect the transform matrix freely
@@ -137,6 +139,7 @@ void FpsControls::run_mod_mp1_gc() {
 
   calculate_pitch_delta();
   writef32(pitch, mp1_gc_static.pitch_address);
+  writef32(1.52f, mp1_gc_static.tweak_player_address + 0x134);
 
   // Actual angular velocity Z address amazing
   writef32(calculate_yaw_vel() / 200.f, mp1_gc_static.yaw_vel_address);
@@ -145,8 +148,8 @@ void FpsControls::run_mod_mp1_gc() {
     writef32(1.f, mp1_gc_static.angvel_max_address + i * 4 - 32);
   }
 }
-
-void FpsControls::run_mod_mp2() {
+#pragma optimize("", off)
+void FpsControls::run_mod_mp2(Region region) {
   // VERY similar to mp1, this time CPlayer isn't TOneStatic (presumably because
   // of multiplayer mode in the GCN version?)
   u32 cplayer_address = read32(mp2_static.cplayer_ptr_address);
@@ -161,7 +164,6 @@ void FpsControls::run_mod_mp2() {
   // HACK ooo
   powerups_ptr_address = cplayer_address + 0x12ec;
   handle_beam_visor_switch(prime_two_beams, prime_two_visors);
-
 
   if (read32(cplayer_address + 0x390) != ORBIT_STATE_GRAPPLE &&
       read32(mp2_static.lockon_address)) {
@@ -179,8 +181,20 @@ void FpsControls::run_mod_mp2() {
   // For whatever god forsaken reason, writing pitch to the z component of the
   // right vector for this xf makes the gun not lag. Won't fix what ain't broken
   writef32(pitch, arm_cannon_model_matrix + 0x24);
+  u32 tweak_player_address = 0;
+  if (region == Region::NTSC) {
+    tweak_player_address = read32(read32(GPR(13) - 0x6410));
+  }
+  else if (region == Region::PAL) {
+    tweak_player_address = read32(read32(GPR(13) - 0x6368));
+  }
+  if (mem_check(tweak_player_address)) {
+    // This one's stored as degrees instead of radians
+    writef32(87.0896f, tweak_player_address + 0x180);
+  }
   writef32(calculate_yaw_vel(), cplayer_address + 0x178);
 }
+#pragma optimize("", on)
 
 void FpsControls::mp3_handle_cursor(bool lock) {
   u32 cursor_base = read32(read32(mp3_static.cursor_ptr_address) + mp3_static.cursor_offset);
@@ -590,6 +604,7 @@ void FpsControls::init_mod_mp1(Region region) {
     mp1_static.angvel_limiter_address = 0x804d3d74;
     mp1_static.orbit_state_address = 0x804d3f20;
     mp1_static.lockon_address = 0x804c00b3;
+    mp1_static.tweak_player_address = 0x804ddff8;
     powerups_ptr_address = 0x804bfcd4;
   }
   else if (region == Region::PAL) {
@@ -611,6 +626,7 @@ void FpsControls::init_mod_mp1(Region region) {
     mp1_static.angvel_limiter_address = 0x804d7cb4;
     mp1_static.orbit_state_address = 0x804d7e60;
     mp1_static.lockon_address = 0x804c3ff3;
+    mp1_static.tweak_player_address = 0x804e1f38;
     powerups_ptr_address = 0x804c3c14;
   }
   // If I add NTSC JP
@@ -623,6 +639,30 @@ void FpsControls::init_mod_mp1(Region region) {
   new_beam_address = 0x804a79f4;
   beamchange_flag_address = 0x804a79f0;
   has_beams = true;
+}
+
+void FpsControls::init_mod_mp1_gc(Region region) {
+   if (region == Region::NTSC) {
+    code_changes.emplace_back(0x8000f63c, 0x48000048);
+    code_changes.emplace_back(0x8000e538, 0x60000000);
+    code_changes.emplace_back(0x80016ee4, 0x4e800020);
+    code_changes.emplace_back(0x80014820, 0x4e800020);
+    code_changes.emplace_back(0x8000e73c, 0x60000000);
+    code_changes.emplace_back(0x8000f810, 0x48000244);
+    code_changes.emplace_back(0x8045c488, 0x4f800000);
+
+    add_strafe_code_mp1_ntsc();
+
+    mp1_gc_static.yaw_vel_address = 0x8046bac8;
+    mp1_gc_static.pitch_address = 0x8046bd68;
+    mp1_gc_static.angvel_max_address = 0x8045c28c;
+    mp1_gc_static.orbit_state_address = 0x8046b97c + 0x304;
+    mp1_gc_static.lockon_address = 0x8046bc80;
+    mp1_gc_static.tweak_player_address = 0x8045c208;
+  }
+  else if (region == Region::PAL) {
+  }
+  else {}
 }
 
 void FpsControls::init_mod_mp2(Region region) {
@@ -735,28 +775,4 @@ void FpsControls::init_mod_mp3(Region region) {
   powerups_offset = 0x58;
   has_beams = false;
 }
-
-void FpsControls::init_mod_mp1_gc(Region region) {
-   if (region == Region::NTSC) {
-    code_changes.emplace_back(0x8000f63c, 0x48000048);
-    code_changes.emplace_back(0x8000e538, 0x60000000);
-    code_changes.emplace_back(0x80016ee4, 0x4e800020);
-    code_changes.emplace_back(0x80014820, 0x4e800020);
-    code_changes.emplace_back(0x8000e73c, 0x60000000);
-    code_changes.emplace_back(0x8000f810, 0x48000244);
-    code_changes.emplace_back(0x8045c488, 0x4f800000);
-
-    add_strafe_code_mp1_ntsc();
-
-    mp1_gc_static.yaw_vel_address = 0x8046bac8;
-    mp1_gc_static.pitch_address = 0x8046bd68;
-    mp1_gc_static.angvel_max_address = 0x8045c28c;
-    mp1_gc_static.orbit_state_address = 0x8046b97c + 0x304;
-    mp1_gc_static.lockon_address = 0x8046bc80;
-  }
-  else if (region == Region::PAL) {
-  }
-  else {}
-}
-
 }
