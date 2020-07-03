@@ -44,6 +44,7 @@ private:
   // Very large code, apologies for anyone who reads this
   // corresponding assembly is in comments :)
   void add_strafe_code_mp1_ntsc();
+  void add_strafe_code_mp1_pal();
 
   void init_mod_mp1(Region region);
   void init_mod_mp2(Region region);
@@ -79,7 +80,6 @@ private:
       u32 pitch_address;
       u32 angvel_max_address;
       u32 orbit_state_address;
-      u32 lockon_address;
       u32 tweak_player_address;
     } mp1_gc_static;
 

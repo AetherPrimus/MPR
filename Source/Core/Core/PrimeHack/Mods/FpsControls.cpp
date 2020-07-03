@@ -132,7 +132,7 @@ void FpsControls::run_mod_mp1() {
 
 void FpsControls::run_mod_mp1_gc() {
   if (read32(mp1_gc_static.orbit_state_address) != ORBIT_STATE_GRAPPLE &&
-      read8(mp1_gc_static.lockon_address)) {
+      read8(mp1_gc_static.orbit_state_address)) {
     write32(0, mp1_gc_static.yaw_vel_address);
     return;
   }
@@ -576,6 +576,242 @@ void FpsControls::add_strafe_code_mp1_ntsc() {
   code_changes.emplace_back(0x805afcfc, 0x41480000);
 }
 
+void FpsControls::add_strafe_code_mp1_pal() {
+  // calculate side movement @ 80471c00
+  // stwu r1, 0x18(r1) 
+  // mfspr r0, LR
+  // stw r0, 0x1c(r1) 
+  // lwz r5, -0x5e70(r13)
+  // lwz r4, 0x2c0(r29) 
+  // cmpwi r4, 2
+  // li r4, 4
+  // bne 0x8
+  // lwz r4, 0x2bc(r29) 
+  // slwi r4, r4, 2 
+  // add r3, r4, r5
+  // lfs f1, 0x44(r3)
+  // lfs f2, 0x4(r3) 
+  // fmuls f3, f2, f27
+  // lfs f0, 0xf8(r29)
+  // fmuls f1, f1, f0
+  // fdivs f1, f1, f3
+  // lfs f0, 0xa4(r3) 
+  // stfs f0, 0x10(r1)
+  // fmuls f1, f1, f0 
+  // lfs f0, -0x4180(r2)
+  // fcmpo cr0, f30, f0
+  // lfs f0, -0x4158(r2)
+  // ble 0x8
+  // lfs f0, -0x41A0(r2)
+  // fmuls f0, f0, f1
+  // lfs f3, 0x10(r1) 
+  // fsubs f3, f3, f1
+  // fmuls f3, f3, f30
+  // fadds f0, f0, f3 
+  // stfs f0, 0x18(r1)
+  // stfs f2, 0x14(r1)
+  // addi r3, r1, 0x4
+  // addi r4, r29, 0x34
+  // addi r5, r29, 0x148
+  // bl 0xffe89bf4
+  // lfs f0, 0x18(r1)
+  // lfs f1, 0x4(r1)
+  // fsubs f0, f0, f1
+  // lfs f1, 0x10(r1) 
+  // fdivs f0, f0, f1
+  // lfs f1, -0x4158(r2)
+  // fcmpo cr0, f0, f1
+  // bge 0xc
+  // fmr f0, f1
+  // b 0x14
+  // lfs f1, -0x41A0(r2)
+  // fcmpo cr0, f0, f1
+  // ble 0x8
+  // fmr f0, f1
+  // lfs f1, 0x14(r1)
+  // fmuls f1, f0, f1
+  // lwz r0, 0x1c(r1)
+  // mtspr LR, r0
+  // addi r1, r1, -0x18
+  // blr
+  code_changes.emplace_back(0x80471c00, 0x94210018);
+  code_changes.emplace_back(0x80471c04, 0x7c0802a6);
+  code_changes.emplace_back(0x80471c08, 0x9001001c);
+  code_changes.emplace_back(0x80471c0c, 0x80ada190);
+  code_changes.emplace_back(0x80471c10, 0x809d02c0);
+  code_changes.emplace_back(0x80471c14, 0x2c040002);
+  code_changes.emplace_back(0x80471c18, 0x38800004);
+  code_changes.emplace_back(0x80471c1c, 0x40820008);
+  code_changes.emplace_back(0x80471c20, 0x809d02bc);
+  code_changes.emplace_back(0x80471c24, 0x5484103a);
+  code_changes.emplace_back(0x80471c28, 0x7c642a14);
+  code_changes.emplace_back(0x80471c2c, 0xc0230044);
+  code_changes.emplace_back(0x80471c30, 0xc0430004);
+  code_changes.emplace_back(0x80471c34, 0xec6206f2);
+  code_changes.emplace_back(0x80471c38, 0xc01d00f8);
+  code_changes.emplace_back(0x80471c3c, 0xec210032);
+  code_changes.emplace_back(0x80471c40, 0xec211824);
+  code_changes.emplace_back(0x80471c44, 0xc00300a4);
+  code_changes.emplace_back(0x80471c48, 0xd0010010);
+  code_changes.emplace_back(0x80471c4c, 0xec210032);
+  code_changes.emplace_back(0x80471c50, 0xc002be80);
+  code_changes.emplace_back(0x80471c54, 0xfc1e0040);
+  code_changes.emplace_back(0x80471c58, 0xc002bea8);
+  code_changes.emplace_back(0x80471c5c, 0x40810008);
+  code_changes.emplace_back(0x80471c60, 0xc002be60);
+  code_changes.emplace_back(0x80471c64, 0xec000072);
+  code_changes.emplace_back(0x80471c68, 0xc0610010);
+  code_changes.emplace_back(0x80471c6c, 0xec630828);
+  code_changes.emplace_back(0x80471c70, 0xec6307b2);
+  code_changes.emplace_back(0x80471c74, 0xec00182a);
+  code_changes.emplace_back(0x80471c78, 0xd0010018);
+  code_changes.emplace_back(0x80471c7c, 0xd0410014);
+  code_changes.emplace_back(0x80471c80, 0x38610004);
+  code_changes.emplace_back(0x80471c84, 0x389d0034);
+  code_changes.emplace_back(0x80471c88, 0x38bd0148);
+  code_changes.emplace_back(0x80471c8c, 0x4be89bf5);
+  code_changes.emplace_back(0x80471c90, 0xc0010018);
+  code_changes.emplace_back(0x80471c94, 0xc0210004);
+  code_changes.emplace_back(0x80471c98, 0xec000828);
+  code_changes.emplace_back(0x80471c9c, 0xc0210010);
+  code_changes.emplace_back(0x80471ca0, 0xec000824);
+  code_changes.emplace_back(0x80471ca4, 0xc022bea8);
+  code_changes.emplace_back(0x80471ca8, 0xfc000840);
+  code_changes.emplace_back(0x80471cac, 0x4080000c);
+  code_changes.emplace_back(0x80471cb0, 0xfc000890);
+  code_changes.emplace_back(0x80471cb4, 0x48000014);
+  code_changes.emplace_back(0x80471cb8, 0xc022be60);
+  code_changes.emplace_back(0x80471cbc, 0xfc000840);
+  code_changes.emplace_back(0x80471cc0, 0x40810008);
+  code_changes.emplace_back(0x80471cc4, 0xfc000890);
+  code_changes.emplace_back(0x80471cc8, 0xc0210014);
+  code_changes.emplace_back(0x80471ccc, 0xec200072);
+  code_changes.emplace_back(0x80471cd0, 0x8001001c);
+  code_changes.emplace_back(0x80471cd4, 0x7c0803a6);
+  code_changes.emplace_back(0x80471cd8, 0x3821ffe8);
+  code_changes.emplace_back(0x80471cdc, 0x4e800020);
+
+  // Apply strafe force instead of torque @ 802749a8
+  // lfs f1, -0x4180(r2)
+  // lfs f0, -0x40DC(r2)
+  // fsubs f1, f30, f1
+  // fabs f1, f1
+  // fcmpo cr0, f1, f0
+  // ble 0x2c
+  // bl 0x1fd240
+  // bl 0xffda74e0
+  // mr r5, r3
+  // mr r3, r29
+  // lfs f0, -0x4180(r2)
+  // stfs f1, 0x10(r1)
+  // stfs f0, 0x14(r1)
+  // stfs f0, 0x18(r1)
+  // addi r4, r1, 0x10
+  code_changes.emplace_back(0x802749a8, 0xc022be80);
+  code_changes.emplace_back(0x802749ac, 0xc002bf24);
+  code_changes.emplace_back(0x802749b0, 0xec3e0828);
+  code_changes.emplace_back(0x802749b4, 0xfc200a10);
+  code_changes.emplace_back(0x802749b8, 0xfc010040);
+  code_changes.emplace_back(0x802749bc, 0x4081002c);
+  code_changes.emplace_back(0x802749c0, 0x481fd241);
+  code_changes.emplace_back(0x802749c4, 0x4bda74e1);
+  code_changes.emplace_back(0x802749c8, 0x7c651b78);
+  code_changes.emplace_back(0x802749cc, 0x7fa3eb78);
+  code_changes.emplace_back(0x802749d0, 0xc002be80);
+  code_changes.emplace_back(0x802749d4, 0xd0210010);
+  code_changes.emplace_back(0x802749d8, 0xd0010014);
+  code_changes.emplace_back(0x802749dc, 0xd0010018);
+  code_changes.emplace_back(0x802749e0, 0x38810010);
+
+  // disable rotation on LR analog
+  code_changes.emplace_back(0x802743C4, 0x4bfffc71); // jump/address updated
+  code_changes.emplace_back(0x8027406C, 0x4800000c); // updated following addresses
+  code_changes.emplace_back(0x80274780, 0x60000000);
+  code_changes.emplace_back(0x802747C4, 0x60000000);
+  code_changes.emplace_back(0x80274460, 0x60000000);
+  code_changes.emplace_back(0x802745A0, 0x60000000);
+  code_changes.emplace_back(0x8027466C, 0x60000000);
+
+  // Clamp current xy velocity @ 80274688
+  // lfs f1, -0x7ec0(r2)
+  // fmuls f0, f30, f30
+  // fcmpo cr0, f0, f1
+  // ble 0x134
+  // fmuls f0, f31, f31
+  // fcmpo cr0, f0, f1
+  // ble 0x128
+  // lfs f0, 0x148(r29)
+  // lfs f1, 0x14c(r29)
+  // fmuls f0, f0, f0
+  // fmadds f1, f1, f1, f0
+  // frsqrte f1, f1
+  // fres f1, f1
+  // addi r3, r2, -0x2180
+  // slwi r0, r0, 2
+  // add r3, r0, r3
+  // lfs f0, 0(r3)
+  // fcmpo cr0, f1, f0
+  // ble 0xf8
+  // lfs f3, 0xf8(r29)
+  // lfs f2, 0x148(r29)
+  // fdivs f2, f2, f1
+  // fmuls f2, f0, f2
+  // stfs f2, 0x148(r29)
+  // fmuls f2, f3, f2
+  // stfs f2, 0x10c(r29)
+  // lfs f2, 0x14c(r29)
+  // fdivs f2, f2, f1
+  // fmuls f2, f0, f2
+  // stfs f2, 0x14c(r29)
+  // fmuls f2, f3, f2
+  // stfs f2, 0x110(r29)
+  // b 0xc0
+  code_changes.emplace_back(0x80274688, 0xc0228140);
+  code_changes.emplace_back(0x8027468c, 0xec1e07b2);
+  code_changes.emplace_back(0x80274690, 0xfc000840);
+  code_changes.emplace_back(0x80274694, 0x40810134);
+  code_changes.emplace_back(0x80274698, 0xec1f07f2);
+  code_changes.emplace_back(0x8027469c, 0xfc000840);
+  code_changes.emplace_back(0x802746a0, 0x40810128);
+  code_changes.emplace_back(0x802746a4, 0xc01d0148);
+  code_changes.emplace_back(0x802746a8, 0xc03d014c);
+  code_changes.emplace_back(0x802746ac, 0xec000032);
+  code_changes.emplace_back(0x802746b0, 0xec21007a);
+  code_changes.emplace_back(0x802746b4, 0xfc200834);
+  code_changes.emplace_back(0x802746b8, 0xec200830);
+  code_changes.emplace_back(0x802746bc, 0x3862de80);
+  code_changes.emplace_back(0x802746c0, 0x5400103a);
+  code_changes.emplace_back(0x802746c4, 0x7c601a14);
+  code_changes.emplace_back(0x802746c8, 0xc0030000);
+  code_changes.emplace_back(0x802746cc, 0xfc010040);
+  code_changes.emplace_back(0x802746d0, 0x408100f8);
+  code_changes.emplace_back(0x802746d4, 0xc07d00f8);
+  code_changes.emplace_back(0x802746d8, 0xc05d0148);
+  code_changes.emplace_back(0x802746dc, 0xec420824);
+  code_changes.emplace_back(0x802746e0, 0xec4000b2);
+  code_changes.emplace_back(0x802746e4, 0xd05d0148);
+  code_changes.emplace_back(0x802746e8, 0xec4300b2);
+  code_changes.emplace_back(0x802746ec, 0xd05d010c);
+  code_changes.emplace_back(0x802746f0, 0xc05d014c);
+  code_changes.emplace_back(0x802746f4, 0xec420824);
+  code_changes.emplace_back(0x802746f8, 0xec4000b2);
+  code_changes.emplace_back(0x802746fc, 0xd05d014c);
+  code_changes.emplace_back(0x80274700, 0xec4300b2);
+  code_changes.emplace_back(0x80274704, 0xd05d0110);
+  code_changes.emplace_back(0x80274708, 0x480000c0);
+
+  // No change needed
+  // max speed values table @ 80471ce0
+  code_changes.emplace_back(0x80471ce0, 0x41480000);
+  code_changes.emplace_back(0x80471ce4, 0x41480000);
+  code_changes.emplace_back(0x80471ce8, 0x41480000);
+  code_changes.emplace_back(0x80471cec, 0x41480000);
+  code_changes.emplace_back(0x80471cf0, 0x41480000);
+  code_changes.emplace_back(0x80471cf4, 0x41480000);
+  code_changes.emplace_back(0x80471cf8, 0x41480000);
+  code_changes.emplace_back(0x80471cfc, 0x41480000);
+}
+
 void FpsControls::init_mod_mp1(Region region) {
   if (region == Region::NTSC) {
     // This instruction change is used in all 3 games, all 3 regions. It's an update to what I believe
@@ -652,14 +888,28 @@ void FpsControls::init_mod_mp1_gc(Region region) {
 
     add_strafe_code_mp1_ntsc();
 
-    mp1_gc_static.yaw_vel_address = 0x8046bac8;
-    mp1_gc_static.pitch_address = 0x8046bd68;
-    mp1_gc_static.angvel_max_address = 0x8045c28c;
+    mp1_gc_static.yaw_vel_address = 0x8046B97C + 0x14C;
+    mp1_gc_static.pitch_address = 0x8046B97C + 0x3EC;
+    mp1_gc_static.angvel_max_address = 0x8045c208 + 0x84;
     mp1_gc_static.orbit_state_address = 0x8046b97c + 0x304;
-    mp1_gc_static.lockon_address = 0x8046bc80;
     mp1_gc_static.tweak_player_address = 0x8045c208;
   }
   else if (region == Region::PAL) {
+    code_changes.emplace_back(0x8000FB4C, 0x48000048);  
+    code_changes.emplace_back(0x8000EA60, 0x60000000);
+    code_changes.emplace_back(0x80017878, 0x4e800020);
+    code_changes.emplace_back(0x80015258, 0x4e800020);
+    code_changes.emplace_back(0x8000EC64, 0x60000000);
+    code_changes.emplace_back(0x8000FD20, 0x4800022C);
+    code_changes.emplace_back(0x803e43b4, 0x4f800000);
+    
+    add_strafe_code_mp1_pal();
+    
+    mp1_gc_static.yaw_vel_address = 0x803F38A4 + 0x15C;
+    mp1_gc_static.pitch_address = 0x803F38A4 + 0x3fC;
+    mp1_gc_static.angvel_max_address = 0x803E4134 + 0x84;
+    mp1_gc_static.orbit_state_address = 0x803F38A4 + 0x304;
+    mp1_gc_static.tweak_player_address = 0x803E4134;
   }
   else {}
 }
