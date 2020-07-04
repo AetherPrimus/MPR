@@ -122,7 +122,7 @@ void Noclip::run_mod_mp1_gc(bool has_control) {
   writef32(movement_vec.x, mp1_gc_static.cplayer_address + 0x34 + 0x0c);
   writef32(movement_vec.y, mp1_gc_static.cplayer_address + 0x34 + 0x1c);
   writef32(movement_vec.z, mp1_gc_static.cplayer_address + 0x34 + 0x2c);
-  write32(0, mp1_gc_static.cplayer_address + 0x258);
+  write32(0, mp1_gc_static.cplayer_address + 0x258 + (GetHackManager()->get_active_region() == Region::PAL ? 0x10 : 0));
 }
 
 void Noclip::run_mod_mp2(bool has_control) {
@@ -211,7 +211,19 @@ void Noclip::init_mod(Game game, Region region) {
       mp1_gc_static.camera_uid_address = 0x8045c5b4;
     }
     else if (region == Region::PAL) {
-      // todo
+      noclip_code_mp1_gc(0x803f38a4, 0x80471d00, 0x80053fa4);
+
+      code_changes.emplace_back(0x802724ac, 0x60000000);
+      code_changes.emplace_back(0x802724bc, 0x60000000);
+      code_changes.emplace_back(0x802724c4, 0x60000000);
+      code_changes.emplace_back(0x802724ec, 0xd0010078);
+      code_changes.emplace_back(0x802724f0, 0xd0210088);
+      code_changes.emplace_back(0x802724f4, 0xd0410098);
+      code_changes.emplace_back(0x802724f8, 0x48089419);
+
+      mp1_gc_static.cplayer_address = 0x803f38a4;
+      mp1_gc_static.state_mgr_address = 0x803e2088;
+      mp1_gc_static.camera_uid_address = 0x803e44dc;
     }
     else {}
     break;

@@ -1,7 +1,7 @@
 #include "Core/PrimeHack/Mods/ViewModifier.h"
 
 #include "Core/PrimeHack/PrimeUtils.h"
-#pragma optimize("", off)
+
 namespace prime {
 void ViewModifier::run_mod(Game game, Region region) {
   switch (game) {
@@ -262,5 +262,3 @@ void ViewModifier::init_mod_mp3(Region region) {
   else {}
 }
 }  // namespace prime
-
-#pragma optimize("", on)

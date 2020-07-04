@@ -20,7 +20,9 @@ public:
       if (region == Region::NTSC) {
         add_return_one(0x801d5528);
       }
-      else if (region == Region::PAL) {}
+      else if (region == Region::PAL) {
+        add_return_one(0x801c6640);
+      }
       break;
     case Game::PRIME_2:
       if (region == Region::NTSC) {
