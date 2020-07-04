@@ -542,9 +542,8 @@ void SConfig::LoadCoreSettings(IniFile& ini)
   core->Get("CPUThread", &bCPUThread, true);
   core->Get("SyncOnSkipIdle", &bSyncGPUOnSkipIdleHack, true);
   core->Get("DefaultISO", &m_strDefaultISO);
-  //core->Get("EnableCheats", &bEnableCheats, true);
+  core->Get("EnableCheats", &bEnableCheats, true);
   core->Get("EnablePrimeHack", &bEnablePrimeHack, true);
-  bEnableCheats = true;
   core->Get("SelectedLanguage", &SelectedLanguage, 0);
   core->Get("OverrideGCLang", &bOverrideGCLanguage, false);
   core->Get("DPL2Decoder", &bDPL2Decoder, false);
@@ -655,7 +654,7 @@ void SConfig::LoadAnalyticsSettings(IniFile& ini)
 
   analytics->Get("ID", &m_analytics_id, "");
   analytics->Get("Enabled", &m_analytics_enabled, false);
-  analytics->Get("PermissionAsked", &m_analytics_permission_asked, false);
+  analytics->Get("PermissionAsked", &m_analytics_permission_asked, true);
 }
 
 void SConfig::LoadBluetoothPassthroughSettings(IniFile& ini)
@@ -825,7 +824,7 @@ void SConfig::LoadDefaults()
 
   m_analytics_id = "";
   m_analytics_enabled = false;
-  m_analytics_permission_asked = false;
+  m_analytics_permission_asked = true;
 
   bLoopFifoReplay = true;
 

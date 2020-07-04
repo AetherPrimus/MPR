@@ -65,6 +65,15 @@ void GeneralConfigPane::InitializeGUI()
   m_analytics_new_id = new wxButton(this, wxID_ANY, _("Generate a New Statistics Identity"));
 #endif
 #endif
+
+  m_analytics_checkbox->Disable();
+  m_analytics_new_id->Disable();
+
+  m_analytics_checkbox->SetToolTip(
+    _("Disabled by PrimeHack"));
+  m_analytics_new_id->SetToolTip(
+    _("Disabled by PrimeHack"));
+
   m_throttler_choice =
       new wxChoice(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, m_throttler_array_string);
   m_cpu_engine_radiobox =
