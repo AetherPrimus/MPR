@@ -63,7 +63,6 @@ void InitializeHack(std::string const& mkb_device_name, std::string const& mkb_d
   hack_mgr.enable_mod("fps_controls");
   hack_mgr.enable_mod("springball_button");
   hack_mgr.enable_mod("skip_cutscene");
-  hack_mgr.enable_mod("invulnerability");
 }
 
 bool CheckBeamCtl(int beam_num) {
