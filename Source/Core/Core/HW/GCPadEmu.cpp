@@ -89,6 +89,38 @@ GCPad::GCPad(const unsigned int index) : m_index(index)
     m_always_connected = new ControllerEmu::BooleanSetting(_trans("Always Connected"), false));
   m_options->boolean_settings.emplace_back(std::make_unique<ControllerEmu::BooleanSetting>(
     _trans("Iterative Input"), false, ControllerEmu::SettingType::VIRTUAL));
+
+  groups.emplace_back(m_primehack_camera =
+    new ControllerEmu::ControlGroup(_trans("PrimeHack"), "Camera"));
+
+  m_primehack_camera->numeric_settings.emplace_back(
+    m_primehack_camera_sensitivity =
+    new ControllerEmu::NumericSetting(_trans("Camera Sensitivity"), 0.15, 1, 200));
+
+  m_primehack_camera->numeric_settings.emplace_back(
+    m_primehack_fieldofview =
+    new ControllerEmu::NumericSetting(_trans("Field of View"), 0.60, 1, 170));
+
+  m_primehack_camera->boolean_settings.emplace_back(
+    m_primehack_invert_x = new ControllerEmu::BooleanSetting("Invert X Axis", false));
+
+  m_primehack_camera->boolean_settings.emplace_back(
+    m_primehack_invert_y = new ControllerEmu::BooleanSetting("Invert Y Axis", false));
+
+  groups.emplace_back(m_primehack_stick = new ControllerEmu::AnalogStick(_trans("Camera Control"), 1.0f));
+
+  m_primehack_stick->numeric_settings.emplace_back(
+    m_primehack_horizontal_sensitivity = new ControllerEmu::NumericSetting(_trans("Horizontal Sensitivity"), 0.45, 1, 100));
+
+
+  m_primehack_stick->numeric_settings.emplace_back(
+    m_primehack_vertical_sensitivity = new ControllerEmu::NumericSetting(_trans("Vertical Sensitivity"), 0.35, 1, 100));
+
+  groups.emplace_back(m_primehack_misc =
+    new ControllerEmu::ControlGroup(_trans("Miscellaneous")));
+
+  groups.emplace_back(m_primehack_modes =
+    new ControllerEmu::PrimeHackModes(_trans("Control Mode")));
 }
 
 std::string GCPad::GetName() const
@@ -116,6 +148,14 @@ ControllerEmu::ControlGroup* GCPad::GetGroup(PadGroup group)
     return m_mic;
   case PadGroup::Options:
     return m_options;
+  case PadGroup::PrimeCameraControl:
+    return m_primehack_stick;
+  case PadGroup::PrimeCameraOpt:
+    return m_primehack_camera;
+  case PadGroup::PrimeControlMode:
+    return m_primehack_modes;
+  case PadGroup::PrimeMisc:
+    return m_primehack_misc;
   default:
     return nullptr;
   }
@@ -246,4 +286,37 @@ bool GCPad::GetMicButton() const
 {
   const auto lock = GetStateLock();
   return (0.0f != m_mic->controls.back()->control_ref->State());
+}
+
+bool GCPad::CheckSpringBallCtrl()
+{
+  return m_primehack_misc->controls[0].get()->control_ref->State() > 0.5;
+}
+
+std::tuple<double, double> GCPad::GetPrimeStickXY()
+{
+  double x,y;
+  m_primehack_stick->GetState(&x, &y);
+
+  return std::make_tuple(x * m_primehack_horizontal_sensitivity->GetValue() * 100, y * m_primehack_vertical_sensitivity->GetValue() * -100);
+}
+
+bool GCPad::PrimeControllerMode()
+{
+  return m_primehack_modes->GetSelectedDevice() == 1;
+}
+
+void GCPad::SetPrimeMode(bool controller)
+{
+  m_primehack_modes->SetSelectedDevice(controller ? 1 : 0);
+}
+
+std::tuple<double, double, double, bool, bool> GCPad::GetPrimeSettings()
+{
+  std::tuple t = std::make_tuple(
+    m_primehack_camera_sensitivity->GetValue() * 100, 0.f,
+    m_primehack_fieldofview->GetValue() * 100, m_primehack_invert_x->GetValue(),
+    m_primehack_invert_y->GetValue());
+
+  return t;
 }

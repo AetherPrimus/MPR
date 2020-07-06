@@ -23,6 +23,7 @@
 #include "Core/ConfigManager.h"
 #include "Core/Config/GraphicsSettings.h"
 #include "VideoCommon/VideoConfig.h"
+#include <Core\HW\GCPad.h>
 
 namespace prime {
 namespace {
@@ -148,8 +149,13 @@ std::tuple<float, float, float> GetArmXYZ() {
 void UpdateHackSettings() {
   double camera, cursor, fov;
   bool invertx, inverty;
-  std::tie<double, double, double, bool, bool>(camera, cursor, fov, invertx, inverty) =
-    Wiimote::PrimeSettings();
+
+  if (hack_mgr.get_active_game() == Game::PRIME_1_GCN)
+    std::tie<double, double, double, bool, bool>(camera, cursor, fov, invertx, inverty) =
+      Pad::PrimeSettings();
+  else
+    std::tie<double, double, double, bool, bool>(camera, cursor, fov, invertx, inverty) =
+      Wiimote::PrimeSettings();
 
   SetSensitivity((float)camera);
   SetCursorSensitivity((float)cursor);
@@ -199,21 +205,29 @@ void SetInvertedX(bool inverted) {
 }
 
 double GetHorizontalAxis() {
-  if (Wiimote::PrimeUseController()) {
+  if (hack_mgr.get_active_game() == Game::PRIME_1_GCN) {
+    if (Pad::PrimeUseController()) {
+      return std::get<0>(Pad::GetPrimeStickXY());
+    } 
+  }
+  else if (Wiimote::PrimeUseController()) {
     return std::get<0>(Wiimote::GetPrimeStickXY());
-  }
-  else {
-    return static_cast<double>(g_mouse_input->GetDeltaHorizontalAxis());
-  }
+  } 
+  
+  return static_cast<double>(g_mouse_input->GetDeltaHorizontalAxis());
 }
 
 double GetVerticalAxis() {
-  if (Wiimote::PrimeUseController()) {
+  if (hack_mgr.get_active_game() == Game::PRIME_1_GCN) {
+    if (Pad::PrimeUseController()) {
+      return std::get<1>(Pad::GetPrimeStickXY());
+    } 
+  }
+  else if (Wiimote::PrimeUseController()) {
     return std::get<1>(Wiimote::GetPrimeStickXY());
-  }
-  else {
-    return static_cast<double>(g_mouse_input->GetDeltaVerticalAxis());
-  }
+  } 
+
+  return static_cast<double>(g_mouse_input->GetDeltaVerticalAxis());
 }
 
 std::string const& GetCtlDeviceName() {
