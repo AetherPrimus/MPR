@@ -43,6 +43,7 @@ void AutoEFB::init_mod(Game game, Region region) {
   default:
     break;
   }
+  initialized = true;
 }
 
 }
