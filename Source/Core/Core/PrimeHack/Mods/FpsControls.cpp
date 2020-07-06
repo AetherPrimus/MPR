@@ -613,7 +613,7 @@ void FpsControls::add_strafe_code_mp1_pal() {
   // addi r3, r1, 0x4
   // addi r4, r29, 0x34
   // addi r5, r29, 0x148
-  // bl 0xffe89bf4
+  // bl 0xffe89b68
   // lfs f0, 0x18(r1)
   // lfs f1, 0x4(r1)
   // fsubs f0, f0, f1
@@ -669,7 +669,7 @@ void FpsControls::add_strafe_code_mp1_pal() {
   code_changes.emplace_back(0x80471c80, 0x38610004);
   code_changes.emplace_back(0x80471c84, 0x389d0034);
   code_changes.emplace_back(0x80471c88, 0x38bd0148);
-  code_changes.emplace_back(0x80471c8c, 0x4be89bf5);
+  code_changes.emplace_back(0x80471c8c, 0x4be89b69);
   code_changes.emplace_back(0x80471c90, 0xc0010018);
   code_changes.emplace_back(0x80471c94, 0xc0210004);
   code_changes.emplace_back(0x80471c98, 0xec000828);

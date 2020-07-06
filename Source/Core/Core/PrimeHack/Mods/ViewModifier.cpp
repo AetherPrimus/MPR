@@ -95,14 +95,16 @@ void ViewModifier::run_mod_mp1_gc() {
   if (!mem_check(camera_address)) {
     return;
   }
+  // PAL added some stuff related to SFX in CActor, affects all derived
+  const u32 pal_offset = GetHackManager()->get_active_region() == Region::PAL ? 0x10 : 0;
 
   const u32 r13 = GPR(13);
   const float fov = std::min(GetFov(), 170.f);
-  writef32(fov, camera_address + 0x15c);
+  writef32(fov, camera_address + 0x15c + pal_offset);
   writef32(fov, r13 + mp1_gc_static.global_fov1_table_off);
   writef32(fov, r13 + mp1_gc_static.global_fov2_table_off);
 
-  adjust_viewmodel(fov, mp1_gc_static.gun_pos_address, camera_address + 0x160,
+  adjust_viewmodel(fov, mp1_gc_static.gun_pos_address, camera_address + 0x160 + pal_offset,
     0x3d200000);
 
   if (GetCulling() || GetFov() > 101.f) {
@@ -211,12 +213,19 @@ void ViewModifier::init_mod_mp1_gc(Region region) {
     mp1_gc_static.camera_mgr_address = 0x8045c5b4;
     mp1_gc_static.object_list_address = 0x8045a9b8;
     mp1_gc_static.global_fov1_table_off = -0x7ff0;
-    mp1_gc_static.global_fov1_table_off = -0x7fec;
+    mp1_gc_static.global_fov2_table_off = -0x7fec;
     mp1_gc_static.gun_pos_address = 0x8045bce8;
     mp1_gc_static.culling_address = 0x80337a24;
   }
   else if (region == Region::PAL) {
-
+    //statemgr 803e2088
+    mp1_gc_static.camera_mgr_address = 0x803e44dc;
+    mp1_gc_static.object_list_address = 0x803e2898;
+    mp1_gc_static.global_fov1_table_off = -0x7fe8;
+    mp1_gc_static.global_fov2_table_off = -0x7fe4;
+    //tweakgun 803e3bc8
+    mp1_gc_static.gun_pos_address = 0x803e3bc8 + 0x4c;
+    mp1_gc_static.culling_address = 0x80320424;
   }
   else {}
 }
@@ -252,4 +261,4 @@ void ViewModifier::init_mod_mp3(Region region) {
   }
   else {}
 }
-}
+}  // namespace prime
