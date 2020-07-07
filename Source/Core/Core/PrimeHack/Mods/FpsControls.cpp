@@ -209,6 +209,7 @@ void FpsControls::mp3_handle_cursor(bool lock) {
 // this game is        
 void FpsControls::run_mod_mp3() {
   u32 cplayer_address = read32(read32(read32(mp3_static.cplayer_ptr_address) + 0x04) + 0x2184);
+
   if (!mem_check(cplayer_address)) {
     // Handles death screen cursor
     if (read8(mp3_static.cursor_dlg_enabled_address)) {
@@ -216,6 +217,33 @@ void FpsControls::run_mod_mp3() {
     }
     return;
   }
+
+  //u32 obj_list_iterator = read32(read32(mp3_static.cplayer_ptr_address - 4) + 0x1018) + 4;
+  //const u32 base = obj_list_iterator;
+  //while (true) {
+  //  u32 obj = read32(obj_list_iterator);
+  //  u32 flags = read32(obj + 0x38);
+
+  //  bool should_process = false;
+  //  if (flags & 0x20000000) {
+  //    should_process = ((flags >> 8) & 0x2000) == 0;
+  //  }
+  //  should_process |= ((flags >> 8) & 0x1000) != 0;
+
+  //  if (should_process) {
+  //    u32 vt = read32(obj);
+  //    u32 vtf = read32(vt + 0xc);
+  //    if (vtf == 0x802e0dac) { // ensure Accept is this function
+  //      writef32(1, obj + 0x154);
+  //    }
+  //  }
+  //  u16 next_id = read16(obj_list_iterator + 6);
+  //  if (next_id == 0xffff) {
+  //    break;
+  //  }
+  //  obj_list_iterator = (base + next_id * 8);
+  //}
+
   // HACK ooo
   powerups_ptr_address = cplayer_address + 0x35a8;
   handle_beam_visor_switch({}, prime_three_visors);
