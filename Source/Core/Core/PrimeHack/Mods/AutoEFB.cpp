@@ -4,7 +4,7 @@
 
 namespace prime {
 void AutoEFB::run_mod(Game game, Region region) {
-  if (game != Game::PRIME_2 || game != Game::PRIME_3) {
+  if (game != Game::PRIME_2 && game != Game::PRIME_3) {
     return;
   }
 
@@ -43,6 +43,7 @@ void AutoEFB::init_mod(Game game, Region region) {
   default:
     break;
   }
+  initialized = true;
 }
 
 }

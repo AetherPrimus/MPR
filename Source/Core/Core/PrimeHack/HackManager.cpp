@@ -46,12 +46,24 @@ void HackManager::run_active_mods() {
     active_region = Region::PAL;
     break;
   case 0x80010070:
-    active_game = Game::PRIME_3;
-    active_region = Region::NTSC;
+    if (PowerPC::HostRead_U32(0x80576ae8) == 0x7d415378) {
+      active_game = Game::PRIME_3;
+      active_region = Region::NTSC;
+    }
+    else {
+      active_game = Game::INVALID_GAME;
+      active_region = Region::INVALID_REGION;
+    }
     break;
   case 0x3a800000:
-    active_game = Game::PRIME_3;
-    active_region = Region::PAL;
+    if (PowerPC::HostRead_U32(0x805795a4) == 0x7d415378) {
+      active_game = Game::PRIME_3;
+      active_region = Region::PAL;
+    }
+    else {
+      active_game = Game::INVALID_GAME;
+      active_region = Region::INVALID_REGION;
+    }
     break;
   default:
     u32 region_code = PowerPC::HostRead_U32(0x80000000);
@@ -86,7 +98,7 @@ void HackManager::run_active_mods() {
         mod.second->save_original_instructions();
       }
       if (mod.second->should_apply_changes()) {
-        mod.second->apply_instruction_changes();
+          mod.second->apply_instruction_changes();
       }
     }
       
