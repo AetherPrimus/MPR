@@ -27,6 +27,8 @@ bool GetEFBTexture();
 bool GetBloom();
 
 bool GetNoclip();
+bool GetInvulnerability();
+bool GetSkipCutscene();
 
 bool GetEnableSecondaryGunFX();
 

@@ -136,6 +136,8 @@ struct SConfig
 
   // PrimeHack cheats
   bool bPrimeNoclip = false;
+  bool bPrimeInvulnerability = false;
+  bool bPrimeSkipCutscene = false;
 
   // Interface settings
   bool bConfirmStop = false;

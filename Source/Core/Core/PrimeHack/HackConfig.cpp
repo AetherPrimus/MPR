@@ -118,6 +118,14 @@ bool GetNoclip() {
   return SConfig::GetInstance().bPrimeNoclip;
 }
 
+bool GetInvulnerability() {
+  return SConfig::GetInstance().bPrimeInvulnerability;
+}
+
+bool GetSkipCutscene() {
+  return SConfig::GetInstance().bPrimeSkipCutscene;
+}
+
 bool GetEFBTexture() {
   return Config::Get(Config::GFX_HACK_SKIP_EFB_COPY_TO_RAM);
 }

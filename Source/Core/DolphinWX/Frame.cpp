@@ -80,6 +80,7 @@
 #include "VideoCommon/RenderBase.h"
 #include "VideoCommon/VertexShaderManager.h"
 #include "VideoCommon/VideoConfig.h"
+#include <Core/PrimeHack/PrimeUtils.h>
 
 #if defined(HAVE_X11) && HAVE_X11
 
@@ -1579,6 +1580,16 @@ void CFrame::ParseHotkeys()
   if (IsHotkey(HK_NOCLIP_TOGGLE))
   {
     SConfig::GetInstance().bPrimeNoclip = !SConfig::GetInstance().bPrimeNoclip;
+  }
+
+  if (IsHotkey(HK_INVULNERABILITY_TOGGLE))
+  {
+    SConfig::GetInstance().bPrimeInvulnerability = !SConfig::GetInstance().bPrimeInvulnerability;
+  }
+
+  if (IsHotkey(HK_SKIP_CUTSCENE))
+  {
+    SConfig::GetInstance().bPrimeSkipCutscene = !SConfig::GetInstance().bPrimeSkipCutscene;
   }
 
   static float debugSpeed = 1.0f;

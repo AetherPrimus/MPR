@@ -108,6 +108,8 @@ void HackManager::update_mod_states()
   set_mod_enabled("disable_bloom", GetBloom());
   set_mod_enabled("cut_beam_fx_mp1", GetEnableSecondaryGunFX());
   set_mod_enabled("noclip", GetNoclip());
+  set_mod_enabled("invulnerability", GetInvulnerability());
+  set_mod_enabled("skip_cutscene", GetSkipCutscene());
 }
 
 void HackManager::add_mod(std::string const &name, std::unique_ptr<PrimeMod> mod) {
