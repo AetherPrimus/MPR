@@ -156,7 +156,7 @@ const std::string hotkey_labels[] = {
 
     _trans("Toggle Noclip"),
     _trans("Toggle Invulnerability"),
-    _trans("Toggle Press Start to Skip Cutscene")
+    _trans("Toggle Skippable Cutscenes")
 };
 // clang-format on
 static_assert(NUM_HOTKEYS == sizeof(hotkey_labels) / sizeof(hotkey_labels[0]),

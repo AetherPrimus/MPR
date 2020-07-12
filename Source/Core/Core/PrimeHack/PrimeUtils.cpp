@@ -1,4 +1,5 @@
 #include "Core/PrimeHack/PrimeUtils.h"
+#include <Common\Timer.h>
 
 std::string info_str;
 
@@ -26,6 +27,10 @@ std::array<std::array<CodeChange, static_cast<int>(Game::MAX_VAL) + 1>,
   static_cast<int>(Region::MAX_VAL) + 1> noclip_enable_codes;
 std::array<std::array<CodeChange, static_cast<int>(Game::MAX_VAL) + 1>,
   static_cast<int>(Region::MAX_VAL) + 1> noclip_disable_codes;
+
+static u32 noclip_msg_time;
+static u32 invulnerability_msg_time;
+static u32 cutscene_msg_time;
 
 u8 read8(u32 addr) {
   return PowerPC::HostRead_U8(addr);
@@ -233,6 +238,27 @@ std::string GetDevInfo()
   std::string result = ss.str();
 
   return result;
+}
+
+// Common::Timer::GetTimeMs()
+std::tuple<u32, u32, u32> GetCheatsTime()
+{
+  return std::make_tuple(noclip_msg_time, invulnerability_msg_time, cutscene_msg_time);
+}
+
+void AddCheatsTime(int index, u32 time)
+{
+  switch (index)
+  {
+  case 0:
+    noclip_msg_time = Common::Timer::GetTimeMs() + 3000;
+    break;
+  case 1:
+    invulnerability_msg_time = Common::Timer::GetTimeMs() + 3000;
+    break;
+  case 2:
+    cutscene_msg_time = Common::Timer::GetTimeMs() + 3000;
+  }
 }
 
 void ClrDevInfo()

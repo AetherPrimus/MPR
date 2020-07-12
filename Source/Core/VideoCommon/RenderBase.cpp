@@ -361,6 +361,24 @@ void Renderer::DrawDebugText()
     final_purple = prime::GetDevInfo() + "\n";
   }
 
+  if (std::get<0>(prime::GetCheatsTime()) > Common::Timer::GetTimeMs()) // Noclip
+  {
+    final_purple += std::string("Noclip: ") + (prime::GetNoclip() ? "Disabled" : "Enabled");
+    final_purple += "\n";
+  }
+
+  if (std::get<1>(prime::GetCheatsTime()) > Common::Timer::GetTimeMs()) // Invulnerability
+  {
+    final_purple += std::string("Invulnerability: ") + (prime::GetInvulnerability() ? "Disabled" : "Enabled");
+    final_purple += "\n";
+  }
+
+  if (std::get<2>(prime::GetCheatsTime()) > Common::Timer::GetTimeMs()) // Skip Cutscene
+  {
+    final_purple += std::string("Skippable Cutscenes: ") + (prime::GetSkipCutscene() ? "Disabled" : "Enabled");
+    final_purple += "\n";
+  }
+    
   if (SConfig::GetInstance().m_ShowLag)
   {
     final_cyan += StringFromFormat("Lag: %" PRIu64 "\n", Movie::GetCurrentLagCount());
@@ -472,6 +490,9 @@ void Renderer::DrawDebugText()
 
   if (g_ActiveConfig.bOverlayProjStats)
     final_cyan += Statistics::ToStringProj();
+
+
+
 
   // and then the text
   RenderText(final_cyan, 20, 20, 0xFF00FFFF);

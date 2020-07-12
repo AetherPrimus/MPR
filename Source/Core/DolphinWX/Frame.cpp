@@ -1580,16 +1580,19 @@ void CFrame::ParseHotkeys()
   if (IsHotkey(HK_NOCLIP_TOGGLE))
   {
     SConfig::GetInstance().bPrimeNoclip = !SConfig::GetInstance().bPrimeNoclip;
+    prime::AddCheatsTime(0, 3000);
   }
 
   if (IsHotkey(HK_INVULNERABILITY_TOGGLE))
   {
     SConfig::GetInstance().bPrimeInvulnerability = !SConfig::GetInstance().bPrimeInvulnerability;
+    prime::AddCheatsTime(1, 3000);
   }
 
   if (IsHotkey(HK_SKIP_CUTSCENE))
   {
     SConfig::GetInstance().bPrimeSkipCutscene = !SConfig::GetInstance().bPrimeSkipCutscene;
+    prime::AddCheatsTime(2, 3000);
   }
 
   static float debugSpeed = 1.0f;
