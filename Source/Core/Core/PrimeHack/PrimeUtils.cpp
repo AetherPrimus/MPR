@@ -1,5 +1,5 @@
 #include "Core/PrimeHack/PrimeUtils.h"
-#include <Common\Timer.h>
+#include <Common/Timer.h>
 
 std::string info_str;
 
