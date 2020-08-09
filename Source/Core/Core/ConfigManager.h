@@ -134,6 +134,11 @@ struct SConfig
   bool bDSPREHACK = false;
   bool m_is_mios = false;
 
+  // PrimeHack cheats
+  bool bPrimeNoclip = false;
+  bool bPrimeInvulnerability = false;
+  bool bPrimeSkipCutscene = false;
+
   // Interface settings
   bool bConfirmStop = false;
   bool bHideCursor = false;

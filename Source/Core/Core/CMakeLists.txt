@@ -227,14 +227,18 @@ add_library(core
   PowerPC/JitCommon/JitCache.cpp
   PrimeHack/PrimeUtils.cpp
   PrimeHack/PrimeUtils.h
-  PrimeHack/Games/MP1.cpp
-  PrimeHack/Games/MP1.h
-  PrimeHack/Games/MP2.cpp
-  PrimeHack/Games/MP2.h
-  PrimeHack/Games/MP3.cpp
-  PrimeHack/Games/MP3.h
+  PrimeHack/Mods/AutoEFB.cpp
+  PrimeHack/Mods/CutBeamFxMP1.cpp
+  PrimeHack/Mods/DisableBloom.h
+  PrimeHack/Mods/FpsControls.cpp
+  PrimeHack/Mods/Invulnerability.cpp
+  PrimeHack/Mods/Noclip.cpp
+  PrimeHack/Mods/SkipCutscene.h
+  PrimeHack/Mods/SpringballButton.cpp
+  PrimeHack/Mods/ViewModifier.cpp
   PrimeHack/HackConfig.cpp
   PrimeHack/HackManager.cpp
+  PrimeHack/Transform.cpp
 )
 
 if(_M_X86)

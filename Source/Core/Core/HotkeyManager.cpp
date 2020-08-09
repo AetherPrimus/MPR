@@ -153,6 +153,10 @@ const std::string hotkey_labels[] = {
     _trans("Save State"),
     _trans("Load State"),
     _trans("Reload Post-Processing Shaders"),
+
+    _trans("Toggle Noclip"),
+    _trans("Toggle Invulnerability"),
+    _trans("Toggle Skippable Cutscenes")
 };
 // clang-format on
 static_assert(NUM_HOTKEYS == sizeof(hotkey_labels) / sizeof(hotkey_labels[0]),
@@ -258,7 +262,8 @@ const std::array<HotkeyGroupInfo, NUM_HOTKEY_GROUPS> groups_info = {
      {_trans("Save State"), HK_SAVE_STATE_SLOT_1, HK_SAVE_STATE_SLOT_SELECTED},
      {_trans("Select State"), HK_SELECT_STATE_SLOT_1, HK_SELECT_STATE_SLOT_10},
      {_trans("Load Last State"), HK_LOAD_LAST_STATE_1, HK_LOAD_LAST_STATE_10},
-     {_trans("Other State Hotkeys"), HK_SAVE_FIRST_STATE, HK_RELOAD_POSTPROCESS_SHADERS}}
+     {_trans("Other State Hotkeys"), HK_SAVE_FIRST_STATE, HK_RELOAD_POSTPROCESS_SHADERS},
+     {_trans("PrimeHack"), HK_NOCLIP_TOGGLE, HK_SKIP_CUTSCENE }}
 };
 
 HotkeyManager::HotkeyManager()

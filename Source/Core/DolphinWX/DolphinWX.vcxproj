@@ -83,6 +83,7 @@
     <ClCompile Include="Debugger\MemoryWindow.cpp" />
     <ClCompile Include="Debugger\RegisterView.cpp" />
     <ClCompile Include="Debugger\RegisterWindow.cpp" />
+    <ClCompile Include="Debugger\MatrixPanel.cpp" />
     <ClCompile Include="Debugger\WatchView.cpp" />
     <ClCompile Include="Debugger\WatchWindow.cpp" />
     <ClCompile Include="DolphinSlider.cpp" />
@@ -143,6 +144,7 @@
     <ClInclude Include="Config\InterfaceConfigPane.h" />
     <ClInclude Include="Config\PathConfigPane.h" />
     <ClInclude Include="Config\WiiConfigPane.h" />
+    <ClInclude Include="Debugger\MatrixPanel.h" />
     <ClInclude Include="DolphinSlider.h" />
     <ClInclude Include="ISOProperties\FilesystemPanel.h" />
     <ClInclude Include="ISOProperties\InfoPanel.h" />

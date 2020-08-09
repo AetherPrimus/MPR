@@ -2197,12 +2197,6 @@ void VideoConfigDiag::OnUpdateUI(wxUpdateUIEvent& ev)
       m_toggle_culling->SetValue(true);
     }
 
-    if (prime::GetEnableSecondaryGunFX())
-      m_toggle_secondaryFX->Disable();
-
-    if (m_toggle_secondaryFX->IsChecked())
-      m_toggle_secondaryFX->Disable();
-
     if (vconfig.backend_info.bSupportsComputeTextureEncoding)
     {
       Compute_Shader_encoding->Disable();

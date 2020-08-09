@@ -379,12 +379,6 @@ void InputConfigDialog::UpdateGUI()
     {
       padSetting->UpdateGUI();
     }
-
-    if (cgBox->control_group->name == "Mode") {
-      bool checked = Wiimote::PrimeUseController();
-      cgBox->mouse_but->SetValue(!checked);
-      cgBox->controller_but->SetValue(checked);
-    }
   }
 }
 
@@ -1160,9 +1154,15 @@ ControlGroupBox::ControlGroupBox(ControllerEmu::ControlGroup* const group, wxWin
   {
     mouse_but = new wxRadioButton(parent, wxID_ANY, "Mouse", wxDefaultPosition);
     controller_but = new wxRadioButton(parent, wxID_ANY, "Controller", wxDefaultPosition);
-
-    mouse_but->SetValue(!Wiimote::PrimeUseController());
-    controller_but->SetValue(Wiimote::PrimeUseController());
+    
+    if (parent->GetGrandParent()->GetLabel().StartsWith("GameCube")) {
+      mouse_but->SetValue(!Pad::PrimeUseController());
+      controller_but->SetValue(Pad::PrimeUseController());
+    }
+    else {
+      mouse_but->SetValue(!Wiimote::PrimeUseController());
+      controller_but->SetValue(Wiimote::PrimeUseController());
+    }
 
     auto* const mode_sizer = new wxBoxSizer(wxHORIZONTAL);
     mode_sizer->Add(mouse_but);

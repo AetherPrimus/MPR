@@ -5,10 +5,19 @@
 #pragma once
 
 #include "DolphinWX/Input/InputConfigDiag.h"
+#include <wx/notebook.h>
 
 class GCPadInputConfigDialog final : public InputConfigDialog
 {
 public:
   GCPadInputConfigDialog(wxWindow* parent, InputConfig& config, const wxString& name,
                          int port_num = 0);
+  void AddPrimeHackTab(wxNotebook* notebook);
+  void OnPageChanged(wxBookCtrlEvent& ev);
+  void OnModeChanged(wxCommandEvent& ex);
+  void OnUpdateUI(wxEvent& ex);
+  void UpdateUI(bool checked);
+
+  ControlGroupBox* m_primehack_stick;
+  ControlGroupBox* m_primehack_modes;
 };

@@ -80,6 +80,7 @@
 #include "VideoCommon/RenderBase.h"
 #include "VideoCommon/VertexShaderManager.h"
 #include "VideoCommon/VideoConfig.h"
+#include <Core/PrimeHack/PrimeUtils.h>
 
 #if defined(HAVE_X11) && HAVE_X11
 
@@ -1574,6 +1575,31 @@ void CFrame::ParseHotkeys()
   if (IsHotkey(HK_TOGGLE_MATERIAL_TEXTURES))
   {
     Config::SetCurrent(Config::GFX_HIRES_MATERIAL_MAPS, !Config::Get(Config::GFX_HIRES_MATERIAL_MAPS));
+  }
+
+  if (SConfig::GetInstance().bEnableCheats) {
+    if (IsHotkey(HK_NOCLIP_TOGGLE))
+    {
+      SConfig::GetInstance().bPrimeNoclip = !SConfig::GetInstance().bPrimeNoclip;
+      prime::AddCheatsTime(0, 3000);
+    }
+
+    if (IsHotkey(HK_INVULNERABILITY_TOGGLE))
+    {
+      SConfig::GetInstance().bPrimeInvulnerability = !SConfig::GetInstance().bPrimeInvulnerability;
+      prime::AddCheatsTime(1, 3000);
+    }
+
+    if (IsHotkey(HK_SKIP_CUTSCENE))
+    {
+      SConfig::GetInstance().bPrimeSkipCutscene = !SConfig::GetInstance().bPrimeSkipCutscene;
+      prime::AddCheatsTime(2, 3000);
+    }
+  }
+  else {
+    SConfig::GetInstance().bPrimeNoclip = false;
+    SConfig::GetInstance().bPrimeInvulnerability = false;
+    SConfig::GetInstance().bPrimeSkipCutscene = false;
   }
 
   static float debugSpeed = 1.0f;
