@@ -379,6 +379,17 @@ void InputConfigDialog::UpdateGUI()
     {
       padSetting->UpdateGUI();
     }
+
+    if (cgBox->control_group->type == ControllerEmu::GroupType::PrimeHackModes) {
+      if (GetTitle().StartsWith("GameCube")) {
+        cgBox->mouse_but->SetValue(!Pad::PrimeUseController());
+        cgBox->controller_but->SetValue(Pad::PrimeUseController());
+      }
+      else {
+        cgBox->mouse_but->SetValue(!Wiimote::PrimeUseController());
+        cgBox->controller_but->SetValue(Wiimote::PrimeUseController());
+      }
+    }
   }
 }
 
