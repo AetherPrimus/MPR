@@ -1,7 +1,6 @@
 #include "Core/PrimeHack/Mods/FpsControls.h"
 
 #include "Core/PrimeHack/PrimeUtils.h"
-
 namespace prime {
 namespace {  
   const std::array<int, 4> prime_one_beams = {0, 2, 1, 3};
@@ -206,7 +205,7 @@ void FpsControls::mp3_handle_cursor(bool lock) {
   }
 }
 
-// this game is        
+// this game is
 void FpsControls::run_mod_mp3() {
   u32 cplayer_address = read32(read32(read32(mp3_static.cplayer_ptr_address) + 0x04) + 0x2184);
 
@@ -217,6 +216,13 @@ void FpsControls::run_mod_mp3() {
     }
     return;
   }
+
+  // HACK ooo
+  powerups_ptr_address = cplayer_address + 0x35a8;
+  handle_beam_visor_switch({}, prime_three_visors);
+
+  // Handle Interactable Entities
+  bool lock_camera = false;
 
   u32 obj_list_iterator = read32(read32(mp3_static.cplayer_ptr_address - 4) + 0x1018) + 4;
   const u32 base = obj_list_iterator;
@@ -233,26 +239,47 @@ void FpsControls::run_mod_mp3() {
     if (should_process) {
       u32 vt = read32(obj);
       u32 vtf = read32(vt + 0xc);
+
       if (vtf == 0x802e0dac) { // ensure Accept is this function
-        writef32(1, obj + 0x154);
-      }
-      if (vtf == 0x802e0de4) {
-        if (read32(obj + 0x204) == 1) {
-          writef32(1.f, obj + 0x1fc);
-          write32(2, obj + 0x204);
+        u32 state = read32(obj + 0x14c);
+
+        DevInfo("OBJ", "(state: %x) (addr: %x) (flags: %x)", state, obj, read32(obj + 0x38));
+
+        // if object is active
+        if (state > 0) {
+          // Using flags as identifiers is crude. Better system to come.
+          switch (flags) {
+            case 0x200001d4:
+            case 0x200001c0:
+            case 0x200001c4:
+            case 0x200001ce:
+              break;
+
+            default:
+              lock_camera = true;
+          }
         }
       }
+      //if (vtf == 0x802e0de4) {
+      //  if (read32(obj + 0x204) == 1) { // Rotary puzzle
+      //    writef32(1.f, obj + 0x1fc);
+      //    write32(2, obj + 0x204);
+
+      //    //DevInfo("Rotatory Puzzle", "%x", obj);
+      //  }
+      //}
     }
+
     u16 next_id = read16(obj_list_iterator + 6);
     if (next_id == 0xffff) {
       break;
     }
+
     obj_list_iterator = (base + next_id * 8);
   }
 
-  // HACK ooo
-  powerups_ptr_address = cplayer_address + 0x35a8;
-  handle_beam_visor_switch({}, prime_three_visors);
+  if (lock_camera)
+    return;
 
   // This is VERY LIKELY not to be "boss address" as that would be dynamic (LOL)
   // this is just something that always seems to match every ridley fight, but
