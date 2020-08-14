@@ -218,6 +218,7 @@ public:
   bool CheckBeamCtrl(int beam_count);
   bool CheckBeamScrollCtrl(bool direction);
   bool CheckSpringBallCtrl();
+  bool CheckImprovedMotion();
   bool PrimeControllerMode();
 
   void SetPrimeMode(bool controller);

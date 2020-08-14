@@ -435,6 +435,8 @@ Wiimote::Wiimote(const unsigned int index) : m_index(index), ir_sin(0), ir_cos(1
   m_primehack_misc->controls.emplace_back(
     new ControllerEmu::Input("Spring Ball", "Spring Ball"));
 
+  m_primehack_misc->boolean_settings.emplace_back(
+    new ControllerEmu::BooleanSetting("Improved Motion Controls", true));
 
   // --- reset eeprom/register/values to default ---
   Reset();
@@ -595,6 +597,11 @@ bool Wiimote::CheckBeamScrollCtrl(bool direction)
 bool Wiimote::CheckSpringBallCtrl()
 {
   return m_primehack_misc->controls[0].get()->control_ref->State() > 0.5;
+}
+
+bool Wiimote::CheckImprovedMotion()
+{
+  return m_primehack_misc->boolean_settings[0].get()->GetValue();
 }
 
 std::tuple<double, double> Wiimote::GetPrimeStickXY()

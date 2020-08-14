@@ -81,6 +81,7 @@ bool CheckVisorScroll(bool direction);
 bool CheckBeam(int beam_count);
 bool CheckBeamScroll(bool direction);
 bool CheckSpringBall();
+bool CheckImprovedMotion();
 bool CheckForward();
 bool CheckBack();
 bool CheckLeft();

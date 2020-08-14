@@ -243,6 +243,20 @@ void FpsControls::run_mod_mp3() {
       if (vtf == 0x802e0dac) { // ensure Accept is this function
         u32 state = read32(obj + 0x14c);
 
+        if (ImprovedMotionControls()) {
+          if (state == 3) {
+            u32 const val = read32(obj + 0x154);
+            float step = *reinterpret_cast<float const *>(&val);
+
+            if (CheckForward())
+              step += 0.05f;
+            if (CheckBack())
+              step -= 0.05f;
+
+            writef32(std::clamp(step, 0.f, 1.f), obj + 0x154);
+          }
+        }
+
         DevInfo("OBJ", "(state: %x) (addr: %x) (flags: %x)", state, obj, read32(obj + 0x38));
 
         // if object is active
