@@ -363,19 +363,19 @@ void Renderer::DrawDebugText()
 
   if (std::get<0>(prime::GetCheatsTime()) > Common::Timer::GetTimeMs()) // Noclip
   {
-    final_purple += std::string("Noclip: ") + (prime::GetNoclip() ? "Disabled" : "Enabled");
+    final_purple += std::string("Noclip: ") + (prime::GetNoclip() ? "Enabled" : "Disabled");
     final_purple += "\n";
   }
 
   if (std::get<1>(prime::GetCheatsTime()) > Common::Timer::GetTimeMs()) // Invulnerability
   {
-    final_purple += std::string("Invulnerability: ") + (prime::GetInvulnerability() ? "Disabled" : "Enabled");
+    final_purple += std::string("Invulnerability: ") + (prime::GetInvulnerability() ? "Enabled" : "Disabled");
     final_purple += "\n";
   }
 
   if (std::get<2>(prime::GetCheatsTime()) > Common::Timer::GetTimeMs()) // Skip Cutscene
   {
-    final_purple += std::string("Skippable Cutscenes: ") + (prime::GetSkipCutscene() ? "Disabled" : "Enabled");
+    final_purple += std::string("Skippable Cutscenes: ") + (prime::GetSkipCutscene() ? "Enabled" : "Disabled");
     final_purple += "\n";
   }
     
