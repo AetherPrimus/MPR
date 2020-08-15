@@ -226,6 +226,7 @@ void FpsControls::run_mod_mp3() {
 
   u32 obj_list_iterator = read32(read32(mp3_static.cplayer_ptr_address - 4) + 0x1018) + 4;
   const u32 base = obj_list_iterator;
+
   while (true) {
     u32 obj = read32(obj_list_iterator);
     u32 flags = read32(obj + 0x38);
@@ -257,23 +258,17 @@ void FpsControls::run_mod_mp3() {
           }
         }
 
-        DevInfo("OBJ", "(state: %x) (addr: %x) (flags: %x)", state, obj, read32(obj + 0x38));
+        //DevInfo("OBJ", "(state: %x) (addr: %x) (flags: %x) (editorid: %x)", state, obj, flags, read32(obj + 0xC));
 
-        // if object is active
-        if (state > 0) {
-          // Using flags as identifiers is crude. Better system to come.
-          switch (flags) {
-            case 0x200001d4:
-            case 0x200001c0:
-            case 0x200001c4:
-            case 0x200001ce:
-              break;
-
-            default:
-              lock_camera = true;
+        if (LockCameraInPuzzles()) {
+          // if object is active
+          if (state > 0) {
+            lock_camera = true;
           }
-        }
+        }   
       }
+
+      // context sensitive func 1 80eaab34
       //if (vtf == 0x802e0de4) {
       //  if (read32(obj + 0x204) == 1) { // Rotary puzzle
       //    writef32(1.f, obj + 0x1fc);

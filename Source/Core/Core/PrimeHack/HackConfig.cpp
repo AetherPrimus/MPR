@@ -118,6 +118,10 @@ bool UseMPAutoEFB() {
   return Config::Get(Config::AUTO_EFB);
 }
 
+bool LockCameraInPuzzles() {
+  return Config::Get(Config::LOCKCAMERA_IN_PUZZLES);
+}
+
 bool GetNoclip() {
   return SConfig::GetInstance().bPrimeNoclip;
 }

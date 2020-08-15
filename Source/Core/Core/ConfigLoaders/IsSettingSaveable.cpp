@@ -156,6 +156,7 @@ bool IsSettingSaveable(const Config::ConfigLocation& config_location)
       Config::TOGGLE_PRIMEHACK_INFO.location,
       Config::TOGGLE_ARM_REPOSITION.location,
       Config::AUTO_EFB.location,
+      Config::LOCKCAMERA_IN_PUZZLES.location,
       Config::ARMPOSITION_MODE.location,
       Config::ARMPOSITION_LEFTRIGHT.location,
       Config::ARMPOSITION_UPDOWN.location,

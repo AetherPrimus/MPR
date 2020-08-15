@@ -327,6 +327,8 @@ static wxString autoefb_desc =  _("Automatically disables 'Store EFB Copies to T
   "while the Scan Visor is active in Metroid Prime 2 and Metroid Prime 3. \n\n"
   "While 'Store EFB Copies to Texture Only' may improve performance, having it "
   "enabled will break the scan visor in Metroid Prime 2 and Metroid Prime 3.");
+static wxString motionlock_desc =  _("Automatically locks the camera in ALL motion puzzles and buttons."
+  "\n\nBe warned, this will make it impossible to pass certain puzzles such as welding puzzles and keypads. There is a hotkey to toggle this setting.");
 static wxString guneffects_desc = _("Reintroduce the original secondary gun effects that were in the GameCube version of Metroid Prime.\n\n"
                 "These effects were disabled and cut in the Trilogy but still remained as unused assets.");
 static wxString bloom_desc =  _("Disables Bloom.\n\nSource: TheHatedGravity and dreamsyntax.");
@@ -1463,6 +1465,8 @@ VideoConfigDiag::VideoConfigDiag(wxWindow* parent, const std::string& title)
       new wxStaticBoxSizer(wxVERTICAL, page_primehack, _("Graphics"));
     graphics_sizer->AddSpacer(space5);
     graphics_sizer->Add(CreateCheckBox(page_primehack, _("Auto Toggle EFB copies to Texture"), (autoefb_desc), Config::AUTO_EFB), 0, wxEXPAND | wxLEFT | wxRIGHT, space5);
+    graphics_sizer->AddSpacer(space5);
+    graphics_sizer->Add(CreateCheckBox(page_primehack, _("Lock Camera in Motion Puzzles [Warning]"), (motionlock_desc), Config::LOCKCAMERA_IN_PUZZLES), 0, wxEXPAND | wxLEFT | wxRIGHT, space5);
     graphics_sizer->AddSpacer(space5);
     graphics_sizer->Add(m_toggle_secondaryFX, 0, wxEXPAND | wxLEFT | wxRIGHT, space5);
     graphics_sizer->AddSpacer(space5);

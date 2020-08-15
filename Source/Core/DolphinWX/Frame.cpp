@@ -1602,6 +1602,11 @@ void CFrame::ParseHotkeys()
     SConfig::GetInstance().bPrimeSkipCutscene = false;
   }
 
+  if (IsHotkey(HK_MOTIONS_LOCK))
+  {
+    Config::SetCurrent(Config::LOCKCAMERA_IN_PUZZLES, !Config::Get(Config::LOCKCAMERA_IN_PUZZLES));
+  }
+
   static float debugSpeed = 1.0f;
   if (IsHotkey(HK_FREELOOK_DECREASE_SPEED, true))
     debugSpeed /= 1.1f;
