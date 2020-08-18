@@ -1,4 +1,5 @@
 #include "Core/PrimeHack/Transform.h"
+#include <Core/PrimeHack/PrimeUtils.h>
 #include "Core/PowerPC/PowerPC.h"
 
 #include <cstring>
@@ -8,14 +9,13 @@ namespace prime {
 
 void vec3::read_from(u32 address) {
   for (int i = 0; i < 3; i++) {
-    u32 const val = PowerPC::HostRead_U32(address + i * 4);
-    arr[i] = *reinterpret_cast<float const *>(&val);
+    arr[i] = readf32(address + i * 4);
   }
 }
 
 void vec3::write_to(u32 address) {
   for (int i = 0; i < 3; i++) {
-    PowerPC::HostWrite_F32(arr[i], address + i * 4);
+    writef32(arr[i], address + i * 4);
   }
 }
 
@@ -77,14 +77,13 @@ void Transform::build_rotation(float yaw, float pitch, float roll) {
 
 void Transform::read_from(u32 address) {
   for (int i = 0; i < sizeof(Transform) / 4; i++) {
-    const u32 data = PowerPC::HostRead_U32(address + i * 4);
-    m[i / 4][i % 4] = *reinterpret_cast<float const *>(&data);
+    m[i / 4][i % 4] = readf32(address + i * 4);
   }
 }
 
 void Transform::write_to(u32 address) {
   for (int i = 0; i < sizeof(Transform) / 4; i++) {
-    PowerPC::HostWrite_F32(m[i / 4][i % 4], address + i * 4);
+    writef32(m[i / 4][i % 4], address + i * 4);
   }
 }
 }

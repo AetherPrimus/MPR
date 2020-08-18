@@ -1,5 +1,6 @@
 #include "Core/PrimeHack/PrimeUtils.h"
 #include <Common/Timer.h>
+#include <Common/BitUtils.h>
 
 std::string info_str;
 
@@ -50,6 +51,10 @@ u32 readi(u32 addr) {
 
 u64 read64(u32 addr) {
   return PowerPC::HostRead_U64(addr);
+}
+
+float readf32(u32 addr) {
+  return Common::BitCast<float>(read32(addr));
 }
 
 void write8(u8 var, u32 addr) {

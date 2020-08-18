@@ -246,8 +246,7 @@ void FpsControls::run_mod_mp3() {
 
         if (ImprovedMotionControls()) {
           if (state == 3) {
-            u32 const val = read32(obj + 0x154);
-            float step = *reinterpret_cast<float const *>(&val);
+            float step = readf32(obj + 0x154);
 
             if (CheckForward())
               step += 0.05f;
