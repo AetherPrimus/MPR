@@ -20,10 +20,10 @@
 
 #include "Core/HW/Wiimote.h"
 #include "Core/HW/WiimoteEmu/WiimoteEmu.h"
+#include "Core/HW/GCPad.h"
 #include "Core/ConfigManager.h"
 #include "Core/Config/GraphicsSettings.h"
 #include "VideoCommon/VideoConfig.h"
-#include <Core/HW/GCPad.h>
 
 namespace prime {
 namespace {
@@ -63,7 +63,6 @@ void InitializeHack(std::string const& mkb_device_name, std::string const& mkb_d
   hack_mgr.enable_mod("fov_modifier");
   hack_mgr.enable_mod("fps_controls");
   hack_mgr.enable_mod("springball_button");
-  hack_mgr.enable_mod("skip_cutscene");
 }
 
 bool CheckBeamCtl(int beam_num) {

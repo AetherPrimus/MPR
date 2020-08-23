@@ -1,7 +1,6 @@
 #include "Core/PrimeHack/Mods/Noclip.h"
-
 #include "Core/PrimeHack/PrimeUtils.h"
-#pragma optimize("", off)
+
 namespace prime {
 
 void Noclip::run_mod(Game game, Region region) {
