@@ -1587,7 +1587,6 @@ void CFrame::ParseHotkeys()
     if (IsHotkey(HK_INVULNERABILITY_TOGGLE))
     {
       SConfig::GetInstance().bPrimeInvulnerability = !SConfig::GetInstance().bPrimeInvulnerability;
-      prime::AddCheatsTime(1, 3000);
     }
 
     if (IsHotkey(HK_SKIP_CUTSCENE))
