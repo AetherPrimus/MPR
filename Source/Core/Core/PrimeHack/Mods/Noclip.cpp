@@ -324,6 +324,17 @@ void Noclip::init_mod(Game game, Region region) {
       mp3_static.cam_uid_ptr_address = 0x805c6c78;
     }
     else if (region == Region::PAL) {
+      //noclip_code_mp3(0x805c6c40, 0x80004380, 0x8000bbfc);//
+      //code_changes.emplace_back(0x80177DF8, 0x60000000);
+      //code_changes.emplace_back(0x80177E00, 0x60000000);
+      //code_changes.emplace_back(0x80177E08, 0x60000000);
+      //code_changes.emplace_back(0x80177E10, 0xd0410084);
+      //code_changes.emplace_back(0x80177E14, 0xd0210094);
+      //code_changes.emplace_back(0x80177E18, 0xd00100a4);
+      //code_changes.emplace_back(0x80177E1C, 0x4be938a1);
+
+      //mp3_static.state_mgr_ptr_address = 0x805c6c40;//
+      //mp3_static.cam_uid_ptr_address = 0x805c6c78;//
     }
     else {}
     break;
