@@ -2,8 +2,6 @@
 
 #include "Core/PrimeHack/PrimeUtils.h"
 
-#include <string>
-
 namespace prime {
 namespace {  
   const std::array<int, 4> prime_one_beams = {0, 2, 1, 3};
@@ -20,6 +18,25 @@ namespace {
     std::make_tuple<int, int>(2, 0x0d), std::make_tuple<int, int>(3, 0x0e)};
 
   constexpr u32 ORBIT_STATE_GRAPPLE = 5;
+
+  bool is_string_ridley(u32 string_base) {
+    if (string_base == 0) {
+      return false;
+    }
+
+    const char ridley_str[] = "Meta Ridley";
+    constexpr auto str_len = sizeof(ridley_str) - 1;
+    int str_idx = 0;
+
+    while (read16(string_base) != 0 && str_idx < str_len) {
+      if (static_cast<char>(read16(string_base)) != ridley_str[str_idx]) {
+        return false;
+      }
+      str_idx++;
+      string_base += 2;
+    }
+    return str_idx == str_len && read16(string_base) == 0;
+  }
 }
 void FpsControls::run_mod(Game game, Region region) {
   switch (game) {
@@ -246,15 +263,6 @@ void FpsControls::run_mod_mp3() {
   u32 obj_list_iterator = read32(read32(mp3_static.cplayer_ptr_address - 4) + 0x1018) + 4;
   const u32 base = obj_list_iterator;
 
-  u32 boss_name = read32(read32(read32(read32(0x8066e1ec) + 0x6e0) + 0x24) + 0xe8 + 0x68);
-  std::string s;
-  while (read16(boss_name) != 0) {
-    s += (char)read16(boss_name);
-    boss_name += 2;
-  }
-  DevInfo("Boss Name ", "%s", s.c_str());
-
-
   while (true) {
     u32 obj = read32(obj_list_iterator);
     u32 flags = read32(obj + 0x38);
@@ -317,17 +325,17 @@ void FpsControls::run_mod_mp3() {
   if (lock_camera)
     return;
 
-  // This is VERY LIKELY not to be "boss address" as that would be dynamic (LOL)
-  // this is just something that always seems to match every ridley fight, but
-  // nowhere else (except defense drone). Never looked into it. Never will. This
-  // stupid game cannot be debugged, I just don't care about it anymore.
-  if (read8(mp3_static.cursor_dlg_enabled_address) ||
-    read64(mp3_static.boss_id_address) == mp3_static.boss_id) {
-    if (read64(mp3_static.boss_id_address) == mp3_static.boss_id && !fighting_ridley) {
+  u32 boss_name_str = read32(read32(read32(read32(mp3_static.boss_info_address) + 0x6e0) + 0x24) + 0x150);
+  bool is_boss_metaridley = is_string_ridley(boss_name_str);
+
+  // Compare based on boss name string, Meta Ridley only appears once
+  if (read8(mp3_static.cursor_dlg_enabled_address) || is_boss_metaridley) {
+    if (is_boss_metaridley && !fighting_ridley) {
       fighting_ridley = true;
       set_state(ModState::CODE_DISABLED);
     }
     mp3_handle_cursor(false);
+    return;
   }
   else {
     if (fighting_ridley) {
@@ -1092,8 +1100,7 @@ void FpsControls::init_mod_mp3(Region region) {
     mp3_static.cursor_dlg_enabled_address = 0x805c8d77;
     mp3_static.cursor_ptr_address = 0x8066fd08;
     mp3_static.cursor_offset = 0xc54;
-    mp3_static.boss_id_address = 0x805c6f44;
-    mp3_static.boss_id = 0x000201cd442f0000;
+    mp3_static.boss_info_address = 0x8066e1ec;
     mp3_static.lockon_address = 0x805c6db7;
     mp3_static.gun_lag_toc_offset = 0x5ff0;
   }
@@ -1117,8 +1124,7 @@ void FpsControls::init_mod_mp3(Region region) {
     mp3_static.cursor_dlg_enabled_address = 0x805cc1d7;
     mp3_static.cursor_ptr_address = 0x80673588;
     mp3_static.cursor_offset = 0xd04;
-    mp3_static.boss_id_address = 0x805ca3c4;
-    mp3_static.boss_id = 0x00020230442f0000;
+    mp3_static.boss_info_address = 0x80671a6c;
     mp3_static.lockon_address = 0x805ca237;
     mp3_static.gun_lag_toc_offset = 0x6000;
   }
