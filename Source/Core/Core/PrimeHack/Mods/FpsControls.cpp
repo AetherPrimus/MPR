@@ -221,7 +221,7 @@ void FpsControls::run_mod_mp2(Region region) {
     writef32(87.0896f, tweak_player_address + 0x180);
   }
 
-  u32 ball_state = read32(mp2_static.cplayer_ptr_address + 0x374);
+  u32 ball_state = read32(cplayer_address + 0x374);
 
   if (ball_state != 1 && ball_state != 2)
     writef32(calculate_yaw_vel(), cplayer_address + 0x178);
@@ -276,8 +276,12 @@ void FpsControls::run_mod_mp3() {
     if (should_process) {
       u32 vt = read32(obj);
       u32 vtf = read32(vt + 0xc);
+      u32 state = read32(obj + 0x14c);
 
-      if (vtf == 0x802e0dac) { // ensure Accept is this function
+      if (state == 3)
+        DevInfo("OBJ", "(state: %x) (addr: %x) (vtf: %x)", state, obj, vtf);
+
+      if (vtf == mp3_static.motion_vtf_address) { // ensure Accept is this function
         u32 state = read32(obj + 0x14c);
 
         if (ImprovedMotionControls()) {
@@ -292,8 +296,6 @@ void FpsControls::run_mod_mp3() {
             writef32(std::clamp(step, 0.f, 1.f), obj + 0x154);
           }
         }
-
-        //DevInfo("OBJ", "(state: %x) (addr: %x) (flags: %x) (editorid: %x)", state, obj, flags, read32(obj + 0xC));
 
         if (LockCameraInPuzzles()) {
           // if object is active
@@ -356,7 +358,7 @@ void FpsControls::run_mod_mp3() {
   write32(0, rtoc_gun_damp);
   writef32(pitch, cplayer_address + 0x784);
 
-  u32 ball_state = read32(mp3_static.cplayer_ptr_address + 0x358);
+  u32 ball_state = read32(cplayer_address + 0x358);
 
   if (ball_state != 1 && ball_state != 2)
     writef32(calculate_yaw_vel(), cplayer_address + 0x174);
@@ -1103,6 +1105,7 @@ void FpsControls::init_mod_mp3(Region region) {
     mp3_static.boss_info_address = 0x8066e1ec;
     mp3_static.lockon_address = 0x805c6db7;
     mp3_static.gun_lag_toc_offset = 0x5ff0;
+    mp3_static.motion_vtf_address = 0x802e0dac;
   }
   else if (region == Region::PAL) {
     code_changes.emplace_back(0x80080ab8, 0xec010072);
@@ -1127,6 +1130,7 @@ void FpsControls::init_mod_mp3(Region region) {
     mp3_static.boss_info_address = 0x80671a6c;
     mp3_static.lockon_address = 0x805ca237;
     mp3_static.gun_lag_toc_offset = 0x6000;
+    mp3_static.motion_vtf_address = 0x802e0a88;
   }
   else {}
 
