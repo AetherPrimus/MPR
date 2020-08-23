@@ -1,6 +1,9 @@
 #include "Core/PrimeHack/Mods/FpsControls.h"
 
 #include "Core/PrimeHack/PrimeUtils.h"
+
+#include <string>
+
 namespace prime {
 namespace {  
   const std::array<int, 4> prime_one_beams = {0, 2, 1, 3};
@@ -226,6 +229,15 @@ void FpsControls::run_mod_mp3() {
 
   u32 obj_list_iterator = read32(read32(mp3_static.cplayer_ptr_address - 4) + 0x1018) + 4;
   const u32 base = obj_list_iterator;
+
+  u32 boss_name = read32(read32(read32(read32(0x8066e1ec) + 0x6e0) + 0x24) + 0xe8 + 0x68);
+  std::string s;
+  while (read16(boss_name) != 0) {
+    s += (char)read16(boss_name);
+    boss_name += 2;
+  }
+  DevInfo("Boss Name ", "%s", s.c_str());
+
 
   while (true) {
     u32 obj = read32(obj_list_iterator);
