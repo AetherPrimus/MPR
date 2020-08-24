@@ -14,6 +14,7 @@ add_library(inputcommon
   ControllerEmu/ControlGroup/Force.cpp
   ControllerEmu/ControlGroup/MixedTriggers.cpp
   ControllerEmu/ControlGroup/ModifySettingsButton.cpp
+	ControllerEmu/ControlGroup/PrimeHackModes.cpp
   ControllerEmu/ControlGroup/Slider.cpp
   ControllerEmu/ControlGroup/Tilt.cpp
   ControllerEmu/ControlGroup/Triggers.cpp
