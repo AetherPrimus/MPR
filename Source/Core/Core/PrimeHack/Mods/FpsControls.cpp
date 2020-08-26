@@ -117,11 +117,11 @@ void FpsControls::handle_beam_visor_switch(std::array<int, 4> const &beams,
 
 void FpsControls::run_mod_menu(Region region) {
   if (region == Region::NTSC) {
-    handle_cursor(0x80913c9c, 0x80913d5c, 0.95f, 0.90f);
+    handle_cursor(0x80913c9c, 0x80913d5c, 0.95f, 0.90f, false);
   }
   else if (region == Region::PAL) {
     u32 cursor_address = PowerPC::HostRead_U32(0x80621ffc);
-    handle_cursor(cursor_address + 0xdc, cursor_address + 0x19c, 0.95f, 0.90f);
+    handle_cursor(cursor_address + 0xdc, cursor_address + 0x19c, 0.95f, 0.90f, false);
   }
 }
 
@@ -237,7 +237,7 @@ void FpsControls::mp3_handle_cursor(bool lock) {
     write32(0, cursor_base + 0x15c);
   }
   else {
-    handle_cursor(cursor_base + 0x9c, cursor_base + 0x15c, 0.95f, 0.90f);
+    handle_cursor(cursor_base + 0x9c, cursor_base + 0x15c, 0.95f, 0.90f, false);
   }
 }
 
@@ -276,13 +276,11 @@ void FpsControls::run_mod_mp3() {
     if (should_process) {
       u32 vt = read32(obj);
       u32 vtf = read32(vt + 0xc);
-      u32 state = read32(obj + 0x14c);
-
-      if (state == 3)
-        DevInfo("OBJ", "(state: %x) (addr: %x) (vtf: %x)", state, obj, vtf);
-
+  
       if (vtf == mp3_static.motion_vtf_address) { // ensure Accept is this function
         u32 state = read32(obj + 0x14c);
+
+        DevInfo("OBJ", "(state: %x) (addr: %x) (vtf: %x)", state, obj, vtf);
 
         if (ImprovedMotionControls()) {
           if (state == 3) {
@@ -298,8 +296,8 @@ void FpsControls::run_mod_mp3() {
         }
 
         if (LockCameraInPuzzles()) {
-          // if object is active
-          if (state > 0) {
+          // if object is active and isn't the ship radio at the start of the game.
+          if (state > 0 && read32(obj + 0xC) != 0x0c180263) {
             lock_camera = true;
           }
         }   
@@ -324,8 +322,11 @@ void FpsControls::run_mod_mp3() {
     obj_list_iterator = (base + next_id * 8);
   }
 
-  if (lock_camera)
+  if (lock_camera) {
+    mp3_handle_cursor(false);
+
     return;
+  }
 
   u32 boss_name_str = read32(read32(read32(read32(mp3_static.boss_info_address) + 0x6e0) + 0x24) + 0x150);
   bool is_boss_metaridley = is_string_ridley(boss_name_str);
@@ -1088,7 +1089,7 @@ void FpsControls::init_mod_mp3(Region region) {
     code_changes.emplace_back(0x8014e06c, 0x60000000);
     code_changes.emplace_back(0x80134328, 0x60000000);
     code_changes.emplace_back(0x80133970, 0x60000000);
-    code_changes.emplace_back(0x8000ab58, 0x4bffad29);
+    code_changes.emplace_back(0x8000ab58, 0x4bffad29); // branches into control state hook.
     code_changes.emplace_back(0x80080d44, 0x60000000);
     code_changes.emplace_back(0x8007fdc8, 0x480000e4);
     code_changes.emplace_back(0x8017f88c, 0x60000000);

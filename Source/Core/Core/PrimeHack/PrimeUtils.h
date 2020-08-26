@@ -32,7 +32,7 @@ constexpr float TURNRATE_RATIO = 0.00498665500569808449206349206349f;
 int get_beam_switch(std::array<int, 4> const& beams);
 std::tuple<int, int> get_visor_switch(std::array<std::tuple<int, int>, 4> const& visors, bool combat_visor);
 
-void handle_cursor(u32 x_address, u32 y_address, float right_bound, float bottom_bound);
+void handle_cursor(u32 x_address, u32 y_address, float right_bound, float bottom_bound, bool invert_y);
 
 bool mem_check(u32 address);
 void write_invalidate(u32 address, u32 value);
