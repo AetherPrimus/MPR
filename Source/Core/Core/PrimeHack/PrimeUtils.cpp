@@ -282,7 +282,7 @@ float get_aspect_ratio() {
   return sW / sH;
 }
 
-void handle_cursor(u32 x_address, u32 y_address, float right_bound, float bottom_bound, bool invert_y) {
+void handle_cursor(u32 x_address, u32 y_address, float right_bound, float bottom_bound) {
   int dx = GetHorizontalAxis(), dy = GetVerticalAxis();
 
   float aspect_ratio = get_aspect_ratio();
@@ -298,6 +298,6 @@ void handle_cursor(u32 x_address, u32 y_address, float right_bound, float bottom
   cursor_y = std::clamp(cursor_y, -1.f, bottom_bound);
 
   writef32(cursor_x, x_address);
-  writef32(invert_y ? -cursor_y : cursor_y, y_address);
+  writef32(cursor_y, y_address);
 }
 }  // namespace prime

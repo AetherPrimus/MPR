@@ -117,11 +117,11 @@ void FpsControls::handle_beam_visor_switch(std::array<int, 4> const &beams,
 
 void FpsControls::run_mod_menu(Region region) {
   if (region == Region::NTSC) {
-    handle_cursor(0x80913c9c, 0x80913d5c, 0.95f, 0.90f, false);
+    handle_cursor(0x80913c9c, 0x80913d5c, 0.95f, 0.90f);
   }
   else if (region == Region::PAL) {
     u32 cursor_address = PowerPC::HostRead_U32(0x80621ffc);
-    handle_cursor(cursor_address + 0xdc, cursor_address + 0x19c, 0.95f, 0.90f, false);
+    handle_cursor(cursor_address + 0xdc, cursor_address + 0x19c, 0.95f, 0.90f);
   }
 }
 
@@ -237,7 +237,7 @@ void FpsControls::mp3_handle_cursor(bool lock) {
     write32(0, cursor_base + 0x15c);
   }
   else {
-    handle_cursor(cursor_base + 0x9c, cursor_base + 0x15c, 0.95f, 0.90f, false);
+    handle_cursor(cursor_base + 0x9c, cursor_base + 0x15c, 0.95f, 0.90f);
   }
 }
 
