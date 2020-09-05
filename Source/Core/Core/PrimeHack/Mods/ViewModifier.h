@@ -25,11 +25,13 @@ private:
   void run_mod_mp1();
   void run_mod_mp1_gc();
   void run_mod_mp2();
+  void run_mod_mp2_gc();
   void run_mod_mp3();
 
   void init_mod_mp1(Region region);
   void init_mod_mp1_gc(Region region);
   void init_mod_mp2(Region region);
+  void init_mod_mp2_gc(Region region);
   void init_mod_mp3(Region region);
 
   union {
@@ -65,6 +67,12 @@ private:
       u32 gun_pos_address;
       u32 culling_address;
     } mp1_gc_static;
+
+    struct {
+      u32 state_mgr_address;
+      u32 gun_tweak_offset;
+      u32 culling_address;
+    } mp2_gc_static;
   };
 };
 

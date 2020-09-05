@@ -1,7 +1,7 @@
 #include "Core/PrimeHack/Mods/ViewModifier.h"
 
 #include "Core/PrimeHack/PrimeUtils.h"
-
+#pragma optimize("", off)
 namespace prime {
 void ViewModifier::run_mod(Game game, Region region) {
   switch (game) {
@@ -13,6 +13,9 @@ void ViewModifier::run_mod(Game game, Region region) {
     break;
   case Game::PRIME_2:
     run_mod_mp2();
+    break;
+  case Game::PRIME_2_GCN:
+    run_mod_mp2_gc();
     break;
   case Game::PRIME_3:
     run_mod_mp3();
@@ -138,6 +141,36 @@ void ViewModifier::run_mod_mp2() {
   DevInfo("Camera_Base", "%08X", camera_base);
 }
 
+void ViewModifier::run_mod_mp2_gc() {
+  u32 world_address = read32(mp2_gc_static.state_mgr_address + 0x1604);
+  if (!mem_check(world_address)) {
+    return;
+  }
+  // World loading phase == 4 -> complete
+  if (read32(world_address + 0x4) != 4) {
+    return;
+  }
+
+  u32 camera_mgr = read32(mp2_gc_static.state_mgr_address + 0x151c);
+  if (!mem_check(camera_mgr)) {
+    return;
+  }
+  u32 camera_offset = ((read16(camera_mgr + 0x14)) & 0x3ff) << 3;
+  u32 object_list = read32(mp2_gc_static.state_mgr_address + 0x810) + 4;
+  u32 camera_base = read32(object_list + camera_offset);
+  
+  const float fov = std::min(GetFov(), 170.f);
+  writef32(fov, camera_base + 0x1f0);
+  adjust_viewmodel(fov, read32(read32(GPR(13) - mp2_gc_static.gun_tweak_offset)) + 0x50,
+    camera_base + 0x1cc, 0x3d200000);
+
+  if (GetCulling() || GetFov() > 101.f) {
+    disable_culling(mp2_gc_static.culling_address);
+  }
+
+  DevInfo("Camera_Base", "%08X", camera_base);
+}
+
 void ViewModifier::run_mod_mp3() {
   u32 camera_fov = read32(
     read32(
@@ -179,6 +212,9 @@ void ViewModifier::init_mod(Game game, Region region) {
     break;
   case Game::PRIME_2:
     init_mod_mp2(region);
+    break;
+  case Game::PRIME_2_GCN:
+    init_mod_mp2_gc(region);
     break;
   case Game::PRIME_3:
     init_mod_mp3(region);
@@ -244,6 +280,24 @@ void ViewModifier::init_mod_mp2(Region region) {
     mp2_static.tweakgun_ptr_address = 0x805d2cdc;
     mp2_static.culling_address = 0x802ca730;
     mp2_static.load_state_address = 0x804efc74;
+  }
+  else {}
+}
+
+void ViewModifier::init_mod_mp2_gc(Region region) {
+  if (region == Region::NTSC) {
+    code_changes.emplace_back(0x801b0b38, 0x60000000);
+
+    mp2_gc_static.state_mgr_address = 0x803db6e0;
+    mp2_gc_static.gun_tweak_offset = 0x6e1c;
+    mp2_gc_static.culling_address = 0x802f84c0;
+  }
+  else if (region == Region::PAL) {
+    code_changes.emplace_back(0x801b0e44, 0x60000000);
+
+    mp2_gc_static.state_mgr_address = 0x803dc900;
+    mp2_gc_static.gun_tweak_offset = 0x6e14;
+    mp2_gc_static.culling_address = 0x802f8818;
   }
   else {}
 }

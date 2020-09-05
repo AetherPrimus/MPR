@@ -1,6 +1,6 @@
 #include "Core/PrimeHack/Mods/Noclip.h"
 #include "Core/PrimeHack/PrimeUtils.h"
-
+#pragma optimize("", off)
 namespace prime {
 
 void Noclip::run_mod(Game game, Region region) {
@@ -13,6 +13,9 @@ void Noclip::run_mod(Game game, Region region) {
     break;
   case Game::PRIME_2:
     run_mod_mp2(has_control_mp2());
+    break;
+  case Game::PRIME_2_GCN:
+    run_mod_mp2_gc(has_control_mp2_gc());
     break;
   case Game::PRIME_3:
     run_mod_mp3(has_control_mp3());
@@ -43,6 +46,25 @@ bool Noclip::has_control_mp2() {
   return read32(mp2_static.control_flag_address) == 1 &&
          read32(mp2_static.load_state_address) == 1 &&
          read32(cplayer_address + 0x374) != 5;
+}
+
+bool Noclip::has_control_mp2_gc() {
+  u32 world_address = read32(mp2_gc_static.state_mgr_address + 0x1604);
+  if (!mem_check(world_address)) {
+    return false;
+  }
+  if (read32(world_address + 0x4) != 4) {
+    return false;
+  }
+  u32 cplayer_address = read32(mp2_gc_static.state_mgr_address + 0x14fc);
+  if (!mem_check(cplayer_address)) {
+    return false;
+  }
+  u32 camera_mgr_address = read32(mp2_gc_static.state_mgr_address + 0x151c);
+  if (read16(camera_mgr_address + 0x16) != 0xffff) {
+    return false;
+  }
+  return true;
 }
 
 bool Noclip::has_control_mp3() {
@@ -166,6 +188,41 @@ void Noclip::run_mod_mp2(bool has_control) {
   player_vec = (get_movement_vec(camera_address + 0x20) * 0.5f) + player_vec;
   player_vec.write_to(cplayer_address + 0x50);
 }
+
+void Noclip::run_mod_mp2_gc(bool has_control) {
+  const u32 cplayer_address = read32(mp2_gc_static.state_mgr_address + 0x14fc);
+  if (!has_control) {
+    player_vec.read_from(cplayer_address + 0x54);
+    set_state(ModState::CODE_DISABLED);
+    apply_instruction_changes();
+    had_control = has_control;
+    return;
+  }
+  if (has_control && !had_control) {
+    set_state(ModState::ENABLED);
+    had_control = has_control;
+    return;
+  }
+  u32 object_list_address = read32(mp2_gc_static.state_mgr_address + 0x810);
+  if (!mem_check(object_list_address)) {
+    return;
+  }
+  const u32 camera_mgr = read32(mp2_gc_static.state_mgr_address + 0x151c);
+  if (!mem_check(camera_mgr)) {
+    return;
+  }
+
+  const u16 camera_uid = read16(camera_mgr + 0x14);
+  if (camera_uid == 0xffff) {
+    return;
+  }
+  const u32 camera_offset = (camera_uid & 0x3ff) << 3;
+  u32 camera_address = read32(object_list_address + 4 + camera_offset);
+
+  player_vec = (get_movement_vec(camera_address + 0x24) * 0.5f) + player_vec;
+  player_vec.write_to(cplayer_address + 0x54);
+}
+
 
 void Noclip::run_mod_mp3(bool has_control) {
   const u32 cplayer_address = read32(read32(mp3_static.state_mgr_ptr_address + 0x28) + 0x2184);
@@ -308,6 +365,33 @@ void Noclip::init_mod(Game game, Region region) {
     }
     else {}
     break;
+  case Game::PRIME_2_GCN:
+    if (region == Region::NTSC) {
+      noclip_code_mp2_gc(0x803dcbdc, 0x80420000, 0x8004abc8);
+      code_changes.emplace_back(0x801865d8, 0x60000000);
+      code_changes.emplace_back(0x801865e0, 0x60000000);
+      code_changes.emplace_back(0x801865e8, 0x60000000);
+      code_changes.emplace_back(0x801865f0, 0xd0410098);
+      code_changes.emplace_back(0x801865f4, 0xd0210088);
+      code_changes.emplace_back(0x801865f8, 0xd0010078);
+      code_changes.emplace_back(0x801865fc, 0x4bec395d);
+
+      mp2_gc_static.state_mgr_address = 0x803db6e0;
+    }
+    else if (region == Region::PAL) {
+      noclip_code_mp2_gc(0x803dddfc, 0x80420000, 0x8004ad44);
+      code_changes.emplace_back(0x801868bc, 0x60000000);
+      code_changes.emplace_back(0x801868c4, 0x60000000);
+      code_changes.emplace_back(0x801868cc, 0x60000000);
+      code_changes.emplace_back(0x801868d4, 0xd0410098);
+      code_changes.emplace_back(0x801868d8, 0xd0210088);
+      code_changes.emplace_back(0x801868dc, 0xd0010078);
+      code_changes.emplace_back(0x801868e0, 0x4bec37e9);
+
+      mp2_gc_static.state_mgr_address = 0x803dc900;
+    }
+    else {}
+    break;
   case Game::PRIME_3:
     if (region == Region::NTSC) {
       noclip_code_mp3(0x805c6c40, 0x80004380, 0x8000bbfc);
@@ -379,6 +463,19 @@ void Noclip::noclip_code_mp2(u32 cplayer_address, u32 start_point, u32 return_lo
   code_changes.emplace_back(return_location - 4, 0x48000000 | (start_delta & 0x3fffffc));
 }
 
+void Noclip::noclip_code_mp2_gc(u32 cplayer_address, u32 start_point, u32 return_location) {
+  u32 return_delta = return_location - (start_point + 0x18);
+  u32 start_delta = start_point - (return_location - 4);
+  code_changes.emplace_back(start_point + 0x00, 0x3ca00000 | ((cplayer_address >> 16) & 0xffff));
+  code_changes.emplace_back(start_point + 0x04, 0x60a50000 | (cplayer_address & 0xffff));
+  code_changes.emplace_back(start_point + 0x08, 0x80a50000);
+  code_changes.emplace_back(start_point + 0x0c, 0x7c032800);
+  code_changes.emplace_back(start_point + 0x10, 0x4d820020);
+  code_changes.emplace_back(start_point + 0x14, 0x9421fff0);
+  code_changes.emplace_back(start_point + 0x18, 0x48000000 | (return_delta & 0x3fffffc));
+  code_changes.emplace_back(return_location - 4, 0x48000000 | (start_delta & 0x3fffffc));
+}
+
 void Noclip::noclip_code_mp3(u32 cplayer_address, u32 start_point, u32 return_location) {
   u32 return_delta = return_location - (start_point + 0x1c);
   u32 start_delta = start_point - (return_location - 4);
@@ -416,6 +513,16 @@ void Noclip::on_state_change(ModState old_state) {
         }
       }
       break;
+    case Game::PRIME_2_GCN:
+      {
+        const u32 cplayer_address = read32(mp2_gc_static.state_mgr_address + 0x14fc);
+        if (mem_check(cplayer_address)) {
+          player_vec.read_from(cplayer_address + 0x54);
+          old_matexclude_list = read64(cplayer_address + 0x74);
+          write64(0xffffffffffffffff, cplayer_address + 0x74);
+        }
+      }
+      break;
     case Game::PRIME_3:
       {
         const u32 cplayer_address = read32(read32(mp3_static.state_mgr_ptr_address + 0x28) + 0x2184);
@@ -440,6 +547,14 @@ void Noclip::on_state_change(ModState old_state) {
         const u32 cplayer_address = read32(mp2_static.cplayer_ptr_address);
         if (mem_check(cplayer_address)) {
           write64(old_matexclude_list, cplayer_address + 0x70);
+        }
+        break;
+      }
+    case Game::PRIME_2_GCN:
+      {
+        const u32 cplayer_address = read32(mp2_gc_static.state_mgr_address + 0x14fc);
+        if (mem_check(cplayer_address)) {
+          write64(old_matexclude_list, cplayer_address + 0x74);
         }
         break;
       }

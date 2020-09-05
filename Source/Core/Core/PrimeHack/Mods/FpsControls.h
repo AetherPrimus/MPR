@@ -33,6 +33,7 @@ private:
   void run_mod_mp2(Region region);
   void run_mod_mp3();
   void run_mod_mp1_gc();
+  void run_mod_mp2_gc();
 
   // ------------------------
   // -----Init Functions-----
@@ -50,6 +51,7 @@ private:
   void init_mod_mp2(Region region);
   void init_mod_mp3(Region region);
   void init_mod_mp1_gc(Region region);
+  void init_mod_mp2_gc(Region region);
 
   // All 3 of these games have this in common (MP3 just ignores beams)
   u32 active_visor_offset;
@@ -90,6 +92,11 @@ private:
       u32 load_state_address;
       u32 lockon_address;
     } mp2_static;
+
+    struct {
+      u32 state_mgr_address;
+      u32 player_tweak_offset;
+    } mp2_gc_static;
 
     struct {
       u32 cplayer_ptr_address;

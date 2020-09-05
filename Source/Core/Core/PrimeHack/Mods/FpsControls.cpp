@@ -55,6 +55,9 @@ void FpsControls::run_mod(Game game, Region region) {
   case Game::PRIME_1_GCN:
     run_mod_mp1_gc();
     break;
+  case Game::PRIME_2_GCN:
+    run_mod_mp2_gc();
+    break;
   default:
     break;
   }
@@ -230,6 +233,54 @@ void FpsControls::run_mod_mp2(Region region) {
   write32(0, cplayer_address + 0x174 + 0x18);
 }
 
+void FpsControls::run_mod_mp2_gc() {
+  const u32 world_address = read32(mp2_gc_static.state_mgr_address + 0x1604);
+  if (!mem_check(world_address)) {
+    return;
+  }
+  // World loading phase == 4 -> complete
+  if (read32(world_address + 0x4) != 4) {
+    return;
+  }
+
+  const u32 cplayer_address = read32(mp2_gc_static.state_mgr_address + 0x14fc);
+  if (!mem_check(cplayer_address)) {
+    return;
+  }
+
+  const u32 orbit_state = read32(cplayer_address + 0x3a4);
+  if (orbit_state != ORBIT_STATE_GRAPPLE &&
+      orbit_state != 0) {
+    write32(0, cplayer_address + 0x1bc);
+    return;
+  }
+
+  const u32 tweak_player_address = read32(read32(GPR(13) - mp2_gc_static.player_tweak_offset));
+  if (mem_check(tweak_player_address)) {
+    // Freelook rotation speed tweak
+    write32(0x4f800000, tweak_player_address + 0x188);
+    // Freelook pitch half-angle range tweak
+    writef32(87.0896f, tweak_player_address + 0x184);
+    // Air translational friction changes to make diagonal strafe match normal speed
+    writef32(0.25f, tweak_player_address + 0x88);
+    for (int i = 0; i < 8; i++) {
+      writef32(100000000.f, tweak_player_address + 0xc4 + i * 4);
+      writef32(1.f, tweak_player_address + 0xa4 + i * 4);
+    }
+  }
+
+  calculate_pitch_delta();
+  writef32(pitch, cplayer_address + 0x604);
+  
+  const u32 ball_state = read32(cplayer_address + 0x38c);
+
+  if (ball_state != 1 && ball_state != 2) {
+    // Forgot to note this in MP1 GC, in trilogy we were using angular momentum
+    // whereas we're using angvel here, so divide out Samus' mass (200)
+    writef32(calculate_yaw_vel() / 200.f, cplayer_address + 0x1bc);
+  }
+}
+
 void FpsControls::mp3_handle_cursor(bool lock) {
   u32 cursor_base = read32(read32(mp3_static.cursor_ptr_address) + mp3_static.cursor_offset);
   if (lock) {
@@ -369,14 +420,17 @@ void FpsControls::run_mod_mp3() {
 
 void FpsControls::init_mod(Game game, Region region) {
   switch (game) {
-  case Game::PRIME_1_GCN:
-    init_mod_mp1_gc(region);
-    break;
   case Game::PRIME_1:
     init_mod_mp1(region);
     break;
+  case Game::PRIME_1_GCN:
+    init_mod_mp1_gc(region);
+    break;
   case Game::PRIME_2:
     init_mod_mp2(region);
+    break;
+  case Game::PRIME_2_GCN:
+    init_mod_mp2_gc(region);
     break;
   case Game::PRIME_3:
     init_mod_mp3(region);
@@ -613,7 +667,7 @@ void FpsControls::add_strafe_code_mp1_ntsc() {
   // fmuls f0, f30, f30
   // fcmpo cr0, f0, f1
   // ble 0x134
-  // fmuls f0, f31, f31
+  // fmuls f0, f31, f31m
   // fcmpo cr0, f0, f1
   // ble 0x128
   // lfs f0, 0x138(r29)
@@ -1079,6 +1133,38 @@ void FpsControls::init_mod_mp2(Region region) {
   new_beam_address = 0x804cd254;
   beamchange_flag_address = 0x804cd250;
   has_beams = true;
+}
+
+void FpsControls::init_mod_mp2_gc(Region region) {
+   if (region == Region::NTSC) {
+    code_changes.emplace_back(0x801b00b4, 0x48000050);
+    code_changes.emplace_back(0x801aef58, 0x60000000);
+    code_changes.emplace_back(0x80015ed8, 0x4e800020);
+    code_changes.emplace_back(0x800129c8, 0x4e800020);
+    code_changes.emplace_back(0x801af160, 0x60000000);
+    code_changes.emplace_back(0x801b0248, 0x48000078);
+    code_changes.emplace_back(0x801af450, 0x48000a34);
+    code_changes.emplace_back(0x8018846c, 0xc022a5b0);
+    code_changes.emplace_back(0x80188104, 0x4800000c);
+
+    mp2_gc_static.state_mgr_address = 0x803db6e0;
+    mp2_gc_static.player_tweak_offset = 0x6e3c;
+  }
+  else if (region == Region::PAL) {
+    code_changes.emplace_back(0x801b03c0, 0x48000050);
+    code_changes.emplace_back(0x801af264, 0x60000000);
+    code_changes.emplace_back(0x80015f74, 0x4e800020);
+    code_changes.emplace_back(0x80012a2c, 0x4e800020);
+    code_changes.emplace_back(0x801af46c, 0x60000000);
+    code_changes.emplace_back(0x801b0554, 0x48000078);
+    code_changes.emplace_back(0x801af75c, 0x48000a34);
+    code_changes.emplace_back(0x80188754, 0xc022d16c);
+    code_changes.emplace_back(0x801883ec, 0x4800000c);
+
+    mp2_gc_static.state_mgr_address = 0x803dc900;
+    mp2_gc_static.player_tweak_offset = 0x6e34;
+  }
+  else {}
 }
 
 void FpsControls::init_mod_mp3(Region region) {
