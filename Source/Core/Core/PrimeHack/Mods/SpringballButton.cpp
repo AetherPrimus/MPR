@@ -14,12 +14,12 @@ void SpringballButton::run_mod(Game game, Region region) {
   case Game::PRIME_2:
     actual_cplayer_address = read32(cplayer_address);
     springball_check(actual_cplayer_address + 0x374, actual_cplayer_address + 0x2c4);
-    DevInfo("CPlayer", "%08X", cplayer_address);
+    DevInfo("CPlayer", "%08X", actual_cplayer_address);
     break;
   case Game::PRIME_3:
     actual_cplayer_address = read32(read32(read32(cplayer_address) + 0x04) + 0x2184);
     springball_check(actual_cplayer_address + 0x358, actual_cplayer_address + 0x29c);
-    DevInfo("CPlayer", "%08X", cplayer_address);
+    DevInfo("CPlayer", "%08X", actual_cplayer_address);
     break;
   default:
     break;
