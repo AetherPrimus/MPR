@@ -221,6 +221,7 @@ void Noclip::run_mod_mp2_gc(bool has_control) {
 
   player_vec = (get_movement_vec(camera_address + 0x24) * 0.5f) + player_vec;
   player_vec.write_to(cplayer_address + 0x54);
+  write32(0, cplayer_address + 0x2d0);
 }
 
 
