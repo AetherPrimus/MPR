@@ -45,3 +45,8 @@ hack_config.ini
 .buildconfig
 /Externals/ed25519/ed25519.log
 /Externals/picojson/picojson.log
+/Source/Android/.gradle/
+/Source/Android/.idea/
+/Source/Android/build/
+/Source/Android/app/.cxx/
+/Source/Android/app/release/
