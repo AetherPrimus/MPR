@@ -5,39 +5,76 @@
 namespace prime {
 class SkipCutscene : public PrimeMod {
 public:
-  void run_mod(Game game, Region region) override {}
+  void run_mod(Game game, Region region) override { }
   void init_mod(Game game, Region region) override {
-    switch (game) {
+    switch (game)
+    {
     case Game::PRIME_1:
-      if (region == Region::NTSC) {
+      if (region == Region::NTSC_U)
+      {
         add_return_one(0x800cf054);
       }
-      else if (region == Region::PAL) {
+      else if (region == Region::NTSC_J)
+      {
+        add_return_one(0x800cf3e4);
+      }
+      else if (region == Region::PAL)
+      {
         add_return_one(0x800cf174);
       }
       break;
     case Game::PRIME_1_GCN:
-      if (region == Region::NTSC) {
+      if (region == Region::NTSC_U)
+      {
         add_return_one(0x801d5528);
       }
-      else if (region == Region::PAL) {
+      else if (region == Region::PAL)
+      {
         add_return_one(0x801c6640);
       }
       break;
     case Game::PRIME_2:
-      if (region == Region::NTSC) {
+      if (region == Region::NTSC_U)
+      {
         add_return_one(0x800bc4d0);
       }
-      else if (region == Region::PAL) {
+      else if (region == Region::NTSC_J)
+      {
+        add_return_one(0x800bbb68);
+      }
+      else if (region == Region::PAL)
+      {
         add_return_one(0x800bdb9c);
       }
       break;
+    case Game::PRIME_2_GCN:
+      if (region == Region::NTSC_U)
+      {
+        add_return_one(0x80142340);
+      }
+      else if (region == Region::PAL)
+      {
+        add_return_one(0x8014257c);
+      }
+      break;
     case Game::PRIME_3:
-      if (region == Region::NTSC) {
+      if (region == Region::NTSC_U)
+      {
         add_return_one(0x800b9f30);
       }
-      else if (region == Region::PAL) {
+      else if (region == Region::PAL)
+      {
         add_return_one(0x800b9f30);
+      }
+      break;
+    case Game::PRIME_3_STANDALONE:
+      if (region == Region::NTSC_U)
+      {
+        add_return_one(0x800bb930);
+      }
+      else if (region == Region::PAL)
+      {
+        add_return_one(0x800bbd24);
       }
       break;
     }

@@ -14,7 +14,11 @@ void ViewModifier::run_mod(Game game, Region region) {
   case Game::PRIME_2:
     run_mod_mp2();
     break;
+  case Game::PRIME_2_GCN:
+    run_mod_mp2_gc();
+    break;
   case Game::PRIME_3:
+  case Game::PRIME_3_STANDALONE:
     run_mod_mp3();
     break;
   default:
@@ -138,6 +142,36 @@ void ViewModifier::run_mod_mp2() {
   DevInfo("Camera_Base", "%08X", camera_base);
 }
 
+void ViewModifier::run_mod_mp2_gc() {
+  u32 world_address = read32(mp2_gc_static.state_mgr_address + 0x1604);
+  if (!mem_check(world_address)) {
+    return;
+  }
+  // World loading phase == 4 -> complete
+  if (read32(world_address + 0x4) != 4) {
+    return;
+  }
+
+  u32 camera_mgr = read32(mp2_gc_static.state_mgr_address + 0x151c);
+  if (!mem_check(camera_mgr)) {
+    return;
+  }
+  u32 camera_offset = ((read16(camera_mgr + 0x14)) & 0x3ff) << 3;
+  u32 object_list = read32(mp2_gc_static.state_mgr_address + 0x810) + 4;
+  u32 camera_base = read32(object_list + camera_offset);
+
+  const float fov = std::min(GetFov(), 170.f);
+  writef32(fov, camera_base + 0x1f0);
+  adjust_viewmodel(fov, read32(read32(GPR(13) - mp2_gc_static.gun_tweak_offset)) + 0x50,
+    camera_base + 0x1cc, 0x3d200000);
+
+  if (GetCulling() || GetFov() > 101.f) {
+    disable_culling(mp2_gc_static.culling_address);
+  }
+
+  DevInfo("Camera_Base", "%08X", camera_base);
+}
+
 void ViewModifier::run_mod_mp3() {
   u32 camera_fov = read32(
     read32(
@@ -180,15 +214,21 @@ void ViewModifier::init_mod(Game game, Region region) {
   case Game::PRIME_2:
     init_mod_mp2(region);
     break;
+  case Game::PRIME_2_GCN:
+    init_mod_mp2_gc(region);
+    break;
   case Game::PRIME_3:
     init_mod_mp3(region);
+    break;
+  case Game::PRIME_3_STANDALONE:
+    init_mod_mp3_wii(region);
     break;
   }
   initialized = true;
 }
 
 void ViewModifier::init_mod_mp1(Region region) {
-  if (region == Region::NTSC) {
+  if (region == Region::NTSC_U) {
     mp1_static.camera_ptr_address = 0x804bfc30;
     mp1_static.active_camera_offset_address = 0x804c4a08;
     mp1_static.global_fov1_address = 0x805c0e38;
@@ -204,12 +244,19 @@ void ViewModifier::init_mod_mp1(Region region) {
     mp1_static.gun_pos_address = 0x804e1a24;
     mp1_static.culling_address = 0x802c8024;
   }
-  else {}
+  else if (region == Region::NTSC_J) {
+    mp1_static.camera_ptr_address = 0x804bfeb0;
+    mp1_static.active_camera_offset_address = 0x804c4c88;
+    mp1_static.global_fov1_address = 0x80641138;
+    mp1_static.global_fov2_address = 0x8064113c;
+    mp1_static.gun_pos_address = 0x804d398c;
+    mp1_static.culling_address = 0x802c7a3c;
+  }
 
 }
 
 void ViewModifier::init_mod_mp1_gc(Region region) {
-  if (region == Region::NTSC) {
+  if (region == Region::NTSC_U) {
     mp1_gc_static.camera_mgr_address = 0x8045c5b4;
     mp1_gc_static.object_list_address = 0x8045a9b8;
     mp1_gc_static.global_fov1_table_off = -0x7ff0;
@@ -231,12 +278,19 @@ void ViewModifier::init_mod_mp1_gc(Region region) {
 }
 
 void ViewModifier::init_mod_mp2(Region region) {
-  if (region == Region::NTSC) {
+  if (region == Region::NTSC_U) {
     mp2_static.camera_ptr_address = 0x804e7af8;
     mp2_static.camera_offset_address = 0x804eb9ac;
     mp2_static.tweakgun_ptr_address = 0x805cb274;
     mp2_static.culling_address = 0x802c8114;
     mp2_static.load_state_address = 0x804e8824;
+  }
+  else if (region == Region::NTSC_J) {
+    mp2_static.camera_ptr_address = 0x804e9cb0;
+    mp2_static.camera_offset_address = 0x804ec19c;
+    mp2_static.tweakgun_ptr_address = 0x805cba54;
+    mp2_static.culling_address = 0x802c6a28;
+    mp2_static.load_state_address = 0x804e9014;
   }
   else if (region == Region::PAL) {
     mp2_static.camera_ptr_address = 0x804eef48;
@@ -248,16 +302,48 @@ void ViewModifier::init_mod_mp2(Region region) {
   else {}
 }
 
+void ViewModifier::init_mod_mp2_gc(Region region) {
+  if (region == Region::NTSC_U) {
+    code_changes.emplace_back(0x801b0b38, 0x60000000);
+
+    mp2_gc_static.state_mgr_address = 0x803db6e0;
+    mp2_gc_static.gun_tweak_offset = 0x6e1c;
+    mp2_gc_static.culling_address = 0x802f84c0;
+  }
+  else if (region == Region::PAL) {
+    code_changes.emplace_back(0x801b0e44, 0x60000000);
+
+    mp2_gc_static.state_mgr_address = 0x803dc900;
+    mp2_gc_static.gun_tweak_offset = 0x6e14;
+    mp2_gc_static.culling_address = 0x802f8818;
+  }
+  else {}
+}
+
 void ViewModifier::init_mod_mp3(Region region) {
-  if (region == Region::NTSC) {
+  if (region == Region::NTSC_U) {
     mp3_static.camera_ptr_address = 0x805c6c68;
     mp3_static.tweakgun_address = 0x8066f87c;
     mp3_static.culling_address = 0x8031490c;
   }
   else if (region == Region::PAL) {
-    mp3_static.camera_ptr_address = 0x805ca0e8;
+    mp3_static.camera_ptr_address = 0x805c7598;
     mp3_static.tweakgun_address = 0x806730fc;
     mp3_static.culling_address = 0x80314038;
+  }
+  else {}
+}
+  
+void ViewModifier::init_mod_mp3_wii(Region region) {
+  if (region == Region::NTSC_U) {
+    mp3_static.camera_ptr_address = 0x805c4f94;
+    mp3_static.tweakgun_address = 0x8067d78c;
+    mp3_static.culling_address = 0x80316a1c;
+  }
+  else if (region == Region::PAL) {
+    mp3_static.camera_ptr_address = 0x805c7598;
+    mp3_static.tweakgun_address = 0x8067fdac;
+    mp3_static.culling_address = 0x80318170;
   }
   else {}
 }

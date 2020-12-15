@@ -4,56 +4,64 @@
 
 namespace prime {
 namespace {  
-  const std::array<int, 4> prime_one_beams = {0, 2, 1, 3};
-  const std::array<int, 4> prime_two_beams = {0, 1, 2, 3};
+const std::array<int, 4> prime_one_beams = {0, 2, 1, 3};
+const std::array<int, 4> prime_two_beams = {0, 1, 2, 3};
 
-  const std::array<std::tuple<int, int>, 4> prime_one_visors = {
-    std::make_tuple<int, int>(0, 0x11), std::make_tuple<int, int>(2, 0x05),
-    std::make_tuple<int, int>(3, 0x09), std::make_tuple<int, int>(1, 0x0d)};
-  const std::array<std::tuple<int, int>, 4> prime_two_visors = {
-    std::make_tuple<int, int>(0, 0x08), std::make_tuple<int, int>(2, 0x09),
-    std::make_tuple<int, int>(3, 0x0a), std::make_tuple<int, int>(1, 0x0b)};
-  const std::array<std::tuple<int, int>, 4> prime_three_visors = {
-    std::make_tuple<int, int>(0, 0x0b), std::make_tuple<int, int>(1, 0x0c),
-    std::make_tuple<int, int>(2, 0x0d), std::make_tuple<int, int>(3, 0x0e)};
+const std::array<std::tuple<int, int>, 4> prime_one_visors = {
+  std::make_tuple<int, int>(0, 0x11), std::make_tuple<int, int>(2, 0x05),
+  std::make_tuple<int, int>(3, 0x09), std::make_tuple<int, int>(1, 0x0d)};
+const std::array<std::tuple<int, int>, 4> prime_two_visors = {
+  std::make_tuple<int, int>(0, 0x08), std::make_tuple<int, int>(2, 0x09),
+  std::make_tuple<int, int>(3, 0x0a), std::make_tuple<int, int>(1, 0x0b)};
+const std::array<std::tuple<int, int>, 4> prime_three_visors = {
+  std::make_tuple<int, int>(0, 0x0b), std::make_tuple<int, int>(1, 0x0c),
+  std::make_tuple<int, int>(2, 0x0d), std::make_tuple<int, int>(3, 0x0e)};
 
-  constexpr u32 ORBIT_STATE_GRAPPLE = 5;
+constexpr u32 ORBIT_STATE_GRAPPLE = 5;
 
-  bool is_string_ridley(u32 string_base) {
-    if (string_base == 0) {
+bool is_string_ridley(u32 string_base) {
+  if (string_base == 0) {
+    return false;
+  }
+
+  const char ridley_str[] = "Meta Ridley";
+  constexpr auto str_len = sizeof(ridley_str) - 1;
+  int str_idx = 0;
+
+  while (read16(string_base) != 0 && str_idx < str_len) {
+    if (static_cast<char>(read16(string_base)) != ridley_str[str_idx]) {
       return false;
     }
-
-    const char ridley_str[] = "Meta Ridley";
-    constexpr auto str_len = sizeof(ridley_str) - 1;
-    int str_idx = 0;
-
-    while (read16(string_base) != 0 && str_idx < str_len) {
-      if (static_cast<char>(read16(string_base)) != ridley_str[str_idx]) {
-        return false;
-      }
-      str_idx++;
-      string_base += 2;
-    }
-    return str_idx == str_len && read16(string_base) == 0;
+    str_idx++;
+    string_base += 2;
   }
+  return str_idx == str_len && read16(string_base) == 0;
+}
 }
 void FpsControls::run_mod(Game game, Region region) {
   switch (game) {
   case Game::MENU:
-    run_mod_menu(region);
+  case Game::MENU_PRIME_1:
+  case Game::MENU_PRIME_2:
+    run_mod_menu(game, region);
     break;
   case Game::PRIME_1:
-    run_mod_mp1();
+    run_mod_mp1(region);
     break;
   case Game::PRIME_2:
     run_mod_mp2(region);
     break;
   case Game::PRIME_3:
-    run_mod_mp3();
+    run_mod_mp3(game, region);
     break;
   case Game::PRIME_1_GCN:
     run_mod_mp1_gc();
+    break;
+  case Game::PRIME_2_GCN:
+    run_mod_mp2_gc();
+    break;
+  case Game::PRIME_3_STANDALONE:
+    run_mod_mp3(game, region);
     break;
   default:
     break;
@@ -68,16 +76,33 @@ void FpsControls::calculate_pitch_delta() {
   pitch = std::clamp(pitch, -1.52f, 1.52f);
 }
 
+void FpsControls::calculate_pitch_locked() {
+  // Calculate the pitch based on the XF matrix to allow us to write out the pitch
+  // even while locked onto a target, the pitch will be written to match the lock
+  // angle throughout the entire lock-on. The very first frame when the lock is
+  // released (and before this mod has run again) the game will still render the
+  // correct angle. If we stop writing the angle during lock-on then a 1-frame snap
+  // occurs immediately after releasing the lock, due to the mod running after the
+  // frame has already been rendered.
+  const u32 camera_ptr = read32(mp1_static.object_list_ptr_address);
+  const u32 camera_offset = (((read32(mp1_static.camera_uid_address) + 10) >> 16) & 0x3ff) << 3;
+  const u32 camera_tf_addr = read32(camera_ptr + camera_offset + 4) + 0x2c;
+  Transform camera_tf(camera_tf_addr);
+  pitch = asin(camera_tf.fwd().z);
+  pitch = std::clamp(pitch, -1.52f, 1.52f);
+}
+
 float FpsControls::calculate_yaw_vel() {
   return GetHorizontalAxis() * GetSensitivity() * (InvertedX() ? 1.f : -1.f);;
 }
 
 void FpsControls::handle_beam_visor_switch(std::array<int, 4> const &beams,
-    std::array<std::tuple<int, int>, 4> const &visors) {
+  std::array<std::tuple<int, int>, 4> const &visors) {
   // Global array of all powerups (measured in "ammunition"
   // even for things like visors/beams)
   u32 powerups_array_base;
   powerups_array_base = read32(powerups_ptr_address);
+
 
   // We copy out the ownership status of beams and visors to our own array for
   // get_beam_switch and get_visor_switch
@@ -93,7 +118,7 @@ void FpsControls::handle_beam_visor_switch(std::array<int, 4> const &beams,
       set_beam_owned(i, beam_owned);
     }
   }
-    
+
   if (has_beams) {
     const int beam_id = get_beam_switch(beams);
     if (beam_id != -1) {
@@ -115,9 +140,17 @@ void FpsControls::handle_beam_visor_switch(std::array<int, 4> const &beams,
   DevInfo("Powerups_Base", "%08X", powerups_array_base);
 }
 
-void FpsControls::run_mod_menu(Region region) {
-  if (region == Region::NTSC) {
+void FpsControls::run_mod_menu(Game game, Region region) {
+  if (region == Region::NTSC_U) {
     handle_cursor(0x80913c9c, 0x80913d5c, 0.95f, 0.90f);
+  }
+  else if (region == Region::NTSC_J) {
+    if (game == Game::MENU_PRIME_1) {
+      handle_cursor(0x805a7da8, 0x805a7dac, 0.95f, 0.90f);
+    }
+    if (game == Game::MENU_PRIME_2) {
+      handle_cursor(0x805a7ba8, 0x805a7bac, 0.95f, 0.90f);
+    }
   }
   else if (region == Region::PAL) {
     u32 cursor_address = PowerPC::HostRead_U32(0x80621ffc);
@@ -125,23 +158,30 @@ void FpsControls::run_mod_menu(Region region) {
   }
 }
 
-void FpsControls::run_mod_mp1() {
-  // Don't allow visor change while scanning or it creates an audio loop bug.
-  if (read32(mp1_static.cplayer_address + 0x398) == 0)
-    handle_beam_visor_switch(prime_one_beams, prime_one_visors);
+void FpsControls::run_mod_mp1(Region region) {
+  handle_beam_visor_switch(prime_one_beams, prime_one_visors);
 
   // Allows freelook in grapple, otherwise we are orbiting (locked on) to something
-  if (read32(mp1_static.orbit_state_address) != ORBIT_STATE_GRAPPLE &&
-      read8(mp1_static.lockon_address)) {
+  bool locked = (read32(mp1_static.orbit_state_address) != ORBIT_STATE_GRAPPLE &&
+                  read8(mp1_static.lockon_address));
+    
+  if (locked) {
     write32(0, mp1_static.yaw_vel_address);
-    return;
+    calculate_pitch_locked();
+  } else {
+    calculate_pitch_delta();
   }
 
   // I write to two locations here to control the pitch, the rate of turning
   // has been unlocked already
-  calculate_pitch_delta();
   writef32(pitch, mp1_static.pitch_address);
   writef32(pitch, mp1_static.pitch_goal_address);
+  if (locked) {
+    // TODO: Not sure if the rest should run while locked on
+    //       so I am retaining old behaviour by returning
+    return;
+  }
+
   // Max pitch angle, as abs val (any higher = gimbal lock)
   writef32(1.52f, mp1_static.tweak_player_address + 0x134);
 
@@ -150,16 +190,16 @@ void FpsControls::run_mod_mp1() {
   write32(0, mp1_static.angvel_limiter_address);
 
   u32 ball_state = read32(mp1_static.cplayer_address + 0x2f4);
-  if (ball_state != 1 && ball_state != 2) {
+  if (ball_state == 0) {
     // Actual angular velocity Z address amazing
     writef32(calculate_yaw_vel(), mp1_static.yaw_vel_address);
   }
 }
 
 void FpsControls::run_mod_mp1_gc() {
-  if (read32(mp1_gc_static.orbit_state_address) != ORBIT_STATE_GRAPPLE &&
-      read8(mp1_gc_static.orbit_state_address)) {
-    write32(0, mp1_gc_static.yaw_vel_address);
+  const u32 orbit_state = read32(mp1_gc_static.orbit_state_address);
+  if (orbit_state != ORBIT_STATE_GRAPPLE &&
+    orbit_state != 0) {
     return;
   }
 
@@ -168,11 +208,11 @@ void FpsControls::run_mod_mp1_gc() {
   writef32(1.52f, mp1_gc_static.tweak_player_address + 0x134);
 
   u32 ball_state = read32(mp1_gc_static.cplayer_address + 0x2f4);
-  if (ball_state != 1 && ball_state != 2) {
+  if (ball_state == 0) {
     // Actual angular velocity Z address amazing
     writef32(calculate_yaw_vel() / 200.f, mp1_gc_static.yaw_vel_address);
   }
-
+    
   for (int i = 0; i < 8; i++) {
     writef32(100000000.f, mp1_gc_static.angvel_max_address + i * 4);
     writef32(1.f, mp1_gc_static.angvel_max_address + i * 4 - 32);
@@ -190,23 +230,19 @@ void FpsControls::run_mod_mp2(Region region) {
   if (read32(mp2_static.load_state_address) != 1) {
     return;
   }
-  
+
   // HACK ooo
   powerups_ptr_address = cplayer_address + 0x12ec;
-
-  DevInfo("CPlayer", "%x", cplayer_address);
-
-  if (read32(cplayer_address + 0x5a4) == 0)
-    handle_beam_visor_switch(prime_two_beams, prime_two_visors);
+  handle_beam_visor_switch(prime_two_beams, prime_two_visors);
 
   if (read32(cplayer_address + 0x390) != ORBIT_STATE_GRAPPLE &&
-      read32(mp2_static.lockon_address)) {
+    read32(mp2_static.lockon_address)) {
     // Angular velocity (not really, but momentum) is being messed with like mp1
     // just being accessed relative to cplayer
     write32(0, cplayer_address + 0x178);
     return;
   }
-    
+
   calculate_pitch_delta();
   // Grab the arm cannon address, go to its transform field (NOT the
   // Actor's xf @ 0x30!!)
@@ -216,8 +252,11 @@ void FpsControls::run_mod_mp2(Region region) {
   // right vector for this xf makes the gun not lag. Won't fix what ain't broken
   writef32(pitch, arm_cannon_model_matrix + 0x24);
   u32 tweak_player_address = 0;
-  if (region == Region::NTSC) {
+  if (region == Region::NTSC_U) {
     tweak_player_address = read32(read32(GPR(13) - 0x6410));
+  }
+  else if (region == Region::NTSC_J) {
+    tweak_player_address = read32(read32(GPR(13) - 0x63f8));
   }
   else if (region == Region::PAL) {
     tweak_player_address = read32(read32(GPR(13) - 0x6368));
@@ -229,11 +268,58 @@ void FpsControls::run_mod_mp2(Region region) {
 
   u32 ball_state = read32(cplayer_address + 0x374);
 
-  if (ball_state != 1 && ball_state != 2)
+  if (ball_state == 0)
     writef32(calculate_yaw_vel(), cplayer_address + 0x178);
 
   // Nothing new here
   write32(0, cplayer_address + 0x174 + 0x18);
+}
+
+void FpsControls::run_mod_mp2_gc() {
+  const u32 world_address = read32(mp2_gc_static.state_mgr_address + 0x1604);
+  if (!mem_check(world_address)) {
+    return;
+  }
+  // World loading phase == 4 -> complete
+  if (read32(world_address + 0x4) != 4) {
+    return;
+  }
+
+  const u32 cplayer_address = read32(mp2_gc_static.state_mgr_address + 0x14fc);
+  if (!mem_check(cplayer_address)) {
+    return;
+  }
+
+  const u32 orbit_state = read32(cplayer_address + 0x3a4);
+  if (orbit_state != ORBIT_STATE_GRAPPLE &&
+    orbit_state != 0) {
+    return;
+  }
+
+  const u32 tweak_player_address = read32(read32(GPR(13) - mp2_gc_static.player_tweak_offset));
+  if (mem_check(tweak_player_address)) {
+    // Freelook rotation speed tweak
+    write32(0x4f800000, tweak_player_address + 0x188);
+    // Freelook pitch half-angle range tweak
+    writef32(87.0896f, tweak_player_address + 0x184);
+    // Air translational friction changes to make diagonal strafe match normal speed
+    writef32(0.25f, tweak_player_address + 0x88);
+    for (int i = 0; i < 8; i++) {
+      writef32(100000000.f, tweak_player_address + 0xc4 + i * 4);
+      writef32(1.f, tweak_player_address + 0xa4 + i * 4);
+    }
+  }
+
+  calculate_pitch_delta();
+  writef32(pitch, cplayer_address + 0x604);
+
+  const u32 ball_state = read32(cplayer_address + 0x38c);
+
+  if (ball_state == 0) {
+    // Forgot to note this in MP1 GC, in trilogy we were using angular momentum
+    // whereas we're using angvel here, so divide out Samus' mass (200)
+    writef32(calculate_yaw_vel() / 200.f, cplayer_address + 0x1bc);
+  }
 }
 
 void FpsControls::mp3_handle_cursor(bool lock) {
@@ -248,81 +334,84 @@ void FpsControls::mp3_handle_cursor(bool lock) {
 }
 
 // this game is
-void FpsControls::run_mod_mp3() {
-  u32 cplayer_address = read32(read32(read32(mp3_static.cplayer_ptr_address) + 0x04) + 0x2184);
-  DevInfo("CPlayer", "%x", cplayer_address);
+void FpsControls::run_mod_mp3(Game active_game, Region active_region) {
+  u32 cplayer_address = 0;
+
+  // Handles menu screen cursor
+  if (read8(mp3_static.cursor_dlg_enabled_address)) {
+    mp3_handle_cursor(false);
+    return;
+  }
+
+  if (active_game == Game::PRIME_3_STANDALONE && active_region == Region::NTSC_U) {
+    cplayer_address = read32(read32(mp3_static.cplayer_ptr_address) + 0x2184);
+  } else {
+    cplayer_address = read32(read32(read32(mp3_static.cplayer_ptr_address) + 0x04) + 0x2184);
+  }
 
   if (!mem_check(cplayer_address)) {
-    // Handles death screen cursor
-    if (read8(mp3_static.cursor_dlg_enabled_address)) {
-      mp3_handle_cursor(false);
-    }
     return;
   }
 
   // HACK ooo
-  powerups_ptr_address = cplayer_address + 0x35a8;
-
-  DevInfo("ScanState", "%x", read32(cplayer_address + 0x6FC));
-
-  if (read32(cplayer_address + 0x6FC) == 0)
+  if (active_game == Game::PRIME_3) {
+    powerups_ptr_address = cplayer_address + 0x35a8;
+  } else {
+    powerups_ptr_address = cplayer_address + 0x35a0;
+  }
   handle_beam_visor_switch({}, prime_three_visors);
 
   // Handle Interactable Entities
   bool lock_camera = false;
 
-  u32 obj_list_iterator = read32(read32(mp3_static.cplayer_ptr_address - 4) + 0x1018) + 4;
+  u32 obj_list_iterator = 0;
+  if (active_game == Game::PRIME_3_STANDALONE && active_region == Region::NTSC_U) {
+    obj_list_iterator = read32(read32(mp3_static.cplayer_ptr_address) + 0x1018) + 4;
+  } else {
+    obj_list_iterator = read32(read32(mp3_static.cplayer_ptr_address - 4) + 0x1018) + 4;
+  }
   const u32 base = obj_list_iterator;
 
-  while (true) {
-    u32 obj = read32(obj_list_iterator);
-    u32 flags = read32(obj + 0x38);
+  for (int i = 0; i < 1024; i++) {
+    u32 entity = read32(obj_list_iterator);
+    u32 entity_flags = read32(entity + 0x38);
 
     bool should_process = false;
-    if (flags & 0x20000000) {
-      should_process = ((flags >> 8) & 0x2000) == 0;
+    if (entity_flags & 0x20000000) {
+      should_process = ((entity_flags >> 8) & 0x2000) == 0;
     }
-    should_process |= ((flags >> 8) & 0x1000) != 0;
+    should_process |= ((entity_flags >> 8) & 0x1000) != 0;
 
     if (should_process) {
-      u32 vt = read32(obj);
-      u32 vtf = read32(vt + 0xc);
-  
-      if (vtf == mp3_static.motion_vtf_address) { // ensure Accept is this function
-        u32 state = read32(obj + 0x14c);
+      u32 vf_table = read32(entity);
+      u32 vft_func = read32(vf_table + 0xc);
 
-        DevInfo("OBJ", "(state: %x) (addr: %x) (vtf: %x)", state, obj, vtf);
+      // Accept function for this specific object type ("RTTI" checking)
+      if (vft_func == mp3_static.motion_vtf_address) {
+        u32 puzzle_state = read32(entity + 0x14c);
 
         if (ImprovedMotionControls()) {
-          if (state == 3) {
-            float step = readf32(obj + 0x154);
+          if (puzzle_state == 3) {
+            float step = readf32(entity + 0x154);
 
-            if (CheckForward())
+            if (CheckForward()) {
               step += 0.05f;
-            if (CheckBack())
+            }
+            if (CheckBack()) {
               step -= 0.05f;
+            }
 
-            writef32(std::clamp(step, 0.f, 1.f), obj + 0x154);
+            writef32(std::clamp(step, 0.f, 1.f), puzzle_state + 0x154);
           }
         }
 
         if (LockCameraInPuzzles()) {
-          // if object is active and isn't the ship radio at the start of the game.
-          if (state > 0 && read32(obj + 0xC) != 0x0c180263) {
+          // if object is active
+          if (puzzle_state > 0) {
             lock_camera = true;
           }
         }   
       }
-
-      // context sensitive func 1 80eaab34
-      //if (vtf == 0x802e0de4) {
-      //  if (read32(obj + 0x204) == 1) { // Rotary puzzle
-      //    //writef32(1.f, obj + 0x1fc);
-      //    //write32(2, obj + 0x204);
-
-      //    DevInfo("Rotatory Puzzle", "(obj: %x) (c: %x) (layer?: %x) (angle: %f)", obj, read32(obj + 0x1fc), read32(obj + 0x204), angle);
-      //  }
-      //}
     }
 
     u16 next_id = read16(obj_list_iterator + 6);
@@ -334,8 +423,6 @@ void FpsControls::run_mod_mp3() {
   }
 
   if (lock_camera) {
-    mp3_handle_cursor(false);
-
     return;
   }
 
@@ -343,15 +430,14 @@ void FpsControls::run_mod_mp3() {
   bool is_boss_metaridley = is_string_ridley(boss_name_str);
 
   // Compare based on boss name string, Meta Ridley only appears once
-  if (read8(mp3_static.cursor_dlg_enabled_address) || is_boss_metaridley) {
-    if (is_boss_metaridley && !fighting_ridley) {
+  if (is_boss_metaridley) {
+    if (!fighting_ridley) {
       fighting_ridley = true;
       set_state(ModState::CODE_DISABLED);
     }
     mp3_handle_cursor(false);
     return;
-  }
-  else {
+  } else {
     if (fighting_ridley) {
       fighting_ridley = false;
       set_state(ModState::ENABLED);
@@ -368,12 +454,17 @@ void FpsControls::run_mod_mp3() {
   // Gun damping uses its own TOC value, so screw it (I checked the binary)
   u32 rtoc_gun_damp = GPR(2) - mp3_static.gun_lag_toc_offset;
   write32(0, rtoc_gun_damp);
-  writef32(pitch, cplayer_address + 0x784);
+  if (active_game == Game::PRIME_3) {
+    writef32(pitch, cplayer_address + 0x784);
+  } else {
+    writef32(pitch, cplayer_address + 0x77c);
+  }
 
   u32 ball_state = read32(cplayer_address + 0x358);
 
-  if (ball_state != 1 && ball_state != 2)
+  if (ball_state == 0) {
     writef32(calculate_yaw_vel(), cplayer_address + 0x174);
+  }
 
   // Nothing new here
   write32(0, cplayer_address + 0x174 + 0x18);
@@ -381,17 +472,27 @@ void FpsControls::run_mod_mp3() {
 
 void FpsControls::init_mod(Game game, Region region) {
   switch (game) {
-  case Game::PRIME_1_GCN:
-    init_mod_mp1_gc(region);
+  case Game::MENU_PRIME_1:
+  case Game::MENU_PRIME_2:
+    init_mod_menu(game, region);
     break;
   case Game::PRIME_1:
     init_mod_mp1(region);
     break;
+  case Game::PRIME_1_GCN:
+    init_mod_mp1_gc(region);
+    break;
   case Game::PRIME_2:
     init_mod_mp2(region);
     break;
+  case Game::PRIME_2_GCN:
+    init_mod_mp2_gc(region);
+    break;
   case Game::PRIME_3:
     init_mod_mp3(region);
+    break;
+  case Game::PRIME_3_STANDALONE:
+    init_mod_mp3_standalone(region);
     break;
   }
   initialized = true;
@@ -438,29 +539,36 @@ void FpsControls::add_grapple_slide_code_mp3(u32 start_point) {
 }
 
 void FpsControls::add_control_state_hook_mp3(u32 start_point, Region region) {
-  if (region == Region::NTSC)
-  {
-    code_changes.emplace_back(start_point + 0x00, 0x3c60805c);  // lis  r3, 0x805c      ;
-    code_changes.emplace_back(start_point + 0x04, 0x38636c40);  // addi r3, r3, 0x6c40  ; load 0x805c6c40 into r3
-                                                                // ; (indirect pointer to player camera control)
+  Game active_game = GetHackManager()->get_active_game();
+  if (region == Region::NTSC_U) {
+    if (active_game == Game::PRIME_3) {
+      code_changes.emplace_back(start_point + 0x00, 0x3c60805c);  // lis  r3, 0x805c
+      code_changes.emplace_back(start_point + 0x04, 0x38636c40);  // addi r3, r3, 0x6c40
+    } else {
+      code_changes.emplace_back(start_point + 0x00, 0x3c60805c);  // lis  r3, 0x805c
+      code_changes.emplace_back(start_point + 0x04, 0x38634f6c);  // addi r3, r3, 0x4f6c
+    }
+  } else if (region == Region::PAL) {
+    if (active_game == Game::PRIME_3) {
+      code_changes.emplace_back(start_point + 0x00, 0x3c60805d);  // lis  r3, 0x805d
+      code_changes.emplace_back(start_point + 0x04, 0x3863a0c0);  // subi r3, r3, 0x5f40
+    } else {
+      code_changes.emplace_back(start_point + 0x00, 0x3c60805c);  // lis  r3, 0x805c
+      code_changes.emplace_back(start_point + 0x04, 0x38637570);  // addi r3, r3, 0x7570
+    }
   }
-  else if (region == Region::PAL)
-  {
-    code_changes.emplace_back(start_point + 0x00, 0x3c60805d);  // lis  r3, 0x805d      ;
-    code_changes.emplace_back(start_point + 0x04, 0x3863a0c0);  // subi r3, r3, 0x5f40  ; load 0x805ca0c0 into r3, same reason as NTSC
+  code_changes.emplace_back(start_point + 0x08, 0x8063002c);  // lwz  r3, 0x2c(r3)
+  if (active_game == Game::PRIME_3_STANDALONE && region == Region::NTSC_U) {
+    code_changes.emplace_back(start_point + 0x0c, 0x60000000);  // nop
+  } else {
+    code_changes.emplace_back(start_point + 0x0c, 0x80630004);  // lwz  r3, 0x04(r3)
   }
-  code_changes.emplace_back(start_point + 0x08, 0x8063002c);  // lwz  r3, 0x2c(r3)      ; deref player camera control base address into r3
-  code_changes.emplace_back(start_point + 0x0c, 0x80630004);  // lwz  r3, 0x04(r3)      ; the point at which the function which was hooked
-  code_changes.emplace_back(start_point + 0x10, 0x80632184);  // lwz  r3, 0x2184(r3)    ; should have r31 equal to the
-                                                              // ; object which is being modified
-  code_changes.emplace_back(start_point + 0x14, 0x7c03f800);  // cmpw r3, r31           ; if r31 is player camera control (in r3)
-  code_changes.emplace_back(start_point + 0x18, 0x4d820020);  // beqlr                  ; then DON'T store the value of
-                                                              // ; r6 into 0x78+(player camera control)
-  code_changes.emplace_back(start_point + 0x1c, 0x7fe3fb78);  // mr   r3, r31           ; otherwise do it
-  code_changes.emplace_back(start_point + 0x20, 0x90c30078);  // stw  r6, 0x78(r3)      ; this is the normal action
-                                                              // ; which was overwritten by a bl to this mini-function
-  code_changes.emplace_back(start_point + 0x24, 0x4e800020);  // blr                    ; LR wasn't changed, so we're
-                                                              // ; safe here (same case as beqlr)
+  code_changes.emplace_back(start_point + 0x10, 0x80632184);  // lwz  r3, 0x2184(r3)
+  code_changes.emplace_back(start_point + 0x14, 0x7c03f800);  // cmpw r3, r31
+  code_changes.emplace_back(start_point + 0x18, 0x4d820020);  // beqlr
+  code_changes.emplace_back(start_point + 0x1c, 0x7fe3fb78);  // mr   r3, r31
+  code_changes.emplace_back(start_point + 0x20, 0x90c30078);  // stw  r6, 0x78(r3)
+  code_changes.emplace_back(start_point + 0x24, 0x4e800020);  // blr
 }
 
 // Truly cursed
@@ -625,7 +733,7 @@ void FpsControls::add_strafe_code_mp1_ntsc() {
   // fmuls f0, f30, f30
   // fcmpo cr0, f0, f1
   // ble 0x134
-  // fmuls f0, f31, f31
+  // fmuls f0, f31, f31m
   // fcmpo cr0, f0, f1
   // ble 0x128
   // lfs f0, 0x138(r29)
@@ -935,8 +1043,28 @@ void FpsControls::add_strafe_code_mp1_pal() {
   code_changes.emplace_back(0x80471cfc, 0x41480000);
 }
 
+void FpsControls::init_mod_menu(Game game, Region region)
+{
+  if (region == Region::NTSC_J) {
+    if (game == Game::MENU_PRIME_1) {
+      // prevent wiimote pointer feedback to move the cursor
+      code_changes.emplace_back(0x80487160, 0x60000000);
+      code_changes.emplace_back(0x80487164, 0x60000000);
+      // Prevent recentering the cursor on Y axis
+      code_changes.emplace_back(0x80487098, 0x60000000);
+    }
+    if (game == Game::MENU_PRIME_2) {
+      // prevent wiimote pointer feedback to move the cursor
+      code_changes.emplace_back(0x80486fe8, 0x60000000);
+      code_changes.emplace_back(0x80486fec, 0x60000000);
+      // Prevent recentering the cursor on Y axis
+      code_changes.emplace_back(0x80486f20, 0x60000000);
+    }
+  }
+}
+
 void FpsControls::init_mod_mp1(Region region) {
-  if (region == Region::NTSC) {
+  if (region == Region::NTSC_U) {
     // This instruction change is used in all 3 games, all 3 regions. It's an update to what I believe
     // to be interpolation for player camera pitch The change is from fmuls f0, f0, f1 (0xec000072) to
     // fmuls f0, f1, f1 (0xec010072), where f0 is the output. The higher f0 is, the faster the pitch
@@ -964,9 +1092,10 @@ void FpsControls::init_mod_mp1(Region region) {
     mp1_static.lockon_address = 0x804c00b3;
     mp1_static.tweak_player_address = 0x804ddff8;
     mp1_static.cplayer_address = 0x804d3c20;
+    mp1_static.object_list_ptr_address = 0x804bfc30;
+    mp1_static.camera_uid_address = 0x804c4a08;
     powerups_ptr_address = 0x804bfcd4;
-  }
-  else if (region == Region::PAL) {
+  } else if (region == Region::PAL) {
     // Same as NTSC but slightly offset
     code_changes.emplace_back(0x80099068, 0xec010072);
     code_changes.emplace_back(0x800992c4, 0x60000000);
@@ -987,10 +1116,34 @@ void FpsControls::init_mod_mp1(Region region) {
     mp1_static.lockon_address = 0x804c3ff3;
     mp1_static.tweak_player_address = 0x804e1f38;
     mp1_static.cplayer_address = 0x804d7b60;
+    mp1_static.object_list_ptr_address = 0x804c3b70;
+    mp1_static.camera_uid_address = 0x804c8948;
     powerups_ptr_address = 0x804c3c14;
+  } else { // region == Region::NTSC-J
+    // Same as NTSC but slightly offset
+    code_changes.emplace_back(0x80099060, 0xec010072);
+    code_changes.emplace_back(0x800992b4, 0x60000000);
+    code_changes.emplace_back(0x8018460c, 0x60000000);
+    code_changes.emplace_back(0x801835e4, 0x60000000);
+    code_changes.emplace_back(0x80176ff0, 0x60000000);
+    code_changes.emplace_back(0x802fb234, 0xd23f009c);
+    code_changes.emplace_back(0x801a074c, 0x60000000);
+
+    code_changes.emplace_back(0x80075e50, 0x48000044);
+    add_beam_change_code_mp1(0x8018f0c4);
+
+    mp1_static.yaw_vel_address = 0x804d3fb8;
+    mp1_static.pitch_address = 0x804d427c;
+    mp1_static.pitch_goal_address = 0x804c136c;
+    mp1_static.angvel_limiter_address = 0x804d3ff4;
+    mp1_static.orbit_state_address = 0x804d41a0;
+    mp1_static.lockon_address = 0x804c0333;
+    mp1_static.tweak_player_address = 0x804de278;
+    mp1_static.cplayer_address = 0x804d3ea0;
+    mp1_static.object_list_ptr_address = 0x804bfeb0;
+    mp1_static.camera_uid_address = 0x804c4c88;
+    powerups_ptr_address = 0x804bff54;
   }
-  // If I add NTSC JP
-  else {}
 
   active_visor_offset = 0x1c;
   powerups_size = 8;
@@ -1002,7 +1155,7 @@ void FpsControls::init_mod_mp1(Region region) {
 }
 
 void FpsControls::init_mod_mp1_gc(Region region) {
-   if (region == Region::NTSC) {
+  if (region == Region::NTSC_U) {
     code_changes.emplace_back(0x8000f63c, 0x48000048);
     code_changes.emplace_back(0x8000e538, 0x60000000);
     code_changes.emplace_back(0x80016ee4, 0x4e800020);
@@ -1010,6 +1163,12 @@ void FpsControls::init_mod_mp1_gc(Region region) {
     code_changes.emplace_back(0x8000e73c, 0x60000000);
     code_changes.emplace_back(0x8000f810, 0x48000244);
     code_changes.emplace_back(0x8045c488, 0x4f800000);
+    // When attached to a grapple point and spinning around it
+    // the player's yaw is adjusted, this ensures only position is updated
+    // Grapple point yaw fix
+    code_changes.emplace_back(0x8017a18c, 0x7fa3eb78);
+    code_changes.emplace_back(0x8017a190, 0x3881006c);
+    code_changes.emplace_back(0x8017a194, 0x4bed8cf9);
 
     add_strafe_code_mp1_ntsc();
 
@@ -1019,8 +1178,7 @@ void FpsControls::init_mod_mp1_gc(Region region) {
     mp1_gc_static.orbit_state_address = 0x8046b97c + 0x304;
     mp1_gc_static.tweak_player_address = 0x8045c208;
     mp1_gc_static.cplayer_address = 0x8046B97C;
-  }
-  else if (region == Region::PAL) {
+  } else if (region == Region::PAL) {
     code_changes.emplace_back(0x8000FB4C, 0x48000048);  
     code_changes.emplace_back(0x8000EA60, 0x60000000);
     code_changes.emplace_back(0x80017878, 0x4e800020);
@@ -1028,21 +1186,24 @@ void FpsControls::init_mod_mp1_gc(Region region) {
     code_changes.emplace_back(0x8000EC64, 0x60000000);
     code_changes.emplace_back(0x8000FD20, 0x4800022C);
     code_changes.emplace_back(0x803e43b4, 0x4f800000);
-    
+    // Grapple point yaw fix
+    code_changes.emplace_back(0x8016fc54, 0x7fa3eb78);
+    code_changes.emplace_back(0x8016fc58, 0x38810064); // 6c-8 = 64
+    code_changes.emplace_back(0x8016fc5c, 0x4bee4345); // bl 80053fa0
+
     add_strafe_code_mp1_pal();
-    
-    mp1_gc_static.yaw_vel_address = 0x803F38A4 + 0x15C;
-    mp1_gc_static.pitch_address = 0x803F38A4 + 0x3fC;
+
+    mp1_gc_static.yaw_vel_address = 0x803F38B4 + 0x14C;
+    mp1_gc_static.pitch_address = 0x803F38B4 + 0x3ec;
     mp1_gc_static.angvel_max_address = 0x803E4134 + 0x84;
-    mp1_gc_static.orbit_state_address = 0x803F38A4 + 0x304;
+    mp1_gc_static.orbit_state_address = 0x803F38B4 + 0x304;
     mp1_gc_static.tweak_player_address = 0x803E4134;
-    mp1_gc_static.cplayer_address = 0x803F38A4;
-  }
-  else {}
+    mp1_gc_static.cplayer_address = 0x803F38B4;
+  } else {}
 }
 
 void FpsControls::init_mod_mp2(Region region) {
-  if (region == Region::NTSC) {
+  if (region == Region::NTSC_U) {
     code_changes.emplace_back(0x8008ccc8, 0xc0430184);
     code_changes.emplace_back(0x8008cd1c, 0x60000000);
     code_changes.emplace_back(0x80147f70, 0x60000000);
@@ -1061,9 +1222,8 @@ void FpsControls::init_mod_mp2(Region region) {
     mp2_static.cplayer_ptr_address = 0x804e87dc;
     mp2_static.load_state_address = 0x804e8824;
     mp2_static.lockon_address = 0x804e894f;
-  }
-  else if (region == Region::PAL) {
-    code_changes.emplace_back(0x8008e30C, 0xc0430184);
+  } else if (region == Region::PAL) {
+    code_changes.emplace_back(0x8008e30c, 0xc0430184);
     code_changes.emplace_back(0x8008e360, 0x60000000);
     code_changes.emplace_back(0x801496e4, 0x60000000);
     code_changes.emplace_back(0x8014970c, 0x60000000);
@@ -1075,14 +1235,33 @@ void FpsControls::init_mod_mp2(Region region) {
     code_changes.emplace_back(0x80145474, 0x48000050);
 
     // Remove Beams/Visors Menu
-    code_changes.emplace_back(0x800710D0, 0x48000044);
+    code_changes.emplace_back(0x800710d0, 0x48000044);
     add_beam_change_code_mp2(0x8018e41c);
 
     mp2_static.cplayer_ptr_address = 0x804efc2c;
     mp2_static.load_state_address = 0x804efc74;
     mp2_static.lockon_address = 0x804efd9f;
-  }
-  else {}
+  } else if (region == Region::NTSC_J) {
+    code_changes.emplace_back(0x8008c944, 0xc0430184);
+    code_changes.emplace_back(0x8008c998, 0x60000000);
+    code_changes.emplace_back(0x80147578, 0x60000000);      
+    code_changes.emplace_back(0x801475a0, 0x60000000);
+    code_changes.emplace_back(0x8013511c, 0x60000000);
+    code_changes.emplace_back(0x8008b7c4, 0x60000000);
+    code_changes.emplace_back(0x8008b794, 0x60000000);
+    code_changes.emplace_back(0x80303ec8, 0xd23f009c);
+    code_changes.emplace_back(0x80169388, 0x60000000);
+    code_changes.emplace_back(0x8014331c, 0x48000050);
+
+    // Remove Beams/Visors Menu
+    code_changes.emplace_back(0x8006f928, 0x48000044);
+    add_beam_change_code_mp2(0x8018c0d4);
+
+    // Unsure about those
+    mp2_static.cplayer_ptr_address = 0x804e8fcc;
+    mp2_static.load_state_address = 0x804e9014;
+    mp2_static.lockon_address = 0x804e913f;
+  } else {}
 
   active_visor_offset = 0x34;
   powerups_size = 12;
@@ -1093,21 +1272,57 @@ void FpsControls::init_mod_mp2(Region region) {
   has_beams = true;
 }
 
+void FpsControls::init_mod_mp2_gc(Region region) {
+  if (region == Region::NTSC_U) {
+    code_changes.emplace_back(0x801b00b4, 0x48000050);
+    code_changes.emplace_back(0x801aef58, 0x60000000);
+    code_changes.emplace_back(0x80015ed8, 0x4e800020);
+    code_changes.emplace_back(0x800129c8, 0x4e800020);
+    code_changes.emplace_back(0x801af160, 0x60000000);
+    code_changes.emplace_back(0x801b0248, 0x48000078);
+    code_changes.emplace_back(0x801af450, 0x48000a34);
+    code_changes.emplace_back(0x8018846c, 0xc022a5b0);
+    code_changes.emplace_back(0x80188104, 0x4800000c);
+    // Grapple point yaw fix
+    code_changes.emplace_back(0x8011d9c4, 0x389d0054);
+    code_changes.emplace_back(0x8011d9c8, 0x4bf2d1fd);
+
+    mp2_gc_static.state_mgr_address = 0x803db6e0;
+    mp2_gc_static.player_tweak_offset = 0x6e3c;
+  } else if (region == Region::PAL) {
+    code_changes.emplace_back(0x801b03c0, 0x48000050);
+    code_changes.emplace_back(0x801af264, 0x60000000);
+    code_changes.emplace_back(0x80015f74, 0x4e800020);
+    code_changes.emplace_back(0x80012a2c, 0x4e800020);
+    code_changes.emplace_back(0x801af46c, 0x60000000);
+    code_changes.emplace_back(0x801b0554, 0x48000078);
+    code_changes.emplace_back(0x801af75c, 0x48000a34);
+    code_changes.emplace_back(0x80188754, 0xc022d16c);
+    code_changes.emplace_back(0x801883ec, 0x4800000c);
+    // Grapple point yaw fix
+    code_changes.emplace_back(0x8011dbf8, 0x389d0054);
+    code_changes.emplace_back(0x8011dbfc, 0x4bf2d145);  // bl 8004ad40
+
+    mp2_gc_static.state_mgr_address = 0x803dc900;
+    mp2_gc_static.player_tweak_offset = 0x6e34;
+  } else {}
+}
+
 void FpsControls::init_mod_mp3(Region region) {
-  if (region == Region::NTSC) {
+  if (region == Region::NTSC_U) {
     code_changes.emplace_back(0x80080ac0, 0xec010072);
     code_changes.emplace_back(0x8014e094, 0x60000000);
     code_changes.emplace_back(0x8014e06c, 0x60000000);
     code_changes.emplace_back(0x80134328, 0x60000000);
     code_changes.emplace_back(0x80133970, 0x60000000);
-    code_changes.emplace_back(0x8000ab58, 0x4bffad29); // branches into control state hook.
+    code_changes.emplace_back(0x8000ab58, 0x4bffad29);
     code_changes.emplace_back(0x80080d44, 0x60000000);
     code_changes.emplace_back(0x8007fdc8, 0x480000e4);
     code_changes.emplace_back(0x8017f88c, 0x60000000);
-    
+
     // Remove visors menu
     code_changes.emplace_back(0x800614ec, 0x48000018);
-    add_control_state_hook_mp3(0x80005880, Region::NTSC);
+    add_control_state_hook_mp3(0x80005880, Region::NTSC_U);
     add_grapple_slide_code_mp3(0x8017f2a0);
 
     mp3_static.cplayer_ptr_address = 0x805c6c6c;
@@ -1118,8 +1333,7 @@ void FpsControls::init_mod_mp3(Region region) {
     mp3_static.lockon_address = 0x805c6db7;
     mp3_static.gun_lag_toc_offset = 0x5ff0;
     mp3_static.motion_vtf_address = 0x802e0dac;
-  }
-  else if (region == Region::PAL) {
+  } else if (region == Region::PAL) {
     code_changes.emplace_back(0x80080ab8, 0xec010072);
     code_changes.emplace_back(0x8014d9e0, 0x60000000);
     code_changes.emplace_back(0x8014d9b8, 0x60000000);
@@ -1129,7 +1343,7 @@ void FpsControls::init_mod_mp3(Region region) {
     code_changes.emplace_back(0x80080d44, 0x60000000);
     code_changes.emplace_back(0x8007fdc8, 0x480000e4);
     code_changes.emplace_back(0x8017f1d8, 0x60000000);
-    
+
     // Remove visors menu
     code_changes.emplace_back(0x800614ec, 0x48000018);
     add_control_state_hook_mp3(0x80005880, Region::PAL);
@@ -1143,8 +1357,65 @@ void FpsControls::init_mod_mp3(Region region) {
     mp3_static.lockon_address = 0x805ca237;
     mp3_static.gun_lag_toc_offset = 0x6000;
     mp3_static.motion_vtf_address = 0x802e0a88;
-  }
-  else {}
+  } else {}
+
+  active_visor_offset = 0x34;
+  powerups_size = 12;
+  powerups_offset = 0x58;
+  has_beams = false;
+}
+
+void FpsControls::init_mod_mp3_standalone(Region region)
+{
+  if (region == Region::NTSC_U) {
+    code_changes.emplace_back(0x80080be8, 0xec010072);
+    code_changes.emplace_back(0x801521f0, 0x60000000);
+    code_changes.emplace_back(0x801521c8, 0x60000000);
+    code_changes.emplace_back(0x80139108, 0x60000000);
+    code_changes.emplace_back(0x80138750, 0x60000000);
+    code_changes.emplace_back(0x8000ae44, 0x4bffaa3d);
+    code_changes.emplace_back(0x80080e6c, 0x60000000);
+    code_changes.emplace_back(0x8007fef0, 0x480000e4);
+    code_changes.emplace_back(0x80183288, 0x60000000);
+
+    // Remove visors menu
+    code_changes.emplace_back(0x800617e4, 0x48000018);
+    add_control_state_hook_mp3(0x80005880, Region::NTSC_U);
+    add_grapple_slide_code_mp3(0x80182c9c);
+
+    mp3_static.cplayer_ptr_address = 0x805c4f98;
+    mp3_static.cursor_dlg_enabled_address = 0x805c70c7;
+    mp3_static.cursor_ptr_address = 0x8067dc18;
+    mp3_static.cursor_offset = 0xc54;
+    mp3_static.boss_info_address = 0x8067c0e4;
+    mp3_static.lockon_address = 0x805c50e4;
+    mp3_static.gun_lag_toc_offset = 0x5ff0;
+    mp3_static.motion_vtf_address = 0x802e2508;
+  } else if (region == Region::PAL) {
+    code_changes.emplace_back(0x80080e84, 0xec010072);
+    code_changes.emplace_back(0x80152d50, 0x60000000);
+    code_changes.emplace_back(0x80152d28, 0x60000000);
+    code_changes.emplace_back(0x80139860, 0x60000000);
+    code_changes.emplace_back(0x80138ea8, 0x60000000);
+    code_changes.emplace_back(0x8000ae44, 0x4bffaa3d);
+    code_changes.emplace_back(0x80081108, 0x60000000);
+    code_changes.emplace_back(0x8008018c, 0x480000e4);
+    code_changes.emplace_back(0x80183dc8, 0x60000000);
+
+    // Remove visors menu
+    code_changes.emplace_back(0x80061958, 0x48000018);
+    add_control_state_hook_mp3(0x80005880, Region::PAL);
+    add_grapple_slide_code_mp3(0x801837dc);
+
+    mp3_static.cplayer_ptr_address = 0x805c759c;
+    mp3_static.cursor_dlg_enabled_address = 0x805c96df;
+    mp3_static.cursor_ptr_address = 0x80680240;
+    mp3_static.cursor_offset = 0xc54;
+    mp3_static.boss_info_address = 0x8067c87c; // ???
+    mp3_static.lockon_address = 0x805c76e7;
+    mp3_static.gun_lag_toc_offset = 0x6000;
+    mp3_static.motion_vtf_address = 0x802e3be4;
+  } else {}
 
   active_visor_offset = 0x34;
   powerups_size = 12;

@@ -23,16 +23,18 @@ private:
   // -----Active Mod Functions-----
   // ------------------------------
   void calculate_pitch_delta();
+  void calculate_pitch_locked();
   float calculate_yaw_vel();
   void handle_beam_visor_switch(std::array<int, 4> const &beams,
-    std::array<std::tuple<int, int>, 4> const &visors);
+                                std::array<std::tuple<int, int>, 4> const& visors);
   void mp3_handle_cursor(bool lock);
 
-  void run_mod_menu(Region region);
-  void run_mod_mp1();
+  void run_mod_menu(Game game, Region region);
+  void run_mod_mp1(Region region);
   void run_mod_mp2(Region region);
-  void run_mod_mp3();
+  void run_mod_mp3(Game game, Region region);
   void run_mod_mp1_gc();
+  void run_mod_mp2_gc();
 
   // ------------------------
   // -----Init Functions-----
@@ -46,10 +48,13 @@ private:
   void add_strafe_code_mp1_ntsc();
   void add_strafe_code_mp1_pal();
 
+  void init_mod_menu(Game game, Region region);
   void init_mod_mp1(Region region);
   void init_mod_mp2(Region region);
   void init_mod_mp3(Region region);
   void init_mod_mp1_gc(Region region);
+  void init_mod_mp2_gc(Region region);
+  void init_mod_mp3_standalone(Region region);
 
   // All 3 of these games have this in common (MP3 just ignores beams)
   u32 active_visor_offset;
@@ -74,6 +79,8 @@ private:
       u32 lockon_address;
       u32 tweak_player_address;
       u32 cplayer_address;
+      u32 object_list_ptr_address;
+      u32 camera_uid_address;
     } mp1_static;
 
     struct {
@@ -90,6 +97,11 @@ private:
       u32 load_state_address;
       u32 lockon_address;
     } mp2_static;
+
+    struct {
+      u32 state_mgr_address;
+      u32 player_tweak_offset;
+    } mp2_gc_static;
 
     struct {
       u32 cplayer_ptr_address;
