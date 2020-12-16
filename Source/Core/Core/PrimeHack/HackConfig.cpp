@@ -11,6 +11,7 @@
 #include "Core/PrimeHack/Mods/DisableBloom.h"
 #include "Core/PrimeHack/Mods/FpsControls.h"
 #include "Core/PrimeHack/Mods/Invulnerability.h"
+#include "Core/PrimeHack/Mods/ElfModLoader.h"
 #include "Core/PrimeHack/Mods/Noclip.h"
 #include "Core/PrimeHack/Mods/SkipCutscene.h"
 #include "Core/PrimeHack/Mods/SpringballButton.h"
@@ -36,6 +37,8 @@ bool inverted_x = false;
 bool inverted_y = false;
 HackManager hack_mgr;
 bool is_running = false;
+
+std::string pending_modfile = "";
 }
 
 void InitializeHack(std::string const& mkb_device_name, std::string const& mkb_device_source) {
@@ -51,6 +54,7 @@ void InitializeHack(std::string const& mkb_device_name, std::string const& mkb_d
   hack_mgr.add_mod("skip_cutscene", std::make_unique<SkipCutscene>());
   hack_mgr.add_mod("springball_button", std::make_unique<SpringballButton>());
   hack_mgr.add_mod("fov_modifier", std::make_unique<ViewModifier>());
+  hack_mgr.add_mod("elf_mod_loader", std::make_unique<ElfModLoader>());
 
   device_name = mkb_device_name;
   device_source = mkb_device_source;
@@ -64,6 +68,7 @@ void InitializeHack(std::string const& mkb_device_name, std::string const& mkb_d
   hack_mgr.enable_mod("fps_controls");
   hack_mgr.enable_mod("springball_button");
   hack_mgr.enable_mod("skip_cutscene");
+  hack_mgr.enable_mod("elf_mod_loader");
 }
 
 bool CheckBeamCtl(int beam_num) {
@@ -261,4 +266,21 @@ bool GetCulling() {
 HackManager* GetHackManager() {
   return &hack_mgr;
 }
+
+bool ModPending() {
+  return !pending_modfile.empty();
+}
+
+void ClearPendingModfile() {
+  pending_modfile.clear();
+}
+
+std::string GetPendingModfile() {
+  return pending_modfile;
+}
+
+void SetPendingModfile(std::string const& path) {
+  pending_modfile = path;
+}
+
 }  // namespace prime

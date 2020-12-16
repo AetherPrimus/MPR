@@ -59,4 +59,9 @@ std::string const& GetCtlDeviceName();
 std::string const& GetCtlDeviceSource();
 
 HackManager *GetHackManager();
+
+bool ModPending();
+void ClearPendingModfile();
+std::string GetPendingModfile();
+void SetPendingModfile(std::string const& path);
 }

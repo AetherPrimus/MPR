@@ -924,6 +924,9 @@
     <ClCompile Include="PrimeHack\Mods\ViewModifier.cpp">
       <Filter>PrimeHack\Mods</Filter>
     </ClCompile>
+    <ClCompile Include="PrimeHack\Mods\ElfModLoader.cpp">
+      <Filter>PrimeHack\Mods</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BootManager.h" />
@@ -1632,6 +1635,9 @@
       <Filter>PrimeHack\Mods</Filter>
     </ClInclude>
     <ClInclude Include="primehack\mods\Invulnerability.h">
+      <Filter>PrimeHack\Mods</Filter>
+    </ClInclude>
+    <ClInclude Include="PrimeHack\Mods\ElfModLoader.h">
       <Filter>PrimeHack\Mods</Filter>
     </ClInclude>
   </ItemGroup>
