@@ -410,7 +410,19 @@ void FpsControls::run_mod_mp3(Game active_game, Region active_region) {
           if (puzzle_state > 0) {
             lock_camera = true;
           }
-        }   
+        }  
+      } else if (vft_func == mp3_static.motion_vtf_address + 0x38) {
+          // If the vtf is for rotary, confirm this needs to be controlled
+          if (read32(entity + 0x204) == 1) {
+            float velocity = 0;
+
+            if (CheckRight())
+              velocity = 0.04f;
+            if (CheckLeft())
+              velocity -= 0.04f;
+
+            writef32(velocity, 0x80004170);
+          }
       }
     }
 
@@ -1320,6 +1332,11 @@ void FpsControls::init_mod_mp3(Region region) {
     code_changes.emplace_back(0x8007fdc8, 0x480000e4);
     code_changes.emplace_back(0x8017f88c, 0x60000000);
 
+    // Take control of the rotary puzzles
+    code_changes.emplace_back(0x801F806C, 0x3D808000);
+    code_changes.emplace_back(0x801F8074, 0x618C4170);
+    code_changes.emplace_back(0x801F807C, 0xC02C0000);
+
     // Remove visors menu
     code_changes.emplace_back(0x800614ec, 0x48000018);
     add_control_state_hook_mp3(0x80005880, Region::NTSC_U);
@@ -1333,6 +1350,9 @@ void FpsControls::init_mod_mp3(Region region) {
     mp3_static.lockon_address = 0x805c6db7;
     mp3_static.gun_lag_toc_offset = 0x5ff0;
     mp3_static.motion_vtf_address = 0x802e0dac;
+
+    // This is motion_vtf + 0x38, if the func is a different size in standalone, these will be needed.
+    // mp3_static.rotary_motion_vtf_address = 0x802e0de4;
   } else if (region == Region::PAL) {
     code_changes.emplace_back(0x80080ab8, 0xec010072);
     code_changes.emplace_back(0x8014d9e0, 0x60000000);
@@ -1343,6 +1363,11 @@ void FpsControls::init_mod_mp3(Region region) {
     code_changes.emplace_back(0x80080d44, 0x60000000);
     code_changes.emplace_back(0x8007fdc8, 0x480000e4);
     code_changes.emplace_back(0x8017f1d8, 0x60000000);
+
+    // Take control of the rotary puzzles
+    code_changes.emplace_back(0x801F7B4C, 0x3D808000);
+    code_changes.emplace_back(0x801F7B54, 0x618C4170);
+    code_changes.emplace_back(0x801F7B5C, 0xC02C0000);
 
     // Remove visors menu
     code_changes.emplace_back(0x800614ec, 0x48000018);
@@ -1357,6 +1382,7 @@ void FpsControls::init_mod_mp3(Region region) {
     mp3_static.lockon_address = 0x805ca237;
     mp3_static.gun_lag_toc_offset = 0x6000;
     mp3_static.motion_vtf_address = 0x802e0a88;
+    // mp3_static.rotary_motion_vtf_address = 0x802e0ac0;
   } else {}
 
   active_visor_offset = 0x34;
