@@ -282,13 +282,13 @@ bool CBoot::SetupWiiMemory()
 
   Memory::Write_U32(0x0D15EA5E, 0x00000020);            // Another magic word
   Memory::Write_U32(0x00000001, 0x00000024);            // Unknown
-  Memory::Write_U32(Memory::REALRAM_SIZE, 0x00000028);  // MEM1 size 24MB
+  Memory::Write_U32(0x01800000, 0x00000028);  // MEM1 size 24MB
   Memory::Write_U32(0x00000023, 0x0000002c);            // Production Board Model
   Memory::Write_U32(0x00000000, 0x00000030);            // Init
   Memory::Write_U32(0x817FEC60, 0x00000034);            // Init
                                                         // 38, 3C should get start, size of FST through apploader
   Memory::Write_U32(0x8008f7b8, 0x000000e4);            // Thread Init
-  Memory::Write_U32(Memory::REALRAM_SIZE, 0x000000f0);  // "Simulated memory size" (debug mode?)
+  Memory::Write_U32(0x01800000, 0x000000f0);  // "Simulated memory size" (debug mode?)
   Memory::Write_U32(0x8179b500, 0x000000f4);            // __start
   Memory::Write_U32(0x0e7be2c0, 0x000000f8);            // Bus speed
   Memory::Write_U32(0x2B73A840, 0x000000fc);            // CPU speed
