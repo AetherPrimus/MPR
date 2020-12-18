@@ -486,8 +486,6 @@ VideoConfigDiag::VideoConfigDiag(wxWindow* parent, const std::string& title)
 
   wxNotebook* const notebook = new wxNotebook(this, wxID_ANY);
 
-  Bind(wxEVT_NOTEBOOK_PAGE_CHANGED, &VideoConfigDiag::Event_PageChanged, this);
-
   // -- GENERAL --
   {
     wxPanel* const page_general = new wxPanel(notebook, -1, wxDefaultPosition);
@@ -1845,13 +1843,6 @@ void VideoConfigDiag::Event_UpdateZ(wxCommandEvent& ev)
     z_counter->SetValue(ev.GetInt());
   }
   ev.Skip();
-}
-
-void VideoConfigDiag::Event_PageChanged(wxBookCtrlEvent& ev)
-{
-  if (!SConfig::GetInstance().bEnablePrimeHack)
-    if (ev.GetSelection() == primetab_id)
-      wxMessageBox("PrimeHack has not been enabled. None of the settings in the PrimeHack Misc tab will work until it is enabled in the Config window.", "PrimeHack Settings");
 }
 
 void VideoConfigDiag::Event_ViewModelUpdate(wxCommandEvent& ev)

@@ -4,6 +4,7 @@
 #include "Core/PrimeHack/PrimeUtils.h"
 #include "Core/PowerPC/PowerPC.h"
 #include "InputCommon/GenericMouse.h"
+#include <Core\ConfigManager.h>
 
 namespace prime {
 HackManager::HackManager()
@@ -155,6 +156,15 @@ void HackManager::update_mod_states()
   set_mod_enabled("noclip", GetNoclip());
   set_mod_enabled("invulnerability", GetInvulnerability());
   set_mod_enabled("skip_cutscene", GetSkipCutscene());
+
+  // Disallow any PrimeHack control mods
+  if (!SConfig::GetInstance().bEnablePrimeHack) {
+    disable_mod("fps_controls");
+    disable_mod("springball_button");
+    disable_mod("context_sensitive_controls");
+
+    return;
+  }
 
   if (ImprovedMotionControls()) {
     enable_mod("context_sensitive_controls");

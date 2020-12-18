@@ -61,15 +61,16 @@ void InitializeHack(std::string const& mkb_device_name, std::string const& mkb_d
   device_name = mkb_device_name;
   device_source = mkb_device_source;
 
-  // enable NO mods!!!
+  hack_mgr.enable_mod("fov_modifier");
+  hack_mgr.enable_mod("skip_cutscene");
+
+  // Enable no PrimeHack control mods
   if (!SConfig::GetInstance().bEnablePrimeHack) {
     return;
   }
 
-  hack_mgr.enable_mod("fov_modifier");
   hack_mgr.enable_mod("fps_controls");
   hack_mgr.enable_mod("springball_button");
-  hack_mgr.enable_mod("skip_cutscene");
   hack_mgr.enable_mod("context_sensitive_controls");
   hack_mgr.enable_mod("elf_mod_loader");
 }
