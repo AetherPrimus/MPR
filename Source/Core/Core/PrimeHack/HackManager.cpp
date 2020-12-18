@@ -3,8 +3,8 @@
 #include "Core/PrimeHack/HackConfig.h"
 #include "Core/PrimeHack/PrimeUtils.h"
 #include "Core/PowerPC/PowerPC.h"
+#include "Core/ConfigManager.h"
 #include "InputCommon/GenericMouse.h"
-#include <Core\ConfigManager.h>
 
 namespace prime {
 HackManager::HackManager()
