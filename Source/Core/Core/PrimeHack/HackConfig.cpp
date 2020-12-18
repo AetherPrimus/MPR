@@ -16,6 +16,7 @@
 #include "Core/PrimeHack/Mods/SkipCutscene.h"
 #include "Core/PrimeHack/Mods/SpringballButton.h"
 #include "Core/PrimeHack/Mods/ViewModifier.h"
+#include "Core/PrimeHack/Mods/ContextSensitiveControls.h"
 
 #include "InputCommon/ControllerInterface/ControllerInterface.h"
 
@@ -37,6 +38,7 @@ bool inverted_x = false;
 bool inverted_y = false;
 HackManager hack_mgr;
 bool is_running = false;
+bool lock_camera = false;
 
 std::string pending_modfile = "";
 }
@@ -55,6 +57,7 @@ void InitializeHack(std::string const& mkb_device_name, std::string const& mkb_d
   hack_mgr.add_mod("springball_button", std::make_unique<SpringballButton>());
   hack_mgr.add_mod("fov_modifier", std::make_unique<ViewModifier>());
   hack_mgr.add_mod("elf_mod_loader", std::make_unique<ElfModLoader>());
+  hack_mgr.add_mod("context_sensitive_controls", std::make_unique<ContextSensitiveControls>());
 
   device_name = mkb_device_name;
   device_source = mkb_device_source;
@@ -68,6 +71,7 @@ void InitializeHack(std::string const& mkb_device_name, std::string const& mkb_d
   hack_mgr.enable_mod("fps_controls");
   hack_mgr.enable_mod("springball_button");
   hack_mgr.enable_mod("skip_cutscene");
+  hack_mgr.enable_mod("context_sensitive_controls");
   hack_mgr.enable_mod("elf_mod_loader");
 }
 
@@ -261,6 +265,14 @@ std::string const& GetCtlDeviceSource() {
 
 bool GetCulling() {
   return Config::Get(Config::TOGGLE_CULLING);
+}
+
+void SetLockCamera(bool lock) {
+  lock_camera = lock;
+}
+
+bool GetLockCamera() {
+  return lock_camera;
 }
 
 HackManager* GetHackManager() {

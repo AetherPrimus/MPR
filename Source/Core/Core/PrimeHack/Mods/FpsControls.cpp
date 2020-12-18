@@ -361,80 +361,9 @@ void FpsControls::run_mod_mp3(Game active_game, Region active_region) {
   }
   handle_beam_visor_switch({}, prime_three_visors);
 
-  // Handle Interactable Entities
-  bool lock_camera = false;
-
-  u32 obj_list_iterator = 0;
-  if (active_game == Game::PRIME_3_STANDALONE && active_region == Region::NTSC_U) {
-    obj_list_iterator = read32(read32(mp3_static.cplayer_ptr_address) + 0x1018) + 4;
-  } else {
-    obj_list_iterator = read32(read32(mp3_static.cplayer_ptr_address - 4) + 0x1018) + 4;
-  }
-  const u32 base = obj_list_iterator;
-
-  for (int i = 0; i < 1024; i++) {
-    u32 entity = read32(obj_list_iterator);
-    u32 entity_flags = read32(entity + 0x38);
-
-    bool should_process = false;
-    if (entity_flags & 0x20000000) {
-      should_process = ((entity_flags >> 8) & 0x2000) == 0;
-    }
-    should_process |= ((entity_flags >> 8) & 0x1000) != 0;
-
-    if (should_process) {
-      u32 vf_table = read32(entity);
-      u32 vft_func = read32(vf_table + 0xc);
-
-      // Accept function for this specific object type ("RTTI" checking)
-      if (vft_func == mp3_static.motion_vtf_address) {
-        u32 puzzle_state = read32(entity + 0x14c);
-
-        if (ImprovedMotionControls()) {
-          if (puzzle_state == 3) {
-            float step = readf32(entity + 0x154);
-
-            if (CheckForward()) {
-              step += 0.05f;
-            }
-            if (CheckBack()) {
-              step -= 0.05f;
-            }
-
-            writef32(std::clamp(step, 0.f, 1.f), puzzle_state + 0x154);
-          }
-        }
-
-        if (LockCameraInPuzzles()) {
-          // if object is active
-          if (puzzle_state > 0) {
-            lock_camera = true;
-          }
-        }  
-      } else if (vft_func == mp3_static.motion_vtf_address + 0x38) {
-          // If the vtf is for rotary, confirm this needs to be controlled
-          if (read32(entity + 0x204) == 1) {
-            float velocity = 0;
-
-            if (CheckRight())
-              velocity = 0.04f;
-            if (CheckLeft())
-              velocity -= 0.04f;
-
-            writef32(velocity, 0x80004170);
-          }
-      }
-    }
-
-    u16 next_id = read16(obj_list_iterator + 6);
-    if (next_id == 0xffff) {
-      break;
-    }
-
-    obj_list_iterator = (base + next_id * 8);
-  }
-
-  if (lock_camera) {
+  // Lock Camera according to ContextSensitiveControls
+  if (prime::GetLockCamera()) {
+    //calculate_pitch_locked(); - Not yet implemented for Prime 3
     return;
   }
 
@@ -1332,11 +1261,6 @@ void FpsControls::init_mod_mp3(Region region) {
     code_changes.emplace_back(0x8007fdc8, 0x480000e4);
     code_changes.emplace_back(0x8017f88c, 0x60000000);
 
-    // Take control of the rotary puzzles
-    code_changes.emplace_back(0x801F806C, 0x3D808000);
-    code_changes.emplace_back(0x801F8074, 0x618C4170);
-    code_changes.emplace_back(0x801F807C, 0xC02C0000);
-
     // Remove visors menu
     code_changes.emplace_back(0x800614ec, 0x48000018);
     add_control_state_hook_mp3(0x80005880, Region::NTSC_U);
@@ -1349,10 +1273,6 @@ void FpsControls::init_mod_mp3(Region region) {
     mp3_static.boss_info_address = 0x8066e1ec;
     mp3_static.lockon_address = 0x805c6db7;
     mp3_static.gun_lag_toc_offset = 0x5ff0;
-    mp3_static.motion_vtf_address = 0x802e0dac;
-
-    // This is motion_vtf + 0x38, if the func is a different size in standalone, these will be needed.
-    // mp3_static.rotary_motion_vtf_address = 0x802e0de4;
   } else if (region == Region::PAL) {
     code_changes.emplace_back(0x80080ab8, 0xec010072);
     code_changes.emplace_back(0x8014d9e0, 0x60000000);
@@ -1364,10 +1284,6 @@ void FpsControls::init_mod_mp3(Region region) {
     code_changes.emplace_back(0x8007fdc8, 0x480000e4);
     code_changes.emplace_back(0x8017f1d8, 0x60000000);
 
-    // Take control of the rotary puzzles
-    code_changes.emplace_back(0x801F7B4C, 0x3D808000);
-    code_changes.emplace_back(0x801F7B54, 0x618C4170);
-    code_changes.emplace_back(0x801F7B5C, 0xC02C0000);
 
     // Remove visors menu
     code_changes.emplace_back(0x800614ec, 0x48000018);
@@ -1381,8 +1297,6 @@ void FpsControls::init_mod_mp3(Region region) {
     mp3_static.boss_info_address = 0x80671a6c;
     mp3_static.lockon_address = 0x805ca237;
     mp3_static.gun_lag_toc_offset = 0x6000;
-    mp3_static.motion_vtf_address = 0x802e0a88;
-    // mp3_static.rotary_motion_vtf_address = 0x802e0ac0;
   } else {}
 
   active_visor_offset = 0x34;
@@ -1404,11 +1318,6 @@ void FpsControls::init_mod_mp3_standalone(Region region)
     code_changes.emplace_back(0x8007fef0, 0x480000e4);
     code_changes.emplace_back(0x80183288, 0x60000000);
 
-    // Remove visors menu
-    code_changes.emplace_back(0x800617e4, 0x48000018);
-    add_control_state_hook_mp3(0x80005880, Region::NTSC_U);
-    add_grapple_slide_code_mp3(0x80182c9c);
-
     mp3_static.cplayer_ptr_address = 0x805c4f98;
     mp3_static.cursor_dlg_enabled_address = 0x805c70c7;
     mp3_static.cursor_ptr_address = 0x8067dc18;
@@ -1416,7 +1325,6 @@ void FpsControls::init_mod_mp3_standalone(Region region)
     mp3_static.boss_info_address = 0x8067c0e4;
     mp3_static.lockon_address = 0x805c50e4;
     mp3_static.gun_lag_toc_offset = 0x5ff0;
-    mp3_static.motion_vtf_address = 0x802e2508;
   } else if (region == Region::PAL) {
     code_changes.emplace_back(0x80080e84, 0xec010072);
     code_changes.emplace_back(0x80152d50, 0x60000000);
@@ -1428,11 +1336,6 @@ void FpsControls::init_mod_mp3_standalone(Region region)
     code_changes.emplace_back(0x8008018c, 0x480000e4);
     code_changes.emplace_back(0x80183dc8, 0x60000000);
 
-    // Remove visors menu
-    code_changes.emplace_back(0x80061958, 0x48000018);
-    add_control_state_hook_mp3(0x80005880, Region::PAL);
-    add_grapple_slide_code_mp3(0x801837dc);
-
     mp3_static.cplayer_ptr_address = 0x805c759c;
     mp3_static.cursor_dlg_enabled_address = 0x805c96df;
     mp3_static.cursor_ptr_address = 0x80680240;
@@ -1440,7 +1343,6 @@ void FpsControls::init_mod_mp3_standalone(Region region)
     mp3_static.boss_info_address = 0x8067c87c; // ???
     mp3_static.lockon_address = 0x805c76e7;
     mp3_static.gun_lag_toc_offset = 0x6000;
-    mp3_static.motion_vtf_address = 0x802e3be4;
   } else {}
 
   active_visor_offset = 0x34;
