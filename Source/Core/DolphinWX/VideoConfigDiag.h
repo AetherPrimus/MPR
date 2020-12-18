@@ -98,6 +98,8 @@ public:
   VideoConfigDiag(wxWindow* parent, const std::string &title);
 
 protected:
+  void Event_UpdateFOV(wxCommandEvent &ev);
+
   void Event_UpdateX(wxCommandEvent &ev);
   void Event_UpdateY(wxCommandEvent &ev);
   void Event_UpdateZ(wxCommandEvent &ev);
@@ -253,6 +255,9 @@ protected:
 
   wxCheckBox* m_toggle_culling;
   wxCheckBox* m_toggle_secondaryFX;
+
+  DolphinSlider* m_fov_axis;
+  wxSpinCtrl* fov_counter;
 
   wxSpinCtrl* x_counter;
   wxSpinCtrl* y_counter;

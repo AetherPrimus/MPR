@@ -93,7 +93,7 @@ void PrimeSetMode(bool controller);
 
 std::tuple<double, double> GetPrimeStickXY();
 
-std::tuple<double, double, double, bool, bool> PrimeSettings();
+std::tuple<double, double, bool, bool> PrimeSettings();
 
 void ControlChannel(int number, u16 channel_id, const void* data, u32 size);
 void InterruptChannel(int number, u16 channel_id, const void* data, u32 size);

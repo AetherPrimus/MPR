@@ -31,7 +31,6 @@ namespace prime {
 namespace {
 float sensitivity;
 float cursor_sensitivity;
-float camera_fov;
 
 std::string device_name, device_source;
 bool inverted_x = false;
@@ -172,19 +171,18 @@ std::tuple<float, float, float> GetArmXYZ() {
 }
 
 void UpdateHackSettings() {
-  double camera, cursor, fov;
+  double camera, cursor;
   bool invertx, inverty;
 
   if (hack_mgr.get_active_game() == Game::PRIME_1_GCN)
-    std::tie<double, double, double, bool, bool>(camera, cursor, fov, invertx, inverty) =
+    std::tie<double, double, bool, bool>(camera, cursor, invertx, inverty) =
       Pad::PrimeSettings();
   else
-    std::tie<double, double, double, bool, bool>(camera, cursor, fov, invertx, inverty) =
+    std::tie<double, double, bool, bool>(camera, cursor, invertx, inverty) =
       Wiimote::PrimeSettings();
 
   SetSensitivity((float)camera);
   SetCursorSensitivity((float)cursor);
-  SetFov((float)fov);
   SetInvertedX(invertx);
   SetInvertedY(inverty);
 }
@@ -206,11 +204,7 @@ void SetCursorSensitivity(float sens) {
 }
 
 float GetFov() {
-  return camera_fov;
-}
-
-void SetFov(float fov) {
-  camera_fov = fov;
+  return Config::Get(Config::FOV);
 }
 
 bool InvertedY() {

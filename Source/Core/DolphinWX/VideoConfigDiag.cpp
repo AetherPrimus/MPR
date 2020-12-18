@@ -333,6 +333,10 @@ static wxString guneffects_desc = _("Reintroduce the original secondary gun effe
 static wxString bloom_desc =  _("Disables Bloom.\n\nSource: TheHatedGravity and dreamsyntax.");
 static wxString repositon_arm_desc =  _("Toggles repositioning of Samus's arms in the viewmodel. Repositioning her arms is visually beneficial for high Field Of Views.");
 static wxString culling_desc = _("Disables graphical culling. This allows for Field of Views above 101 in Metroid Prime 1 and Metroid Prime 2, and above 94 in Metroid Prime 3.");
+static wxString fov_desc =
+_("Modifies the Field of View. The Prime games are not designed to go beyond 101 FOV (94 in Prime 3), so if you do PrimeHack has to "
+  "disable culling and modify the znear values in the game. The higher the FOV, the more glitches you may encounter."
+  "\n\nGenerally the best FOV values are between 75 and 100.");
 static wxString auto_arm_desc = _("Automatically adjusts the Samus's arm position in the view model, relative to the Field Of View.");
 static wxString manual_arm_desc =  _("Allows you to manually modify the XYZ positioning of Samus's arms in the viewmodel.");
 static wxString x_axis_desc =  _("Modifies the arm position on the X axis. This is left and right.");
@@ -1475,15 +1479,37 @@ VideoConfigDiag::VideoConfigDiag(wxWindow* parent, const std::string& title)
     graphics_sizer->Add(toggle_viewmodel, 0, wxEXPAND | wxLEFT | wxRIGHT, space5);
     graphics_sizer->AddSpacer(space5);
     graphics_sizer->Add(m_toggle_culling, 0, wxEXPAND | wxLEFT | wxRIGHT, space5);
+    graphics_sizer->AddSpacer(FromDIP(20));
+
+    wxBoxSizer* const fov_axis = new wxBoxSizer(wxVERTICAL);
+    wxBoxSizer* fov_box = new wxBoxSizer(wxHORIZONTAL);
+
+    fov_axis->Add(fov_box, 0, wxEXPAND | wxLEFT | wxRIGHT);
+
+    graphics_sizer->Add(fov_axis, 1, wxEXPAND | wxLEFT | wxRIGHT);
     graphics_sizer->AddSpacer(space5);
 
+    m_fov_axis = new DolphinSlider(page_primehack, wxID_ANY, Config::Get(Config::FOV), 1, 170, wxDefaultPosition,
+      wxDefaultSize, wxSL_HORIZONTAL | wxSL_BOTTOM);
+
+    fov_counter = new wxSpinCtrl(page_primehack, wxID_ANY, "", wxDefaultPosition, *new wxSize(50, -1), wxSP_ARROW_KEYS, 1, 170, Config::Get(Config::FOV));
+    RegisterControl(m_fov_axis, (fov_desc));
+
+    fov_box->Add(new wxStaticText(page_primehack, wxID_ANY, _("Field of View")), 0, wxEXPAND | wxLEFT, space5);
+    fov_box->AddSpacer(8);
+    fov_box->Add(m_fov_axis, 1, wxEXPAND | wxRIGHT);
+    fov_box->Add(fov_counter, 0, wxRIGHT, space2);
+
+    m_fov_axis->Bind(wxEVT_SLIDER, &VideoConfigDiag::Event_UpdateFOV,
+      this);
+    fov_counter->Bind(wxEVT_SPINCTRL, &VideoConfigDiag::Event_UpdateFOV,
+      this);
 
     if (prime::GetFov() > 94) {
       m_toggle_culling->Disable();
       m_toggle_culling->SetValue(true);
     }
       
-
     if (prime::GetEnableSecondaryGunFX())
       m_toggle_secondaryFX->Disable();
 
@@ -1778,6 +1804,19 @@ void VideoConfigDiag::Event_UpdateX(wxCommandEvent& ev)
     m_x_axis->SetValue(ev.GetInt());
   } else {
     x_counter->SetValue(ev.GetInt());
+  }
+
+  ev.Skip();
+}
+
+void VideoConfigDiag::Event_UpdateFOV(wxCommandEvent& ev)
+{
+  Config::SetBaseOrCurrent(Config::FOV, ev.GetInt());
+
+  if (ev.GetEventType() == wxEVT_SPINCTRL) {
+    m_fov_axis->SetValue(ev.GetInt());
+  } else {
+    fov_counter->SetValue(ev.GetInt());
   }
 
   ev.Skip();

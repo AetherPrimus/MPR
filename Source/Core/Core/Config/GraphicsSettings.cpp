@@ -199,6 +199,8 @@ const ConfigInfo<bool> GFX_PERF_QUERIES_ENABLE{{System::GFX, "GameSpecific", "Pe
 const ConfigInfo<bool> AUTO_EFB{{System::GFX, "PrimeHack Misc", "AutoEFBMP"}, true};
 const ConfigInfo<bool> LOCKCAMERA_IN_PUZZLES{{System::GFX, "PrimeHack Misc", "Lock Camera in Motion Puzzles"}, false};
 const ConfigInfo<bool> DISABLE_BLOOM{{System::GFX, "PrimeHack Misc", "DisableBloom"}, false};
+const ConfigInfo<int> FOV{{System::GFX, "PrimeHack Misc", "Field of View"}, 60};
+
 const ConfigInfo<bool> TOGGLE_ARM_REPOSITION{{System::GFX, "PrimeHack Misc", "ToggleArmRePosition"}, true};
 const ConfigInfo<bool> TOGGLE_CULLING{{System::GFX, "PrimeHack Misc", "ToggleCulling"}, false};
 const ConfigInfo<bool> ARMPOSITION_MODE{{System::GFX, "PrimeHack Misc", "ArmPosition_Mode"}, true};
