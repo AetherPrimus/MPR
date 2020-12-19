@@ -10,6 +10,76 @@
 #include <vector>
 
 namespace prime {
+namespace {
+size_t get_type_size(CVarType t) {
+  switch (t) {
+  case CVarType::INT8:
+    return 1;
+  case CVarType::INT16:
+    return 2;
+  case CVarType::INT32:
+    return 4;
+  case CVarType::INT64:
+    return 8;
+  case CVarType::FLOAT32:
+    return 4;
+  case CVarType::FLOAT64:
+    return 8;
+  default:
+    return 0;
+  }
+}
+void write_type(u64 val, u32 addr, CVarType type) {
+  switch (type) {
+  case CVarType::INT8:
+    write8(static_cast<u8>(val), addr);
+    break;
+  case CVarType::INT16:
+    write16(static_cast<u16>(val), addr);
+    break;
+  case CVarType::INT32:
+    write32(static_cast<u32>(val), addr);
+    break;
+  case CVarType::INT64:
+    write64(val, addr);
+    break;
+  case CVarType::FLOAT32:
+    write32(static_cast<u32>(val), addr);
+    break;
+  case CVarType::FLOAT64:
+    write64(val, addr);
+    break;
+  default:
+    break;
+  }
+}
+u64 read_type(u32 addr, CVarType type) {
+  switch (type) {
+  case CVarType::INT8:
+    return static_cast<u64>(read8(addr));
+    break;
+  case CVarType::INT16:
+    return static_cast<u64>(read16(addr));
+    break;
+  case CVarType::INT32:
+    return static_cast<u64>(read32(addr));
+    break;
+  case CVarType::INT64:
+    return read64(addr);
+    break;
+  case CVarType::FLOAT32:
+    return static_cast<u64>(read32(addr));
+    break;
+  case CVarType::FLOAT64:
+    return read64(addr);
+    break;
+  default:
+    return 0;
+    break;
+  }
+}
+}
+
 void ElfModLoader::run_mod(Game game, Region region) {
   // ELF is mapped into an extended memory region
   // We would do this with instruction patches but
@@ -88,7 +158,7 @@ std::optional<CodeChange> ElfModLoader::parse_code(std::string const& str) {
   return std::nullopt;
 }
 
-std::optional<ElfModLoader::CVar> ElfModLoader::parse_cvar(std::string const& str) {
+std::optional<CVar> ElfModLoader::parse_cvar(std::string const& str) {
   std::regex rx("^([a-zA-Z_]\\w*)\\s+(i8|i16|i32|i64|f32|f64)\\s*$");
   std::smatch matches;
   if (std::regex_match(str, matches, rx)) {
@@ -188,6 +258,48 @@ void ElfModLoader::load_elf(std::string const& path) {
   const u32 entry_delta = elf_file.GetEntryPoint() - 0x81800018;
   code_changes[entry_point_index].var = 0x48000001 | (entry_delta & 0x3ffffffc);
   write_invalidate(code_changes[entry_point_index].address, code_changes[entry_point_index].var);
+}
+
+void ElfModLoader::on_state_change(ModState old_state) {
+  if (mod_state() != ModState::ENABLED) {
+    code_changes.clear();
+    init_mod(GetHackManager()->get_active_game(), GetHackManager()->get_active_region());
+  }
+}
+
+void ElfModLoader::get_cvarlist(std::vector<CVar*>& vars_out) {
+  for (auto& entry : cvar_map) {
+    vars_out.push_back(&entry.second);
+  }
+}
+
+bool ElfModLoader::write_cvar(std::string const& name, void* data) {
+  auto result = cvar_map.find(name);
+  if (result == cvar_map.end()) {
+    return false;
+  }
+  u64 write_data = 0;
+  memcpy(&write_data, data, get_type_size(result->second.type));
+  write_type(write_data, result->second.addr, result->second.type);
+  return true;
+}
+
+bool ElfModLoader::get_cvar_val(std::string const& name, void* data_out, size_t out_sz) {
+  auto result = cvar_map.find(name);
+  if (result == cvar_map.end()) {
+    return false;
+  }
+  u64 data = read_type(result->second.addr, result->second.type);
+  memcpy(data_out, &data, std::min(get_type_size(result->second.type), out_sz));
+  return true;
+}
+
+CVar* ElfModLoader::get_cvar(std::string const& name) {
+  auto result = cvar_map.find(name);
+  if (result == cvar_map.end()) {
+    return nullptr;
+  }
+  return &result->second;
 }
 
 }

@@ -122,7 +122,7 @@ void MatrixPanel::WriteTransformClicked(wxCommandEvent& e)
   }
 
   prime::Transform t;
-  t.build_rotation(y, p, r);
+  t.build_rotation(y);
 
   // swapping col 2 and col 3 to match a RetroStudio transform
   float m_temp[3][4];

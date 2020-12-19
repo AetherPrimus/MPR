@@ -47,6 +47,7 @@ class wxAuiNotebookEvent;
 class wxListEvent;
 class wxMenuItem;
 class wxProgressDialog;
+class CVarDlg;
 
 class CRenderFrame : public wxFrame
 {
@@ -160,6 +161,9 @@ private:
   std::array<TASInputDlg*, 8> m_tas_input_dialogs{};
   wxCheatsWindow* m_cheats_window = nullptr;
   wxProgressDialog* m_progress_dialog = nullptr;
+
+  CVarDlg* m_cvar_menu = nullptr;
+
   bool m_use_debugger = false;
   bool m_batch_mode = false;
   bool m_editing_perspectives = false;
@@ -267,7 +271,7 @@ private:
   void OnQuit(wxCommandEvent& event);
   void OnHelp(wxCommandEvent& event);
 
-  void OnPrimeSettings(wxCommandEvent& event);
+  void OnModLoad(wxCommandEvent& event);
 
   void OnReloadThemeBitmaps(wxCommandEvent& event);
   void OnRefreshGameList(wxCommandEvent& event);

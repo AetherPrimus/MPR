@@ -194,6 +194,14 @@ bool HackManager::is_mod_active(std::string const& name) {
   return result->second->mod_state() != ModState::DISABLED;
 }
 
+void HackManager::reset_mod(std::string const &name) {
+  auto result = mods.find(name);
+  if (result == mods.end()) {
+    return;
+  }
+  result->second->reset_mod();
+}
+
 void HackManager::save_mod_states() {
   for (auto& mod : mods) {
     mod_state_backup[mod.first] = mod.second->mod_state();
@@ -220,4 +228,21 @@ void HackManager::revert_all_code_changes() {
     }
   }
 }
+
+void HackManager::shutdown() {
+  for (auto& mod : mods) {
+    mod.second->reset_mod();
+  }
+  last_game = Game::INVALID_GAME;
+  last_region = Region::INVALID_REGION;
+}
+
+PrimeMod *HackManager::get_mod(std::string const& name) {
+  auto result = mods.find(name);
+  if (result == mods.end()) {
+    return nullptr;
+  }
+  return result->second.get();
+}
+
 }

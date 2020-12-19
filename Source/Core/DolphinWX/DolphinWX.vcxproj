@@ -66,6 +66,7 @@
     <ClCompile Include="Config\InterfaceConfigPane.cpp" />
     <ClCompile Include="Config\PathConfigPane.cpp" />
     <ClCompile Include="Config\WiiConfigPane.cpp" />
+    <ClCompile Include="CVarDlg.cpp" />
     <ClCompile Include="Debugger\AssemblerEntryDialog.cpp" />
     <ClCompile Include="Debugger\BreakpointDlg.cpp" />
     <ClCompile Include="Debugger\BreakpointView.cpp" />
@@ -144,6 +145,7 @@
     <ClInclude Include="Config\InterfaceConfigPane.h" />
     <ClInclude Include="Config\PathConfigPane.h" />
     <ClInclude Include="Config\WiiConfigPane.h" />
+    <ClInclude Include="CVarDlg.h" />
     <ClInclude Include="Debugger\MatrixPanel.h" />
     <ClInclude Include="DolphinSlider.h" />
     <ClInclude Include="ISOProperties\FilesystemPanel.h" />

@@ -64,4 +64,6 @@ bool ModPending();
 void ClearPendingModfile();
 std::string GetPendingModfile();
 void SetPendingModfile(std::string const& path);
+
+void Shutdown();
 }

@@ -26,6 +26,8 @@
 #include "Core/State.h"
 #include "Core/WiiRoot.h"
 
+#include "Core/PrimeHack/HackConfig.h"
+
 namespace HW
 {
 void Init()
@@ -75,6 +77,7 @@ void Shutdown()
 
   State::Shutdown();
   CoreTiming::Shutdown();
+  prime::Shutdown();
 }
 
 void DoState(PointerWrap& p)
