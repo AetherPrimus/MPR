@@ -97,10 +97,6 @@ GCPad::GCPad(const unsigned int index) : m_index(index)
     m_primehack_camera_sensitivity =
     new ControllerEmu::NumericSetting(_trans("Camera Sensitivity"), 0.15, 1, 200));
 
-  m_primehack_camera->numeric_settings.emplace_back(
-    m_primehack_fieldofview =
-    new ControllerEmu::NumericSetting(_trans("Field of View"), 0.60, 1, 170));
-
   m_primehack_camera->boolean_settings.emplace_back(
     m_primehack_invert_x = new ControllerEmu::BooleanSetting("Invert X Axis", false));
 
@@ -311,11 +307,10 @@ void GCPad::SetPrimeMode(bool controller)
   m_primehack_modes->SetSelectedDevice(controller ? 1 : 0);
 }
 
-std::tuple<double, double, double, bool, bool> GCPad::GetPrimeSettings()
+std::tuple<double, double, bool, bool> GCPad::GetPrimeSettings()
 {
   std::tuple t = std::make_tuple(
-    m_primehack_camera_sensitivity->GetValue() * 100, 0.f,
-    m_primehack_fieldofview->GetValue() * 100, m_primehack_invert_x->GetValue(),
+    m_primehack_camera_sensitivity->GetValue() * 100, 0.f, m_primehack_invert_x->GetValue(),
     m_primehack_invert_y->GetValue());
 
   return t;

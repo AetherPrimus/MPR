@@ -16,6 +16,7 @@
 #include "Core/PrimeHack/Mods/SkipCutscene.h"
 #include "Core/PrimeHack/Mods/SpringballButton.h"
 #include "Core/PrimeHack/Mods/ViewModifier.h"
+#include "Core/PrimeHack/Mods/ContextSensitiveControls.h"
 
 #include "InputCommon/ControllerInterface/ControllerInterface.h"
 
@@ -30,13 +31,13 @@ namespace prime {
 namespace {
 float sensitivity;
 float cursor_sensitivity;
-float camera_fov;
 
 std::string device_name, device_source;
 bool inverted_x = false;
 bool inverted_y = false;
 HackManager hack_mgr;
 bool is_running = false;
+bool lock_camera = false;
 
 std::string pending_modfile = "";
 }
@@ -55,19 +56,22 @@ void InitializeHack(std::string const& mkb_device_name, std::string const& mkb_d
   hack_mgr.add_mod("springball_button", std::make_unique<SpringballButton>());
   hack_mgr.add_mod("fov_modifier", std::make_unique<ViewModifier>());
   hack_mgr.add_mod("elf_mod_loader", std::make_unique<ElfModLoader>());
+  hack_mgr.add_mod("context_sensitive_controls", std::make_unique<ContextSensitiveControls>());
 
   device_name = mkb_device_name;
   device_source = mkb_device_source;
 
-  // enable NO mods!!!
+  hack_mgr.enable_mod("fov_modifier");
+  hack_mgr.enable_mod("skip_cutscene");
+
+  // Enable no PrimeHack control mods
   if (!SConfig::GetInstance().bEnablePrimeHack) {
     return;
   }
 
-  hack_mgr.enable_mod("fov_modifier");
   hack_mgr.enable_mod("fps_controls");
   hack_mgr.enable_mod("springball_button");
-  hack_mgr.enable_mod("skip_cutscene");
+  hack_mgr.enable_mod("context_sensitive_controls");
   hack_mgr.enable_mod("elf_mod_loader");
 }
 
@@ -168,19 +172,18 @@ std::tuple<float, float, float> GetArmXYZ() {
 }
 
 void UpdateHackSettings() {
-  double camera, cursor, fov;
+  double camera, cursor;
   bool invertx, inverty;
 
   if (hack_mgr.get_active_game() == Game::PRIME_1_GCN)
-    std::tie<double, double, double, bool, bool>(camera, cursor, fov, invertx, inverty) =
+    std::tie<double, double, bool, bool>(camera, cursor, invertx, inverty) =
       Pad::PrimeSettings();
   else
-    std::tie<double, double, double, bool, bool>(camera, cursor, fov, invertx, inverty) =
+    std::tie<double, double, bool, bool>(camera, cursor, invertx, inverty) =
       Wiimote::PrimeSettings();
 
   SetSensitivity((float)camera);
   SetCursorSensitivity((float)cursor);
-  SetFov((float)fov);
   SetInvertedX(invertx);
   SetInvertedY(inverty);
 }
@@ -202,11 +205,7 @@ void SetCursorSensitivity(float sens) {
 }
 
 float GetFov() {
-  return camera_fov;
-}
-
-void SetFov(float fov) {
-  camera_fov = fov;
+  return Config::Get(Config::FOV);
 }
 
 bool InvertedY() {
@@ -261,6 +260,14 @@ std::string const& GetCtlDeviceSource() {
 
 bool GetCulling() {
   return Config::Get(Config::TOGGLE_CULLING);
+}
+
+void SetLockCamera(bool lock) {
+  lock_camera = lock;
+}
+
+bool GetLockCamera() {
+  return lock_camera;
 }
 
 HackManager* GetHackManager() {

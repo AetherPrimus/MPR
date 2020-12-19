@@ -156,6 +156,7 @@ extern const ConfigInfo<bool> GFX_PERF_QUERIES_ENABLE;
 extern const ConfigInfo<bool> AUTO_EFB;
 extern const ConfigInfo<bool> LOCKCAMERA_IN_PUZZLES;
 extern const ConfigInfo<bool> DISABLE_BLOOM;
+extern const ConfigInfo<int> FOV;
 extern const ConfigInfo<bool> TOGGLE_ARM_REPOSITION;
 extern const ConfigInfo<bool> TOGGLE_CULLING;
 extern const ConfigInfo<bool> ARMPOSITION_MODE;

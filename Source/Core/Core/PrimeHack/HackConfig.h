@@ -45,12 +45,14 @@ void SetSensitivity(float sensitivity);
 float GetCursorSensitivity();
 void SetCursorSensitivity(float sensitivity);
 float GetFov();
-void SetFov(float fov);
 bool InvertedY();
 void SetInvertedY(bool inverted);
 bool InvertedX();
 void SetInvertedX(bool inverted);
 bool GetCulling();
+
+void SetLockCamera(bool lock);
+bool GetLockCamera();
 
 double GetHorizontalAxis();
 double GetVerticalAxis();

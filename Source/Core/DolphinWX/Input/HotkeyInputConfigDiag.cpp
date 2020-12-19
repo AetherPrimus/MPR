@@ -106,6 +106,7 @@ void HotkeyInputConfigDialog::InitializeNotebook()
 {
   m_notebook = new wxNotebook(this, wxID_ANY);
   m_notebook->AddPage(CreateGeneralPanel(), _("General"));
+  m_notebook->AddPage(CreatePrimeHackPanel(), _("PrimeHack"));
 
   // i18n: TAS is short for tool-assisted speedrun. Read http://tasvideos.org/ for details.
   // Frame advance is an example of a typical TAS tool.
@@ -123,7 +124,6 @@ void HotkeyInputConfigDialog::InitializeNotebook()
   m_notebook->AddPage(CreateStereoscopic3DPanel(), _("3D"));
   m_notebook->AddPage(CreateSaveAndLoadStatePanel(), _("Save and Load State"));
   m_notebook->AddPage(CreateOtherStateManagementPanel(), _("Other State Management"));
-  m_notebook->AddPage(CreatePrimeHackPanel(), _("PrimeHack"));
 
   m_notebook->SetSelection(0);
 }

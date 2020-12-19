@@ -122,5 +122,9 @@ private:
   float pitch;
   // Transitioning to this, replacing angular velocity writing
   float yaw;
+
+  // For interpolating the camera pitch to centre when in MP3 context sensitive mode.
+  float start_pitch;
+  int delta = 0;
 };
 }

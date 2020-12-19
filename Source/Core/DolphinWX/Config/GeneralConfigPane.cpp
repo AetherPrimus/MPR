@@ -55,7 +55,7 @@ void GeneralConfigPane::InitializeGUI()
 
   m_dual_core_checkbox = new wxCheckBox(this, wxID_ANY, _("Enable Dual Core (speedup)"));
   m_cheats_checkbox = new wxCheckBox(this, wxID_ANY, _("Enable Cheats"));
-  m_primehack_toggle = new wxCheckBox(this, wxID_ANY, _("Toggle PrimeHack"));
+  m_primehack_toggle = new wxCheckBox(this, wxID_ANY, _("Toggle PrimeHack Controls"));
 #if defined(USE_ANALYTICS) && USE_ANALYTICS
   m_analytics_checkbox = new wxCheckBox(this, wxID_ANY, _("Enable Usage Statistics Reporting"));
 #ifdef __APPLE__
