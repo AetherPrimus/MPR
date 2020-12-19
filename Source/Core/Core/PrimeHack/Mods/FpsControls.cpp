@@ -333,7 +333,6 @@ void FpsControls::mp3_handle_cursor(bool lock) {
   }
 }
 
-// this game is
 void FpsControls::run_mod_mp3(Game active_game, Region active_region) {
   u32 cplayer_address = 0;
 
@@ -349,6 +348,8 @@ void FpsControls::run_mod_mp3(Game active_game, Region active_region) {
     cplayer_address = read32(read32(read32(mp3_static.cplayer_ptr_address) + 0x04) + 0x2184);
   }
 
+  DevInfo("CPlayer_Addr", "%x", cplayer_address);
+
   if (!mem_check(cplayer_address)) {
     return;
   }
@@ -360,12 +361,6 @@ void FpsControls::run_mod_mp3(Game active_game, Region active_region) {
     powerups_ptr_address = cplayer_address + 0x35a0;
   }
   handle_beam_visor_switch({}, prime_three_visors);
-
-  // Lock Camera according to ContextSensitiveControls
-  if (prime::GetLockCamera()) {
-    //calculate_pitch_locked(); - Not yet implemented for Prime 3
-    return;
-  }
 
   u32 boss_name_str = read32(read32(read32(read32(mp3_static.boss_info_address) + 0x6e0) + 0x24) + 0x150);
   bool is_boss_metaridley = is_string_ridley(boss_name_str);
@@ -391,15 +386,41 @@ void FpsControls::run_mod_mp3(Game active_game, Region active_region) {
     return;
   }
 
+  u32 pitch_address;
+
+  if (active_game == Game::PRIME_3) {
+    pitch_address = cplayer_address + 0x784;
+  } else {
+    pitch_address = cplayer_address + 0x77c;
+  }
+
+  // Lock Camera according to ContextSensitiveControls and interpolate to pitch 0
+  if (prime::GetLockCamera()) {
+    if (pitch > -0.005f && pitch < 0.005f) {
+      delta = 0;
+      writef32(0, pitch_address);
+
+      mp3_handle_cursor(false);
+
+      return;
+    }
+
+    if (delta == 0) {
+      start_pitch = pitch;
+    }
+
+    pitch = std::lerp(start_pitch, 0, delta / 15.f);
+    writef32(pitch, pitch_address);
+    delta++;
+
+    return;
+  }
+
   calculate_pitch_delta();
   // Gun damping uses its own TOC value, so screw it (I checked the binary)
   u32 rtoc_gun_damp = GPR(2) - mp3_static.gun_lag_toc_offset;
   write32(0, rtoc_gun_damp);
-  if (active_game == Game::PRIME_3) {
-    writef32(pitch, cplayer_address + 0x784);
-  } else {
-    writef32(pitch, cplayer_address + 0x77c);
-  }
+  writef32(pitch, pitch_address);
 
   u32 ball_state = read32(cplayer_address + 0x358);
 

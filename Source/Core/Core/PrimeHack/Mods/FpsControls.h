@@ -117,5 +117,9 @@ private:
 
   // We store our pitch value interally to have full control over it
   float pitch;
+
+  // For interpolating the camera pitch to centre when in MP3 context sensitive mode.
+  float start_pitch;
+  int delta = 0;
 };
 }
