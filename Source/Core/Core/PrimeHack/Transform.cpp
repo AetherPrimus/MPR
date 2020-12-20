@@ -54,25 +54,21 @@ Transform& Transform::operator*=(Transform const& rhs) {
   return *this;
 }
 
-void Transform::build_rotation(float yaw, float pitch, float roll) {
-  const float sy = sin(yaw), cy = cos(yaw),
-              sp = sin(pitch), cp = cos(pitch),
-              sr = sin(roll), cr = cos(roll);
-
-  m[0][0] = cy * cp;
-  m[0][1] = cy * sp * sr - sy * cr;
-  m[0][2] = cp * sy * cr + sp * sr;
-  m[0][3] = 0;
-
-  m[1][0] = sy * cp;
-  m[1][1] = sy * sp * sr + cy * cr;
-  m[1][2] = sy * sp * cr - cy * sr;
-  m[1][3] = 0;
-
-  m[2][0] = -sy;
-  m[2][1] = cy * sr;
-  m[2][2] = cy * cr;
-  m[2][3] = 0;
+void Transform::build_rotation(float yaw) {
+  yaw -= (3.141592654f / 2.f);
+  const float sy = sin(yaw), cy = cos(yaw);
+  
+  m[0][0] = cy;
+  m[1][0] = sy;
+  m[2][0] = 0;
+  
+  m[0][1] = -sy;
+  m[1][1] = cy;
+  m[2][1] = 0;
+  
+  m[0][2] = 0;
+  m[1][2] = 0;
+  m[2][2] = 1.f;
 }
 
 void Transform::read_from(u32 address) {

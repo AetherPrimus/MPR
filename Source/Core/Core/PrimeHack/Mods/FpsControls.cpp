@@ -69,11 +69,35 @@ void FpsControls::run_mod(Game game, Region region) {
 }
 
 void FpsControls::calculate_pitch_delta() {
+  constexpr auto yaw_clamp = [](float t) -> float { 
+    constexpr float PI = 3.141592654f;
+    constexpr float TWO_PI = PI * 2.f;
+    return (t > PI) ? (t - TWO_PI) : ((t < -PI) ? (t + TWO_PI) : (t));
+  };
+
   const float compensated_sens = GetSensitivity() * TURNRATE_RATIO / 60.f;
 
   pitch += static_cast<float>(GetVerticalAxis()) * compensated_sens *
     (InvertedY() ? 1.f : -1.f);
   pitch = std::clamp(pitch, -1.52f, 1.52f);
+}
+
+void FpsControls::calculate_pitch_yaw_delta() {
+    constexpr auto yaw_clamp = [](float t) -> float { 
+    constexpr float PI = 3.141592654f;
+    constexpr float TWO_PI = PI * 2.f;
+    return (t > PI) ? (t - TWO_PI) : ((t < -PI) ? (t + TWO_PI) : (t));
+  };
+
+  const float compensated_sens = GetSensitivity() * TURNRATE_RATIO / 60.f;
+
+  pitch += static_cast<float>(GetVerticalAxis()) * compensated_sens *
+    (InvertedY() ? 1.f : -1.f);
+  pitch = std::clamp(pitch, -1.52f, 1.52f);
+
+  yaw += static_cast<float>(GetHorizontalAxis()) * compensated_sens *
+    (InvertedX() ? 1.f : -1.f);
+  yaw = yaw_clamp(yaw);
 }
 
 void FpsControls::calculate_pitch_locked() {
@@ -221,25 +245,31 @@ void FpsControls::run_mod_mp1(Region region) {
 }
 
 void FpsControls::run_mod_mp1_gc() {
+  Transform cplayer_xf(mp1_gc_static.cplayer_address + 0x34);
   const u32 orbit_state = read32(mp1_gc_static.orbit_state_address);
   if (orbit_state != ORBIT_STATE_GRAPPLE &&
     orbit_state != 0) {
+    vec3 fwd = cplayer_xf.fwd();
+    yaw = atan2f(fwd.y, fwd.x);
+    return;
+  }
+  u32 ball_state = read32(mp1_gc_static.cplayer_address + 0x2f4);
+  if (ball_state != 0) {
+    vec3 fwd = cplayer_xf.fwd();
+    yaw = atan2f(fwd.y, fwd.x);
     return;
   }
 
-  calculate_pitch_delta();
+  calculate_pitch_yaw_delta();
   writef32(pitch, mp1_gc_static.pitch_address);
   writef32(1.52f, mp1_gc_static.tweak_player_address + 0x134);
-
-  u32 ball_state = read32(mp1_gc_static.cplayer_address + 0x2f4);
-  if (ball_state == 0) {
-    // Actual angular velocity Z address amazing
-    writef32(calculate_yaw_vel() / 200.f, mp1_gc_static.yaw_vel_address);
-  }
+  writef32(0, mp1_gc_static.yaw_vel_address);
+  cplayer_xf.build_rotation(yaw);
+  cplayer_xf.write_to(mp1_gc_static.cplayer_address + 0x34);
     
   for (int i = 0; i < 8; i++) {
-    writef32(100000000.f, mp1_gc_static.angvel_max_address + i * 4);
-    writef32(1.f, mp1_gc_static.angvel_max_address + i * 4 - 32);
+    writef32(0, mp1_gc_static.angvel_max_address + i * 4);
+    writef32(0, mp1_gc_static.angvel_max_address + i * 4 - 32);
   }
 }
 

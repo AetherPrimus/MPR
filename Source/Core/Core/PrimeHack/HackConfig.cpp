@@ -306,4 +306,8 @@ void SetPendingModfile(std::string const& path) {
   pending_modfile = path;
 }
 
+void Shutdown() {
+  hack_mgr.shutdown();
+}
+
 }  // namespace prime

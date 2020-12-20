@@ -23,6 +23,9 @@ private:
   // -----Active Mod Functions-----
   // ------------------------------
   void calculate_pitch_delta();
+  // Transitioning to this, alongside usage of player transform
+  // for yaw control
+  void calculate_pitch_yaw_delta();
   void calculate_pitch_locked();
   float calculate_yaw_vel();
   void handle_beam_visor_switch(std::array<int, 4> const &beams,
@@ -126,6 +129,8 @@ private:
 
   // We store our pitch value interally to have full control over it
   float pitch;
+  // Transitioning to this, replacing angular velocity writing
+  float yaw;
 
   // For interpolating the camera pitch to centre when in MP3 context sensitive mode.
   float start_pitch;

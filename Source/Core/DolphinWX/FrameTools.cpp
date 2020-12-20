@@ -101,6 +101,8 @@
 #include "InputCommon/GenericMouse.h"
 
 #include "Core/ActionReplay.h"
+#include "Core/PrimeHack/HackConfig.h"
+#include "DolphinWX/CVarDlg.h"
 
 class InputConfig;
 class wxFrame;
@@ -215,6 +217,9 @@ void CFrame::BindMenuBarEvents()
   Bind(wxEVT_MENU, &CFrame::OnHelp, this, IDM_HELP_ONLINE_DOCS);
   Bind(wxEVT_MENU, &CFrame::OnHelp, this, IDM_HELP_GITHUB);
   Bind(wxEVT_MENU, &CFrame::OnHelp, this, wxID_ABOUT);
+  
+  Bind(wxEVT_MENU, &CFrame::OnModLoad, this, IDM_MODMENU_LOADMOD);
+  Bind(wxEVT_MENU, &CFrame::OnModLoad, this, IDM_MODMENU_CVARS);
 
   if (m_use_debugger)
     BindDebuggerMenuBarEvents();
@@ -1109,6 +1114,29 @@ void CFrame::OnHelp(wxCommandEvent& event)
     break;
   case IDM_HELP_GITHUB:
     WxUtils::Launch("https://github.com/dolphin-emu/dolphin");
+    break;
+  }
+}
+
+void CFrame::OnModLoad(wxCommandEvent& event)
+{
+  switch(event.GetId())
+  {
+  case IDM_MODMENU_LOADMOD: {
+      wxString path = wxFileSelector("Select MMD file to load", wxEmptyString, wxEmptyString, wxEmptyString,
+        wxString::Format("MMD file|*.mmd|%s", wxGetTranslation(wxALL_FILES)), wxFD_OPEN | wxFD_FILE_MUST_EXIST, this);
+      prime::SetPendingModfile(path.ToStdString());
+    }
+    break;
+  case IDM_MODMENU_CVARS: {
+      if (!m_cvar_menu) {
+        m_cvar_menu = new CVarDlg(this);
+      }
+      m_cvar_menu->ClearControls();
+      m_cvar_menu->LoadControls();
+      m_cvar_menu->Show();
+      break;
+    }
     break;
   }
 }

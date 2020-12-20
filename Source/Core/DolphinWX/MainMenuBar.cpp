@@ -60,6 +60,7 @@ void MainMenuBar::AddMenus()
   }
 
   Append(CreateHelpMenu(), _("&Help"));
+  Append(CreateModMenu(), _("ELF &Loader (Primehack)"));
 }
 
 void MainMenuBar::BindEvents()
@@ -528,6 +529,15 @@ wxMenu* MainMenuBar::CreateHelpMenu() const
   help_menu->Append(wxID_ABOUT, _("&About"));
 
   return help_menu;
+}
+
+wxMenu* MainMenuBar::CreateModMenu() const
+{
+  auto* const mod_menu = new wxMenu;
+  mod_menu->Append(IDM_MODMENU_LOADMOD, _("&Load Mod"));
+  mod_menu->Append(IDM_MODMENU_CVARS, _("&CVars"));
+
+  return mod_menu;
 }
 
 void MainMenuBar::OnPopulatePerspectivesMenu(PopulatePerspectivesEvent& event)

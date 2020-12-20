@@ -538,6 +538,8 @@ void LoadAs(const std::string& filename)
     return;
   }
 
+  prime::GetHackManager()->reset_mod("elf_mod_loader");
+
   Core::RunAsCPUThread([&] {
     g_loadDepth++;
 

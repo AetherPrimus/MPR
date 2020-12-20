@@ -40,6 +40,7 @@ private:
   wxMenu* CreateSymbolsMenu() const;
   wxMenu* CreateProfilerMenu() const;
   wxMenu* CreateHelpMenu() const;
+  wxMenu* CreateModMenu() const;
 
   void OnPopulatePerspectivesMenu(PopulatePerspectivesEvent&);
   void OnUpdateWiiMenuTool(wxCommandEvent&);
