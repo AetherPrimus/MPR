@@ -197,7 +197,7 @@ const ConfigInfo<bool> GFX_PERF_QUERIES_ENABLE{{System::GFX, "GameSpecific", "Pe
 
 // Graphics.PrimeHack
 const ConfigInfo<bool> AUTO_EFB{{System::GFX, "PrimeHack Misc", "AutoEFBMP"}, true};
-const ConfigInfo<bool> LOCKCAMERA_IN_PUZZLES{{System::GFX, "PrimeHack Misc", "Lock Camera in Motion Puzzles"}, false};
+const ConfigInfo<bool> LOCKCAMERA_IN_PUZZLES{{System::GFX, "PrimeHack Misc", "Lock Camera in Motion Puzzles"}, true};
 const ConfigInfo<bool> DISABLE_BLOOM{{System::GFX, "PrimeHack Misc", "DisableBloom"}, false};
 const ConfigInfo<int> FOV{{System::GFX, "PrimeHack Misc", "Field of View"}, 60};
 
