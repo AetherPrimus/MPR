@@ -51,6 +51,9 @@ bool InvertedX();
 void SetInvertedX(bool inverted);
 bool GetCulling();
 
+bool HandleReticleLockOn();
+void SetReticleLock(bool lock);
+
 void SetLockCamera(bool lock);
 bool GetLockCamera();
 
@@ -59,6 +62,8 @@ double GetVerticalAxis();
 
 std::string const& GetCtlDeviceName();
 std::string const& GetCtlDeviceSource();
+
+std::tuple<bool, bool> GetMenuOptions();
 
 HackManager *GetHackManager();
 

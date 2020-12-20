@@ -38,6 +38,7 @@ bool inverted_y = false;
 HackManager hack_mgr;
 bool is_running = false;
 bool lock_camera = false;
+bool reticle_lock = false;
 
 std::string pending_modfile = "";
 }
@@ -173,19 +174,20 @@ std::tuple<float, float, float> GetArmXYZ() {
 
 void UpdateHackSettings() {
   double camera, cursor;
-  bool invertx, inverty;
+  bool invertx, inverty, reticle_lock = false;
 
   if (hack_mgr.get_active_game() == Game::PRIME_1_GCN)
     std::tie<double, double, bool, bool>(camera, cursor, invertx, inverty) =
       Pad::PrimeSettings();
   else
-    std::tie<double, double, bool, bool>(camera, cursor, invertx, inverty) =
+    std::tie<double, double, bool, bool>(camera, cursor, invertx, inverty, reticle_lock) =
       Wiimote::PrimeSettings();
 
   SetSensitivity((float)camera);
   SetCursorSensitivity((float)cursor);
   SetInvertedX(invertx);
   SetInvertedY(inverty);
+  SetReticleLock(reticle_lock);
 }
 
 float GetSensitivity() {
@@ -262,12 +264,26 @@ bool GetCulling() {
   return Config::Get(Config::TOGGLE_CULLING);
 }
 
+bool HandleReticleLockOn()
+{
+  return reticle_lock;
+}
+
+void SetReticleLock(bool lock)
+{
+  reticle_lock = lock;
+}
+
 void SetLockCamera(bool lock) {
   lock_camera = lock;
 }
 
 bool GetLockCamera() {
   return lock_camera;
+}
+
+std::tuple<bool, bool> GetMenuOptions() {
+  return Wiimote::GetBVMenuOptions();
 }
 
 HackManager* GetHackManager() {
