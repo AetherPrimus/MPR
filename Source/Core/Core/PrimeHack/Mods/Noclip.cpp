@@ -314,6 +314,8 @@ void Noclip::run_mod_mp3(bool has_control)
 
 void Noclip::init_mod(Game game, Region region)
 {
+  u8 version = read8(0x80000007);
+
   initialized = true;
   switch (game)
   {
@@ -373,23 +375,39 @@ void Noclip::init_mod(Game game, Region region)
   case Game::PRIME_1_GCN:
     if (region == Region::NTSC_U)
     {
-      noclip_code_mp1_gc(0x8046b97c, 0x805afd00, 0x80052e90);
-      // For whatever reason CPlayer::Teleport calls SetTransform then SetTranslation
-      // which the above code changes will mess up, so just force the position to be
-      // used in SetTransform and remove the call to SetTranslation, now Teleport works
-      // when SetTranslation is ignoring the player
-      // This is handled above in mp1 trilogy as well
-      code_changes.emplace_back(0x80285128, 0x60000000);
-      code_changes.emplace_back(0x80285138, 0x60000000);
-      code_changes.emplace_back(0x80285140, 0x60000000);
-      code_changes.emplace_back(0x80285168, 0xd0010078);
-      code_changes.emplace_back(0x8028516c, 0xd0210088);
-      code_changes.emplace_back(0x80285170, 0xd0410098);
-      code_changes.emplace_back(0x80285174, 0x4808d9cd);
+      if (version == 0) {
+        noclip_code_mp1_gc(0x8046b97c, 0x805afd00, 0x80052e90);
+        // For whatever reason CPlayer::Teleport calls SetTransform then SetTranslation
+        // which the above code changes will mess up, so just force the position to be
+        // used in SetTransform and remove the call to SetTranslation, now Teleport works
+        // when SetTranslation is ignoring the player
+        // This is handled above in mp1 trilogy as well
+        code_changes.emplace_back(0x80285128, 0x60000000);
+        code_changes.emplace_back(0x80285138, 0x60000000);
+        code_changes.emplace_back(0x80285140, 0x60000000);
+        code_changes.emplace_back(0x80285168, 0xd0010078);
+        code_changes.emplace_back(0x8028516c, 0xd0210088);
+        code_changes.emplace_back(0x80285170, 0xd0410098);
+        code_changes.emplace_back(0x80285174, 0x4808d9cd);
 
-      mp1_gc_static.cplayer_address = 0x8046b97c;
-      mp1_gc_static.state_mgr_address = 0x8045a1a8;
-      mp1_gc_static.camera_uid_address = 0x8045c5b4;
+        mp1_gc_static.cplayer_address = 0x8046b97c;
+        mp1_gc_static.state_mgr_address = 0x8045a1a8;
+        mp1_gc_static.camera_uid_address = 0x8045c5b4;
+      }    
+    }
+    else if (region == Region::NTSC_J)
+    {
+      noclip_code_mp3(0x805caa30, 0x80004380, 0x8000bee8);
+      code_changes.emplace_back(0x8017dd54, 0x60000000);
+      code_changes.emplace_back(0x8017dd5c, 0x60000000);
+      code_changes.emplace_back(0x8017dd64, 0x60000000);
+      code_changes.emplace_back(0x8017dd6c, 0xd0410084);
+      code_changes.emplace_back(0x8017dd70, 0xd0210094);
+      code_changes.emplace_back(0x8017dd74, 0xd00100a4);
+      code_changes.emplace_back(0x8017dd78, 0x4be938a1);
+
+      mp3_static.state_mgr_ptr_address = 0x805caa30;
+      mp3_static.cam_uid_ptr_address = 0x805caa68;
     }
     else if (region == Region::PAL)
     {
@@ -702,6 +720,7 @@ void Noclip::on_state_change(ModState old_state)
         }
       }
       break;
+      case Region::NTSC_J:
       case Region::PAL:
       {
         const u32 cplayer_address = read32(read32(mp3_static.state_mgr_ptr_address + 0x28) + 0x2184);
@@ -769,6 +788,7 @@ void Noclip::on_state_change(ModState old_state)
         }
       }
       break;
+      case Region::NTSC_J:
       case Region::PAL:
       {
         const u32 cplayer_address = read32(read32(mp3_static.state_mgr_ptr_address + 0x28) + 0x2184);
