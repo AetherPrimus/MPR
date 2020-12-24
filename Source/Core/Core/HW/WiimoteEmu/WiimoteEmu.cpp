@@ -1124,9 +1124,9 @@ void Wiimote::LoadDefaults(const ControllerInterface& ciface)
   // Button defaults
 #if defined HAVE_X11 && HAVE_X11
   // A
-  m_buttons->SetControlExpression(0, "Click 1");
+  m_buttons->SetControlExpression(0, "Click 0");
   // B
-  m_buttons->SetControlExpression(1, "Click 3");
+  m_buttons->SetControlExpression(1, "Space");
 #else
   // Fire
   m_buttons->SetControlExpression(0, "`Click 0` | RETURN");
@@ -1139,13 +1139,8 @@ void Wiimote::LoadDefaults(const ControllerInterface& ciface)
   m_buttons->SetControlExpression(3, "GRAVE");
 
   // +-
-  m_buttons->SetControlExpression(4, "LEFT");
-  m_buttons->SetControlExpression(5, "RIGHT | R");
-
-  // Shake (Only used in Prime 3, may need revision)
-  m_shake->SetControlExpression(1, "LSHIFT & (`Axis Y-` | `Axis Y+` | `Axis X-` | `Axis X+`)");
-  // Springball
-  m_shake->SetControlExpression(2, "LMENU");
+  m_buttons->SetControlExpression(4, "E");
+  m_buttons->SetControlExpression(5, "R");
 
   // DPad
 #ifdef _WIN32
@@ -1163,13 +1158,6 @@ void Wiimote::LoadDefaults(const ControllerInterface& ciface)
   m_dpad->SetControlExpression(2, "Left");   // Left
   m_dpad->SetControlExpression(3, "Right");  // Right
 #endif
-                                             // Motion puzzle controls
-  m_tilt->SetControlExpression(0, "LSHIFT & W");   // Push
-  m_tilt->SetControlExpression(1, "LSHIFT & S");   // Pull
-  m_tilt->SetControlExpression(2, "LSHIFT & A");   // Rotate left
-  m_tilt->SetControlExpression(3, "LSHIFT & D");   // Rotate right
-  m_swing->SetControlExpression(4, "LSHIFT & W");  // Thrust forward
-  m_swing->SetControlExpression(5, "LSHIFT & S");  // Pull back
 
   m_extension->switch_extension = 1;
 
@@ -1181,16 +1169,17 @@ void Wiimote::LoadDefaults(const ControllerInterface& ciface)
   m_primehack_beams->SetControlExpression(1, "`2` & !E");
   m_primehack_beams->SetControlExpression(2, "`3` & !E");
   m_primehack_beams->SetControlExpression(3, "`4` & !E");
-  m_primehack_beams->SetControlExpression(4, "!LSHIFT & Axis Z+"); // Next beam
-  m_primehack_beams->SetControlExpression(5, "!LSHIFT & Axis Z+"); // Previous beam
+  m_primehack_beams->SetControlExpression(4, "!E & Axis Z+"); // Next beam
+  m_primehack_beams->SetControlExpression(5, "!E & Axis Z+"); // Previous beam
 
   // Visors (Combination keys strongly recommended)
   m_primehack_visors->SetControlExpression(0, "E & (!`1` & !`2` & !`3`)");
   m_primehack_visors->SetControlExpression(1, "E & `2`");
   m_primehack_visors->SetControlExpression(2, "E & `3`");
   m_primehack_visors->SetControlExpression(3, "E & `4`");
-  m_primehack_visors->SetControlExpression(4, "LSHIFT & Axis Z+"); // Next visor
-  m_primehack_visors->SetControlExpression(5, "LSHIFT & Axis Z+"); // Previous visor
+  m_primehack_visors->SetControlExpression(4, "E & Axis Z+"); // Next visor
+  m_primehack_visors->SetControlExpression(5, "E & Axis Z+"); // Previous visor
+
   // Misc. Defaults
   m_primehack_misc->SetControlExpression(0, "LMENU"); // Spring Ball
 }

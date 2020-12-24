@@ -158,9 +158,9 @@ void Nunchuk::LoadDefaults(const ControllerInterface& ciface)
 
 #ifdef _WIN32
   // Morph Ball
-  m_buttons->SetControlExpression(0, "C");
+  m_buttons->SetControlExpression(0, "LCONTROL");
   // Lock/Sacn/Spider Ball
-  m_buttons->SetControlExpression(1, "`Click 1`");
+  m_buttons->SetControlExpression(1, "LSHIFT");
 #elif __APPLE__
   m_buttons->SetControlExpression(0, "Left Control");  // C
   m_buttons->SetControlExpression(1, "Left Shift");    // Z
@@ -169,7 +169,7 @@ void Nunchuk::LoadDefaults(const ControllerInterface& ciface)
   m_buttons->SetControlExpression(1, "Shift_L");    // Z
 #endif
 
-                                                    // Shake (Only used in Prime 3, may need revision
+  // Shake (Only used in Prime 3, may need revision
   m_shake->SetControlExpression(1, "LSHIFT & (`Axis Y-` | `Axis Y+` | `Axis X-` | `Axis X+`)");
 }
 }

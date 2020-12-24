@@ -214,16 +214,16 @@ void GCPad::LoadDefaults(const ControllerInterface& ciface)
   EmulatedController::LoadDefaults(ciface);
 
   // Buttons
-  m_buttons->SetControlExpression(0, "X");  // A
-  m_buttons->SetControlExpression(1, "Z");  // B
-  m_buttons->SetControlExpression(2, "C");  // X
-  m_buttons->SetControlExpression(3, "S");  // Y
-  m_buttons->SetControlExpression(4, "D");  // Z
+  m_buttons->SetControlExpression(0, "`Click 0`");  // A
+  m_buttons->SetControlExpression(1, "SPACE");  // B
+  m_buttons->SetControlExpression(2, "Ctrl");  // X
+  m_buttons->SetControlExpression(3, "F");  // Y
+  m_buttons->SetControlExpression(4, "TAB");  // Z
 #ifdef _WIN32
-  m_buttons->SetControlExpression(5, "!LMENU & RETURN");  // Start
+  m_buttons->SetControlExpression(5, "GRAVE");  // Start
 #else
                                             // OS X/Linux
-  m_buttons->SetControlExpression(5, "!`Alt_L` & Return");  // Start
+  m_buttons->SetControlExpression(5, "GRAVE");  // Start
 #endif
 
                                                             // stick modifiers to 50 %
@@ -231,51 +231,26 @@ void GCPad::LoadDefaults(const ControllerInterface& ciface)
   m_c_stick->controls[4]->control_ref->range = 0.5f;
 
   // D-Pad
-  m_dpad->SetControlExpression(0, "T");  // Up
-  m_dpad->SetControlExpression(1, "G");  // Down
-  m_dpad->SetControlExpression(2, "F");  // Left
-  m_dpad->SetControlExpression(3, "H");  // Right
+  m_dpad->SetControlExpression(0, "E & `1`");  // Up
+  m_dpad->SetControlExpression(1, "E & `3`");  // Down
+  m_dpad->SetControlExpression(2, "E & `2`");  // Left
+  m_dpad->SetControlExpression(3, "E & `4`");  // Right
 
-                                         // C Stick
-  m_c_stick->SetControlExpression(0, "I");  // Up
-  m_c_stick->SetControlExpression(1, "K");  // Down
-  m_c_stick->SetControlExpression(2, "J");  // Left
-  m_c_stick->SetControlExpression(3, "L");  // Right
-#ifdef _WIN32
-  m_c_stick->SetControlExpression(4, "LCONTROL");  // Modifier
+  // C Stick
+  m_c_stick->SetControlExpression(0, "!E & `1`");  // Up
+  m_c_stick->SetControlExpression(1, "!E & `3`");  // Down
+  m_c_stick->SetControlExpression(2, "!E & `4`");  // Left
+  m_c_stick->SetControlExpression(3, "!E & `2`");  // Right
 
                                                    // Control Stick
-  m_main_stick->SetControlExpression(0, "UP");      // Up
-  m_main_stick->SetControlExpression(1, "DOWN");    // Down
-  m_main_stick->SetControlExpression(2, "LEFT");    // Left
-  m_main_stick->SetControlExpression(3, "RIGHT");   // Right
-  m_main_stick->SetControlExpression(4, "LSHIFT");  // Modifier
-
-#elif __APPLE__
-  m_c_stick->SetControlExpression(4, "Left Control");  // Modifier
-
-                                                       // Control Stick
-  m_main_stick->SetControlExpression(0, "Up Arrow");     // Up
-  m_main_stick->SetControlExpression(1, "Down Arrow");   // Down
-  m_main_stick->SetControlExpression(2, "Left Arrow");   // Left
-  m_main_stick->SetControlExpression(3, "Right Arrow");  // Right
-  m_main_stick->SetControlExpression(4, "Left Shift");   // Modifier
-#else
-                                            // not sure if these are right
-
-  m_c_stick->SetControlExpression(4, "Control_L");  // Modifier
-
-                                                    // Control Stick
-  m_main_stick->SetControlExpression(0, "Up");       // Up
-  m_main_stick->SetControlExpression(1, "Down");     // Down
-  m_main_stick->SetControlExpression(2, "Left");     // Left
-  m_main_stick->SetControlExpression(3, "Right");    // Right
-  m_main_stick->SetControlExpression(4, "Shift_L");  // Modifier
-#endif
+  m_main_stick->SetControlExpression(0, "W | UP");      // Up
+  m_main_stick->SetControlExpression(1, "S | DOWN");    // Down
+  m_main_stick->SetControlExpression(2, "A | LEFT");    // Left
+  m_main_stick->SetControlExpression(3, "D | RIGHT");   // Right
 
                                                      // Triggers
-  m_triggers->SetControlExpression(0, "Q");  // L
-  m_triggers->SetControlExpression(1, "W");  // R
+  m_triggers->SetControlExpression(0, "LSHIFT");  // L
+  m_triggers->SetControlExpression(2, "LSHIFT");  // R
 }
 
 bool GCPad::GetMicButton() const
