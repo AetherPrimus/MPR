@@ -20,7 +20,7 @@ struct CVar {
 class ElfModLoader : public PrimeMod {
 public:
   void run_mod(Game game, Region region) override;
-  void init_mod(Game game, Region region) override;
+  bool init_mod(Game game, Region region) override;
   void on_state_change(ModState old_state) override;
 
   void get_cvarlist(std::vector<CVar*>& vars_out);

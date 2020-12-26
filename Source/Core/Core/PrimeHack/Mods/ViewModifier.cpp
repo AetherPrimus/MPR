@@ -209,7 +209,7 @@ void ViewModifier::run_mod_mp3() {
   DevInfo("CGame_Camera", "%08X", cgame_camera);
 }
 
-void ViewModifier::init_mod(Game game, Region region) {
+bool ViewModifier::init_mod(Game game, Region region) {
   switch (game) {
   case Game::PRIME_1:
     init_mod_mp1(region);
@@ -230,7 +230,7 @@ void ViewModifier::init_mod(Game game, Region region) {
     init_mod_mp3_standalone(region);
     break;
   }
-  initialized = true;
+  return true;
 }
 
 void ViewModifier::init_mod_mp1(Region region) {
@@ -270,8 +270,8 @@ void ViewModifier::init_mod_mp1_gc(Region region) {
       mp1_gc_static.object_list_address = 0x8045a9b8;
       mp1_gc_static.global_fov1_table_off = -0x7ff0;
       mp1_gc_static.global_fov2_table_off = -0x7fec;
-      mp1_gc_static.culling_address = 0x80337a24;
       mp1_gc_static.gun_pos_address = 0x8045bce8;
+      mp1_gc_static.culling_address = 0x80337a24;
     }
   }
   else if (region == Region::PAL) {
@@ -314,14 +314,14 @@ void ViewModifier::init_mod_mp2(Region region) {
 
 void ViewModifier::init_mod_mp2_gc(Region region) {
   if (region == Region::NTSC_U) {
-    code_changes.emplace_back(0x801b0b38, 0x60000000);
+    add_code_change(0x801b0b38, 0x60000000);
 
     mp2_gc_static.state_mgr_address = 0x803db6e0;
     mp2_gc_static.gun_tweak_offset = 0x6e1c;
     mp2_gc_static.culling_address = 0x802f84c0;
   }
   else if (region == Region::PAL) {
-    code_changes.emplace_back(0x801b0e44, 0x60000000);
+    add_code_change(0x801b0e44, 0x60000000);
 
     mp2_gc_static.state_mgr_address = 0x803dc900;
     mp2_gc_static.gun_tweak_offset = 0x6e14;
