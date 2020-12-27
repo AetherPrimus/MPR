@@ -122,6 +122,14 @@ bool CheckJump() {
   return Wiimote::CheckJump();
 }
 
+bool CheckGrappleCtl() {
+  return Wiimote::CheckGrapple();
+}
+
+bool GrappleCtlBound() {
+  return Wiimote::GrappleCtlBound();
+}
+
 void SetEFBToTexture(bool toggle) {
   return Config::SetCurrent(Config::GFX_HACK_SKIP_EFB_COPY_TO_RAM, toggle);
 }

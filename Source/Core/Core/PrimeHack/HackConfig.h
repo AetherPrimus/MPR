@@ -23,6 +23,9 @@ bool CheckLeft();
 bool CheckRight();
 bool CheckJump();
 
+bool CheckGrappleCtl();
+bool GrappleCtlBound();
+
 void SetEFBToTexture(bool toggle);
 bool UseMPAutoEFB();
 bool LockCameraInPuzzles();
