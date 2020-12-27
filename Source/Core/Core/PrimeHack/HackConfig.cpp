@@ -5,6 +5,7 @@
 
 #include "Common/IniFile.h"
 #include "Core/PrimeHack/PrimeUtils.h"
+#include "Core/PrimeHack/EmuVariableManager.h"
 
 #include "Core/PrimeHack/Mods/AutoEFB.h"
 #include "Core/PrimeHack/Mods/CutBeamFxMP1.h"
@@ -36,6 +37,7 @@ std::string device_name, device_source;
 bool inverted_x = false;
 bool inverted_y = false;
 HackManager hack_mgr;
+EmuVariableManager var_mgr;
 bool is_running = false;
 bool lock_camera = false;
 bool reticle_lock = false;
@@ -288,6 +290,10 @@ std::tuple<bool, bool> GetMenuOptions() {
 
 HackManager* GetHackManager() {
   return &hack_mgr;
+}
+
+EmuVariableManager* GetVariableManager() {
+  return &var_mgr;
 }
 
 bool ModPending() {

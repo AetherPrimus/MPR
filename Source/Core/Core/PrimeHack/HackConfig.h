@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "Core/PrimeHack/HackManager.h"
+#include "Core/PrimeHack/EmuVariableManager.h"
 #include "InputCommon/ControlReference/ControlReference.h"
 
 // Naming scheme will match dolphin as this place acts as an interface between the hack & dolphin proper
@@ -66,6 +67,7 @@ std::string const& GetCtlDeviceSource();
 std::tuple<bool, bool> GetMenuOptions();
 
 HackManager *GetHackManager();
+EmuVariableManager *GetVariableManager();
 
 bool ModPending();
 void ClearPendingModfile();
