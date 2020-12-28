@@ -7,6 +7,7 @@
 #include <wx/menu.h>
 
 #include "Common/GekkoDisassembler.h"
+#include "Common/BitUtils.h"
 #include "Core/Core.h"
 #include "Core/HW/Memmap.h"
 #include "Core/PowerPC/PowerPC.h"
@@ -41,6 +42,11 @@ static u32 GetWatchAddr(int count)
 static u32 GetWatchValue(int count)
 {
   return PowerPC::HostRead_U32(GetWatchAddr(count));
+}
+
+static float GetWatchFloat(int count)
+{
+  return Common::BitCast<float>(PowerPC::HostRead_U32(GetWatchAddr(count)));
 }
 
 static void AddWatchAddr(int count, u32 value)
@@ -89,6 +95,9 @@ static wxString GetValueByRowCol(int row, int col)
       return _("Decimal");
     case 4:
       // i18n: Data type used in computing
+      return _("Float");
+    case 5:
+      // i18n: Data type used in computing
       return _("String");
     default:
       return wxEmptyString;
@@ -109,6 +118,8 @@ static wxString GetValueByRowCol(int row, int col)
       case 3:
         return wxString::Format("%u", GetWatchValue(row));
       case 4:
+        return wxString::Format("%f", GetWatchFloat(row));
+      case 5:
       {
         u32 addr = GetWatchAddr(row);
         if (PowerPC::HostIsRAMAddress(addr))
@@ -191,6 +202,7 @@ wxGridCellAttr* CWatchTable::GetAttr(int row, int col, wxGridCellAttr::wxAttrKin
     break;
   case 3:
   case 4:
+  case 5:
     attr->SetAlignment(wxALIGN_LEFT, wxALIGN_CENTER);
     break;
   default:

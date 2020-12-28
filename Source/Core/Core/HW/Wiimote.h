@@ -87,6 +87,8 @@ bool CheckBack();
 bool CheckLeft();
 bool CheckRight();
 bool CheckJump();
+bool CheckGrapple();
+bool GrappleCtlBound();
 bool PrimeUseController();
 
 void PrimeSetMode(bool controller);

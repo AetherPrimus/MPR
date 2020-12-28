@@ -72,12 +72,19 @@ CWatchWindow::CWatchWindow(wxWindow* parent, wxWindowID id, const wxPoint& posit
                                                        .BottomDockable(false)
                                                        .Floatable(false));
   m_mgr.AddPane(m_GPRGridView, wxAuiPaneInfo().CenterPane());
+
+  m_timer.SetOwner(this);
+  m_timer.Start(500);
+
+  Bind(wxEVT_TIMER, &CWatchWindow::OnTimerUpdate, this);
+
   m_mgr.Update();
 }
 
 CWatchWindow::~CWatchWindow()
 {
   m_mgr.UnInit();
+  m_timer.Stop();
 }
 
 void CWatchWindow::NotifyUpdate()
@@ -102,7 +109,9 @@ void CWatchWindow::SaveAll()
 
 void CWatchWindow::Event_LoadAll(wxCommandEvent& WXUNUSED(event))
 {
+  m_timer.Stop();
   LoadAll();
+  m_timer.Start(500);
 }
 
 void CWatchWindow::LoadAll()
@@ -122,5 +131,10 @@ void CWatchWindow::LoadAll()
     PowerPC::watches.AddFromStrings(watches);
   }
 
+  NotifyUpdate();
+}
+
+void CWatchWindow::OnTimerUpdate(wxTimerEvent&)
+{
   NotifyUpdate();
 }

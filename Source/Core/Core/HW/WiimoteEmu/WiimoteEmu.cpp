@@ -438,6 +438,9 @@ Wiimote::Wiimote(const unsigned int index) : m_index(index), ir_sin(0), ir_cos(1
   m_primehack_misc->controls.emplace_back(
     new ControllerEmu::Input("Spring Ball", "Spring Ball"));
 
+  m_primehack_misc->controls.emplace_back(
+    new ControllerEmu::Input("Grapple Lasso", "Grapple Lasso"));
+
   m_primehack_misc->boolean_settings.emplace_back(
     new ControllerEmu::BooleanSetting("Improved Motion Controls", true));
 
@@ -600,6 +603,17 @@ bool Wiimote::CheckBeamScrollCtrl(bool direction)
 bool Wiimote::CheckSpringBallCtrl()
 {
   return m_primehack_misc->controls[0].get()->control_ref->State() > 0.5;
+}
+
+// Grapple Lasso
+bool Wiimote::CheckGrappleCtrl()
+{
+  return m_primehack_misc->controls[1].get()->control_ref->State() > 0.5;
+}
+
+bool Wiimote::IsGrappleBinded()
+{
+  return !m_primehack_misc->controls[1].get()->control_ref->GetExpression().empty();
 }
 
 bool Wiimote::CheckImprovedMotion()

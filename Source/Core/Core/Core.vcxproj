@@ -289,6 +289,7 @@
     <ClCompile Include="PowerPC\PPCSymbolDB.cpp" />
     <ClCompile Include="PowerPC\PPCTables.cpp" />
     <ClCompile Include="PowerPC\Profiler.cpp" />
+    <ClCompile Include="PrimeHack\EmuVariableManager.cpp" />
     <ClCompile Include="primehack\mods\AutoEFB.cpp" />
     <ClCompile Include="PrimeHack\Mods\ContextSensitiveControls.cpp" />
     <ClCompile Include="primehack\mods\CutBeamFxMP1.cpp" />
@@ -537,12 +538,14 @@
     <ClInclude Include="PowerPC\PPCSymbolDB.h" />
     <ClInclude Include="PowerPC\PPCTables.h" />
     <ClInclude Include="PowerPC\Profiler.h" />
+    <ClInclude Include="PrimeHack\EmuVariableManager.h" />
     <ClInclude Include="PrimeHack\Mods\AutoEFB.h" />
     <ClInclude Include="PrimeHack\Mods\ContextSensitiveControls.h" />
     <ClInclude Include="primehack\mods\CutBeamFxMP1.h" />
     <ClInclude Include="PrimeHack\Mods\DisableBloom.h" />
     <ClInclude Include="PrimeHack\Mods\ElfModLoader.h" />
     <ClInclude Include="PrimeHack\Mods\PortalSkipMP2.h" />
+    <ClInclude Include="PrimeHack\Mods\RestoreDashing.h" />
     <ClInclude Include="PrimeHack\Mods\ViewModifier.h" />
     <ClInclude Include="PrimeHack\Mods\FpsControls.h" />
     <ClInclude Include="primehack\mods\Noclip.h" />
