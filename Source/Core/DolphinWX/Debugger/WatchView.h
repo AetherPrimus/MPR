@@ -19,7 +19,7 @@ class CWatchTable : public wxGridTableBase
 
 public:
   CWatchTable() {}
-  int GetNumberCols() override { return 5; }
+  int GetNumberCols() override { return 6; }
   int GetNumberRows() override { return MAX_SPECIALS; }
   wxString GetValue(int row, int col) override;
   void SetValue(int row, int col, const wxString&) override;
