@@ -293,6 +293,7 @@
     <ClCompile Include="PrimeHack\Mods\ContextSensitiveControls.cpp" />
     <ClCompile Include="primehack\mods\CutBeamFxMP1.cpp" />
     <ClCompile Include="PrimeHack\Mods\ElfModLoader.cpp" />
+    <ClCompile Include="PrimeHack\Mods\PortalSkipMP2.cpp" />
     <ClCompile Include="PrimeHack\Mods\ViewModifier.cpp" />
     <ClCompile Include="PrimeHack\Mods\FpsControls.cpp" />
     <ClCompile Include="primehack\mods\Noclip.cpp" />
@@ -541,6 +542,7 @@
     <ClInclude Include="primehack\mods\CutBeamFxMP1.h" />
     <ClInclude Include="PrimeHack\Mods\DisableBloom.h" />
     <ClInclude Include="PrimeHack\Mods\ElfModLoader.h" />
+    <ClInclude Include="PrimeHack\Mods\PortalSkipMP2.h" />
     <ClInclude Include="PrimeHack\Mods\ViewModifier.h" />
     <ClInclude Include="PrimeHack\Mods\FpsControls.h" />
     <ClInclude Include="primehack\mods\Noclip.h" />

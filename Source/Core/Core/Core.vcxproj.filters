@@ -930,6 +930,9 @@
     <ClCompile Include="PrimeHack\Mods\ContextSensitiveControls.cpp">
       <Filter>PrimeHack\Mods</Filter>
     </ClCompile>
+    <ClCompile Include="PrimeHack\Mods\PortalSkipMP2.cpp">
+      <Filter>PrimeHack\Mods</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BootManager.h" />
@@ -1644,6 +1647,9 @@
       <Filter>PrimeHack\Mods</Filter>
     </ClInclude>
     <ClInclude Include="PrimeHack\Mods\ContextSensitiveControls.h">
+      <Filter>PrimeHack\Mods</Filter>
+    </ClInclude>
+    <ClInclude Include="PrimeHack\Mods\PortalSkipMP2.h">
       <Filter>PrimeHack\Mods</Filter>
     </ClInclude>
   </ItemGroup>
