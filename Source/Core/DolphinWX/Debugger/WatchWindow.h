@@ -25,9 +25,12 @@ public:
   void Event_LoadAll(wxCommandEvent& WXUNUSED(event));
   void LoadAll();
 
+  void OnTimerUpdate(wxTimerEvent&);
+
 private:
   wxAuiManager m_mgr;
 
   // Owned by wx. Deleted implicitly upon destruction.
   CWatchView* m_GPRGridView;
+  wxTimer m_timer;
 };

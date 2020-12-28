@@ -46,4 +46,5 @@ private:
   u32 m_selectedAddress = 0;
   u32 m_selectedRow = 0;
   CWatchTable* m_watch_table;
+
 };
