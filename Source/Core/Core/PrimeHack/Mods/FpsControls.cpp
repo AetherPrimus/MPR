@@ -1,9 +1,10 @@
 #include "Core/PrimeHack/Mods/FpsControls.h"
+
 #include "Core/PrimeHack/Mods/ContextSensitiveControls.h"
-
-#include "Common/Timer.h"
-
 #include "Core/PrimeHack/PrimeUtils.h"
+
+#include <cmath>
+#include "Common/Timer.h"
 
 namespace prime {
 namespace {  
@@ -263,7 +264,7 @@ void FpsControls::run_mod_mp1(Region region) {
 
   // Allows freelook in grapple, otherwise we are orbiting (locked on) to something
   bool locked = (read32(mp1_static.orbit_state_address) != ORBIT_STATE_GRAPPLE &&
-    read8(mp1_static.lockon_address) || beamvisor_menu);
+    read8(mp1_static.lockon_address)) || beamvisor_menu;
 
   u32 cursor_base = read32(read32(mp1_static.cursor_base_address) + mp1_static.cursor_offset);
 
@@ -381,7 +382,7 @@ void FpsControls::run_mod_mp2(Region region) {
 
   // Allows freelook in grapple, otherwise we are orbiting (locked on) to something
   bool locked = (read32(cplayer_address + 0x390) != ORBIT_STATE_GRAPPLE &&
-    read32(mp2_static.lockon_address) || beamvisor_menu);
+    read32(mp2_static.lockon_address)) || beamvisor_menu;
 
   u32 cursor_base = read32(read32(mp2_static.cursor_base_address) + mp2_static.cursor_offset);
 
