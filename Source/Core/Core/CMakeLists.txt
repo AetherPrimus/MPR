@@ -239,7 +239,7 @@ add_library(core
   PrimeHack/Mods/ContextSensitiveControls.cpp
   PrimeHack/Mods/ElfModLoader.cpp
   PrimeHack/Mods/ViewModifier.cpp
-  PrimeHack/Mods/EmuVariableManager.cpp
+  PrimeHack/EmuVariableManager.cpp
   PrimeHack/HackConfig.cpp
   PrimeHack/HackManager.cpp
   PrimeHack/Transform.cpp

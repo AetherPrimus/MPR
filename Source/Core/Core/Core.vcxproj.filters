@@ -930,6 +930,9 @@
     <ClCompile Include="PrimeHack\Mods\ContextSensitiveControls.cpp">
       <Filter>PrimeHack\Mods</Filter>
     </ClCompile>
+    <ClCompile Include="PrimeHack\Mods\PortalSkipMP2.cpp">
+      <Filter>PrimeHack\Mods</Filter>
+    </ClCompile>
     <ClCompile Include="PrimeHack\EmuVariableManager.cpp">
       <Filter>PrimeHack</Filter>
     </ClCompile>
@@ -1647,6 +1650,9 @@
       <Filter>PrimeHack\Mods</Filter>
     </ClInclude>
     <ClInclude Include="PrimeHack\Mods\ContextSensitiveControls.h">
+      <Filter>PrimeHack\Mods</Filter>
+    </ClInclude>
+    <ClInclude Include="PrimeHack\Mods\PortalSkipMP2.h">
       <Filter>PrimeHack\Mods</Filter>
     </ClInclude>
     <ClInclude Include="PrimeHack\Mods\RestoreDashing.h">

@@ -18,6 +18,7 @@
 #include "Core/PrimeHack/Mods/SpringballButton.h"
 #include "Core/PrimeHack/Mods/ViewModifier.h"
 #include "Core/PrimeHack/Mods/ContextSensitiveControls.h"
+#include "Core/PrimeHack/Mods/PortalSkipMP2.h"
 
 #include "InputCommon/ControllerInterface/ControllerInterface.h"
 
@@ -60,6 +61,7 @@ void InitializeHack(std::string const& mkb_device_name, std::string const& mkb_d
   hack_mgr.add_mod("fov_modifier", std::make_unique<ViewModifier>());
   hack_mgr.add_mod("elf_mod_loader", std::make_unique<ElfModLoader>());
   hack_mgr.add_mod("context_sensitive_controls", std::make_unique<ContextSensitiveControls>());
+  hack_mgr.add_mod("portal_skip_mp2", std::make_unique<PortalSkipMP2>());
 
   device_name = mkb_device_name;
   device_source = mkb_device_source;
@@ -76,6 +78,7 @@ void InitializeHack(std::string const& mkb_device_name, std::string const& mkb_d
   hack_mgr.enable_mod("springball_button");
   hack_mgr.enable_mod("context_sensitive_controls");
   hack_mgr.enable_mod("elf_mod_loader");
+  hack_mgr.enable_mod("portal_skip_mp2");
 }
 
 bool CheckBeamCtl(int beam_num) {
