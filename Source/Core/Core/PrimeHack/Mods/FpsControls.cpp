@@ -666,6 +666,8 @@ void FpsControls::CheckBeamVisorSetting(Game game)
   case Game::PRIME_3:
     change_code_group_state("visor_menu", visor ? ModState::DISABLED : ModState::ENABLED);
     break;
+  default:
+    break;
   }
 }
 
@@ -692,6 +694,8 @@ bool FpsControls::init_mod(Game game, Region region) {
     break;
   case Game::PRIME_3_STANDALONE:
     init_mod_mp3_standalone(region);
+    break;
+  default:
     break;
   }
   return true;
