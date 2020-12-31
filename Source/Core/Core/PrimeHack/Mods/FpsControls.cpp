@@ -628,7 +628,7 @@ void FpsControls::run_mod_mp3(Game active_game, Region active_region) {
       start_pitch = pitch;
     }
 
-    pitch = std::lerp(start_pitch, 0.f, delta / 15.f);
+    pitch = Lerp(start_pitch, 0.f, delta / 15.f);
     writef32(pitch, pitch_address);
     delta++;
 
