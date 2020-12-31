@@ -27,8 +27,10 @@ void ViewModifier::run_mod(Game game, Region region) {
 }
 
 void ViewModifier::disable_culling(u32 start_point) {
-  write_invalidate(start_point, 0x38600001);
-  write_invalidate(start_point + 0x4, 0x4e800020);
+  if (read32(start_point) != 0x38600001) {
+    write_invalidate(start_point, 0x38600001);
+    write_invalidate(start_point + 0x4, 0x4e800020);
+  }
 }
 
 void ViewModifier::adjust_viewmodel(float fov, u32 arm_address, u32 znear_address, u32 znear_value) {
