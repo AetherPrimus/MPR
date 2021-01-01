@@ -26,13 +26,6 @@ void ViewModifier::run_mod(Game game, Region region) {
   }
 }
 
-void ViewModifier::disable_culling(u32 start_point) {
-  if (read32(start_point) != 0x38600001) {
-    write_invalidate(start_point, 0x38600001);
-    write_invalidate(start_point + 0x4, 0x4e800020);
-  }
-}
-
 void ViewModifier::adjust_viewmodel(float fov, u32 arm_address, u32 znear_address, u32 znear_value) {
   float left = 0.25f;
   float forward = 0.30f;
@@ -84,9 +77,7 @@ void ViewModifier::run_mod_mp1() {
   adjust_viewmodel(fov, mp1_static.gun_pos_address, camera_address + 0x168,
     0x3d200000);
 
-  if (GetCulling() || GetFov() > 101.f) {
-    disable_culling(mp1_static.culling_address);
-  }
+  change_code_group_state("culling", (GetCulling() || GetFov() > 101.f) ? ModState::ENABLED : ModState::DISABLED);
 
   DevInfo("Camera_Addr", "%08X", camera_address);
 }
@@ -120,9 +111,7 @@ void ViewModifier::run_mod_mp1_gc() {
   adjust_viewmodel(fov, mp1_gc_static.gun_pos_address, camera_address + 0x160 + pal_offset,
     0x3d200000);
 
-  if (GetCulling() || GetFov() > 101.f) {
-    disable_culling(mp1_gc_static.culling_address);
-  }
+  change_code_group_state("culling", (GetCulling() || GetFov() > 101.f) ? ModState::ENABLED : ModState::DISABLED);
 }
 
 void ViewModifier::run_mod_mp2() {
@@ -144,9 +133,7 @@ void ViewModifier::run_mod_mp2() {
   adjust_viewmodel(fov, read32(read32(mp2_static.tweakgun_ptr_address)) + 0x4c,
     camera_base + 0x1c4, 0x3d200000);
 
-  if (GetCulling() || GetFov() > 101.f) {
-    disable_culling(mp2_static.culling_address);
-  }
+  change_code_group_state("culling", (GetCulling() || GetFov() > 101.f) ? ModState::ENABLED : ModState::DISABLED);
 
   DevInfo("Camera_Base", "%08X", camera_base);
 }
@@ -174,9 +161,7 @@ void ViewModifier::run_mod_mp2_gc() {
   adjust_viewmodel(fov, read32(read32(GPR(13) - mp2_gc_static.gun_tweak_offset)) + 0x50,
     camera_base + 0x1cc, 0x3d200000);
 
-  if (GetCulling() || GetFov() > 101.f) {
-    disable_culling(mp2_gc_static.culling_address);
-  }
+  change_code_group_state("culling", (GetCulling() || GetFov() > 101.f) ? ModState::ENABLED : ModState::DISABLED);
 
   DevInfo("Camera_Base", "%08X", camera_base);
 }
@@ -205,9 +190,7 @@ void ViewModifier::run_mod_mp3() {
   adjust_viewmodel(fov, read32(read32(mp3_static.tweakgun_address))
     + 0xe0, cgame_camera + 0x8C, 0x3dcccccd);
 
-  if (GetCulling() || GetFov() > 96.f) {
-    disable_culling(mp3_static.culling_address);
-  }
+  change_code_group_state("culling", (GetCulling() || GetFov() > 96.f) ? ModState::ENABLED : ModState::DISABLED);
 
   DevInfo("CGame_Camera", "%08X", cgame_camera);
 }
@@ -243,7 +226,9 @@ void ViewModifier::init_mod_mp1(Region region) {
     mp1_static.global_fov1_address = 0x805c0e38;
     mp1_static.global_fov2_address = 0x805c0e3c;
     mp1_static.gun_pos_address = 0x804ddae4;
-    mp1_static.culling_address = 0x802c7dbc;
+
+    add_code_change(0x802c7dbc, 0x38600001, "culling");
+    add_code_change(0x802c7dbc + 0x4, 0x4e800020, "culling");
   }
   else if (region == Region::PAL) {
     mp1_static.camera_ptr_address = 0x804c3b70;
@@ -251,7 +236,9 @@ void ViewModifier::init_mod_mp1(Region region) {
     mp1_static.global_fov1_address = 0x805c5178;
     mp1_static.global_fov2_address = 0x805c517c;
     mp1_static.gun_pos_address = 0x804e1a24;
-    mp1_static.culling_address = 0x802c8024;
+
+    add_code_change(0x802c8024, 0x38600001, "culling");
+    add_code_change(0x802c8024 + 0x4, 0x4e800020, "culling");
   }
   else if (region == Region::NTSC_J) {
     mp1_static.camera_ptr_address = 0x804bfeb0;
@@ -259,7 +246,9 @@ void ViewModifier::init_mod_mp1(Region region) {
     mp1_static.global_fov1_address = 0x80641138;
     mp1_static.global_fov2_address = 0x8064113c;
     mp1_static.gun_pos_address = 0x804d398c;
-    mp1_static.culling_address = 0x802c7a3c;
+
+    add_code_change(0x802c7a3c, 0x38600001, "culling");
+    add_code_change(0x802c7a3c + 0x4, 0x4e800020, "culling");
   }
 
 }
@@ -274,7 +263,9 @@ void ViewModifier::init_mod_mp1_gc(Region region) {
       mp1_gc_static.global_fov1_table_off = -0x7ff0;
       mp1_gc_static.global_fov2_table_off = -0x7fec;
       mp1_gc_static.gun_pos_address = 0x8045bce8;
-      mp1_gc_static.culling_address = 0x80337a24;
+
+      add_code_change(0x80337a24, 0x38600001, "culling");
+      add_code_change(0x80337a24 + 0x4, 0x4e800020, "culling");
     }
   }
   else if (region == Region::PAL) {
@@ -285,7 +276,9 @@ void ViewModifier::init_mod_mp1_gc(Region region) {
     mp1_gc_static.global_fov2_table_off = -0x7fe4;
     //tweakgun 803e3bc8
     mp1_gc_static.gun_pos_address = 0x803e3bc8 + 0x4c;
-    mp1_gc_static.culling_address = 0x80320424;
+
+    add_code_change(0x80320424, 0x38600001, "culling");
+    add_code_change(0x80320424 + 0x4, 0x4e800020, "culling");
   }
   else {}
 }
@@ -295,22 +288,28 @@ void ViewModifier::init_mod_mp2(Region region) {
     mp2_static.camera_ptr_address = 0x804e7af8;
     mp2_static.camera_offset_address = 0x804eb9ac;
     mp2_static.tweakgun_ptr_address = 0x805cb274;
-    mp2_static.culling_address = 0x802c8114;
     mp2_static.load_state_address = 0x804e8824;
+
+    add_code_change(0x802c8114, 0x38600001, "culling");
+    add_code_change(0x802c8114 + 0x4, 0x4e800020, "culling");
   }
   else if (region == Region::NTSC_J) {
     mp2_static.camera_ptr_address = 0x804e9cb0;
     mp2_static.camera_offset_address = 0x804ec19c;
     mp2_static.tweakgun_ptr_address = 0x805cba54;
-    mp2_static.culling_address = 0x802c6a28;
     mp2_static.load_state_address = 0x804e9014;
+
+    add_code_change(0x802c6a28, 0x38600001, "culling");
+    add_code_change(0x802c6a28 + 0x4, 0x4e800020, "culling");
   }
   else if (region == Region::PAL) {
     mp2_static.camera_ptr_address = 0x804eef48;
     mp2_static.camera_offset_address = 0x804f2f4c;
     mp2_static.tweakgun_ptr_address = 0x805d2cdc;
-    mp2_static.culling_address = 0x802ca730;
     mp2_static.load_state_address = 0x804efc74;
+
+    add_code_change(0x802ca730, 0x38600001, "culling");
+    add_code_change(0x802ca730 + 0x4, 0x4e800020, "culling");
   }
   else {}
 }
@@ -321,14 +320,18 @@ void ViewModifier::init_mod_mp2_gc(Region region) {
 
     mp2_gc_static.state_mgr_address = 0x803db6e0;
     mp2_gc_static.gun_tweak_offset = 0x6e1c;
-    mp2_gc_static.culling_address = 0x802f84c0;
+
+    add_code_change(0x802f84c0, 0x38600001, "culling");
+    add_code_change(0x802f84c0 + 0x4, 0x4e800020, "culling");
   }
   else if (region == Region::PAL) {
     add_code_change(0x801b0e44, 0x60000000);
 
     mp2_gc_static.state_mgr_address = 0x803dc900;
     mp2_gc_static.gun_tweak_offset = 0x6e14;
-    mp2_gc_static.culling_address = 0x802f8818;
+
+    add_code_change(0x802f8818, 0x38600001, "culling");
+    add_code_change(0x802f8818 + 0x4, 0x4e800020, "culling");
   }
   else {}
 }
@@ -337,12 +340,16 @@ void ViewModifier::init_mod_mp3(Region region) {
   if (region == Region::NTSC_U) {
     mp3_static.camera_ptr_address = 0x805c6c68;
     mp3_static.tweakgun_address = 0x8066f87c;
-    mp3_static.culling_address = 0x8031490c;
+
+    add_code_change(0x8031490c, 0x38600001, "culling");
+    add_code_change(0x8031490c + 0x4, 0x4e800020, "culling");
   }
   else if (region == Region::PAL) {
     mp3_static.camera_ptr_address = 0x805c7598;
     mp3_static.tweakgun_address = 0x806730fc;
-    mp3_static.culling_address = 0x80314038;
+
+    add_code_change(0x80314038, 0x38600001, "culling");
+    add_code_change(0x80314038 + 0x4, 0x4e800020, "culling");
   }
   else {}
 }
@@ -351,17 +358,23 @@ void ViewModifier::init_mod_mp3_standalone(Region region) {
   if (region == Region::NTSC_U) {
     mp3_static.camera_ptr_address = 0x805c4f94;
     mp3_static.tweakgun_address = 0x8067d78c;
-    mp3_static.culling_address = 0x80316a1c;
+
+    add_code_change(0x80316a1c, 0x38600001, "culling");
+    add_code_change(0x80316a1c + 0x4, 0x4e800020, "culling");
   }
   else if (region == Region::NTSC_J) {
     mp3_static.camera_ptr_address = 0x805caa58;
     mp3_static.tweakgun_address = 0x806835fc;
-    mp3_static.culling_address = 0x8031a4b4;
+
+    add_code_change(0x8031a4b4, 0x38600001, "culling");
+    add_code_change(0x8031a4b4 + 0x4, 0x4e800020, "culling");
   }
   else if (region == Region::PAL) {
     mp3_static.camera_ptr_address = 0x805c7598;
     mp3_static.tweakgun_address = 0x8067fdac;
-    mp3_static.culling_address = 0x80318170;
+
+    add_code_change(0x80318170, 0x38600001, "culling");
+    add_code_change(0x80318170 + 0x4, 0x4e800020, "culling");
   }
   else {}
 }

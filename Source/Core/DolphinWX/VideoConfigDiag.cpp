@@ -1507,9 +1507,6 @@ VideoConfigDiag::VideoConfigDiag(wxWindow* parent, const std::string& title)
       m_toggle_culling->Disable();
       m_toggle_culling->SetValue(true);
     }
-      
-    if (prime::GetEnableSecondaryGunFX())
-      m_toggle_secondaryFX->Disable();
 
     wxStaticBoxSizer* const viewmodel_group =
       new wxStaticBoxSizer(wxVERTICAL, page_primehack, _("Viewmodel"));
@@ -2224,12 +2221,6 @@ void VideoConfigDiag::OnUpdateUI(wxUpdateUIEvent& ev)
 
   if (Core::IsRunning())
   {
-    if (prime::GetFov() > 94)
-    {
-      m_toggle_culling->Disable();
-      m_toggle_culling->SetValue(true);
-    }
-
     if (vconfig.backend_info.bSupportsComputeTextureEncoding)
     {
       Compute_Shader_encoding->Disable();
@@ -2266,8 +2257,6 @@ void VideoConfigDiag::OnUpdateUI(wxUpdateUIEvent& ev)
   }
   else
   {
-    m_toggle_secondaryFX->Enable();
-    m_toggle_culling->Enable();
     // Predictive_FIFO->Enable(!vconfig.bWaitForShaderCompilation);
   }
   // Don't enable 'vertex rounding' at native
@@ -2279,6 +2268,16 @@ void VideoConfigDiag::OnUpdateUI(wxUpdateUIEvent& ev)
   {
     vertex_rounding_checkbox->Enable(true);
   }
+
+  if (prime::GetFov() > 94)
+  {
+    m_toggle_culling->Disable();
+    m_toggle_culling->SetValue(true);
+  }
+  else {
+    m_toggle_culling->Enable();
+  }
+
   ev.Skip();
 }
 
