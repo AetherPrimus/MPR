@@ -149,6 +149,8 @@ private:
 
   // Prime 3 Grapple Lasso
   u32 grapple_time = 0;
+  float grapple_power = 0;
+  bool grapple_button_down = false;
 
   // Check when to reset the cursor position
   bool menu_open = true;

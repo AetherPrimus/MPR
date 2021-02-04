@@ -574,44 +574,51 @@ void FpsControls::run_mod_mp3(Game active_game, Region active_region) {
 
     writef32(pitch, pitch_address);
 
-    // Handle grapple lasso
-    if (prime::CheckGrappleCtl()) {
-      if (grapple_time == 0) {
-        grapple_time = Common::Timer::GetTimeMs();
-        return;
-      }
+    DevInfo("Grapple Power", "%f", grapple_power);
+    DevInfo("Grapple Button Down", "%d", grapple_button_down);
 
-      if (Common::Timer::GetTimeMs() > grapple_time + 2000) {
-        // Successfully grapple lasso
+    if (grapple_power != 0) {
+      if (grapple_power > 120.f) {
         prime::GetVariableManager()->set_variable("grapple_lasso_state", (u32) 4);
-        return;
-      } else if (Common::Timer::GetTimeMs() > grapple_time + 1000) {
-        // Hold grapple lasso and tense the rope
-        prime::GetVariableManager()->set_variable("grapple_pull_state", (u32) 2);
-        prime::GetVariableManager()->set_variable("grapple_pull_amount", 0.3f);
-        return;
+      }
+      else {
+        grapple_power -= 0.65f;
+
+        if (grapple_power < 0) {
+          prime::GetVariableManager()->set_variable("grapple_pull_amount", 0.0f);
+          grapple_power = 0;
+        }  
       }
     }
     else {
-      if (grapple_time != 0) {
-        // Disconnect grapple
-        prime::GetVariableManager()->set_variable("grapple_lasso_state", (u32) 5);
-        grapple_time = 0;
-      } else {
-        // Allow another graplle connection
-        prime::GetVariableManager()->set_variable("grapple_lasso_state", (u32) 0);
-      }
-      
-      prime::GetVariableManager()->set_variable("trigger_grapple", (u32) 0);
-      prime::GetVariableManager()->set_variable("grapple_pull_amount", (u32) 0);
+      prime::GetVariableManager()->set_variable("grapple_pull_amount", 0.0f);
+      grapple_time = 0;
+    }
+
+    // Handle grapple lasso
+    if (prime::CheckGrappleCtl()) {
+      if (!grapple_button_down) {
+        if (grapple_time == 0) {
+          grapple_time = Common::Timer::GetTimeMs();
+        }
+
+        if (grapple_power > 50) {
+          prime::GetVariableManager()->set_variable("grapple_pull_amount", 0.3f);
+        }
+
+        grapple_button_down = true;
+      }   
+    } else if (grapple_button_down && Common::Timer::GetTimeMs() > grapple_time + 250) {
+      grapple_power += 25;
+      grapple_time = 0;
+      grapple_button_down = false;
     }
 
     return;
   }
-  else { // Reset our parameters for another grapple
-    grapple_time = 0;
-    prime::GetVariableManager()->set_variable("grapple_lasso_state", (u32) 0);
+  else { 
     prime::GetVariableManager()->set_variable("grapple_pull_amount", (u32) 0);
+    grapple_time, grapple_power = 0;
   }
 
   // Lock Camera according to ContextSensitiveControls and interpolate to pitch 0
