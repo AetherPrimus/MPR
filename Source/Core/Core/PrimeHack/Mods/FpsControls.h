@@ -47,7 +47,7 @@ private:
   void add_beam_change_code_mp1(u32 start_point);
   void add_beam_change_code_mp2(u32 start_point);
   void add_grapple_slide_code_mp3(u32 start_point);
-  void add_grapple_lasso_code_mp3(u32 func1, u32 func2);
+  void add_grapple_lasso_code_mp3(u32 func1, u32 func2, u32 func3);
   void add_control_state_hook_mp3(u32 start_point, Region region);
   // Very large code, apologies for anyone who reads this
   // corresponding assembly is in comments :)
@@ -149,7 +149,7 @@ private:
 
   // Prime 3 Grapple Lasso
   u32 grapple_time = 0;
-  float grapple_power = 0;
+  float grapple_velocity, grapple_power = 0;
   bool grapple_button_down = false;
 
   // Check when to reset the cursor position

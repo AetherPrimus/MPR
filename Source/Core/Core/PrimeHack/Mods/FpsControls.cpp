@@ -509,6 +509,10 @@ void FpsControls::run_mod_mp3(Game active_game, Region active_region) {
   CheckBeamVisorSetting(active_game);
   change_code_group_state("grapple_lasso", GrappleCtlBound() ? ModState::ENABLED : ModState::DISABLED);
 
+  // Disable animation code changes if trying to use grapple voltage.
+  change_code_group_state("grapple_lasso_animation",
+    CheckForward() || CheckBack() ? ModState::DISABLED : ModState::ENABLED);
+
   u32 cplayer_address = 0;
 
   // Handles menu screen cursor
@@ -564,7 +568,7 @@ void FpsControls::run_mod_mp3(Game active_game, Region active_region) {
   bool beamvisor_menu = read32(read32(mp3_static.beamvisor_menu_address) + mp3_static.beamvisor_menu_offset) == 3;
   DevInfo("CPlayer_Real", "%x", cplayer_address);
   DevInfo("CPlayer+0x378", "%x", read8(cplayer_address + 0x378));
-  if (!read8(cplayer_address + 0x378) && read8(mp3_static.lockon_address) || beamvisor_menu || read8(cplayer_address + 0x378)) {
+  if (!read8(cplayer_address + 0x378) && read8(mp3_static.lockon_address) || beamvisor_menu) {
     write32(0, cplayer_address + 0x174);
     calculate_pitch_locked(Game::PRIME_3, active_region);
 
@@ -574,51 +578,62 @@ void FpsControls::run_mod_mp3(Game active_game, Region active_region) {
 
     writef32(pitch, pitch_address);
 
-    DevInfo("Grapple Power", "%f", grapple_power);
+    return;
+  }
+  
+  // If currently grappling. This must be seperate from lock-on for grapple swing.
+  if (read8(cplayer_address + 0x378)) {
+
     DevInfo("Grapple Button Down", "%d", grapple_button_down);
+    DevInfo("Grapple Power", "%f", grapple_power);
+    DevInfo("Grapple Velocity", "%f", grapple_velocity);
+    DevInfo("Grapple Time", "%d", grapple_time);
 
-    if (grapple_power != 0) {
-      if (grapple_power > 120.f) {
-        prime::GetVariableManager()->set_variable("grapple_lasso_state", (u32) 4);
-      }
-      else {
-        grapple_power -= 0.65f;
-
-        if (grapple_power < 0) {
-          prime::GetVariableManager()->set_variable("grapple_pull_amount", 0.0f);
-          grapple_power = 0;
-        }  
-      }
-    }
-    else {
-      prime::GetVariableManager()->set_variable("grapple_pull_amount", 0.0f);
-      grapple_time = 0;
-    }
+    // Increase per buttion press, divided by quarter a second (frame-time)
+    constexpr float delta = 0.22f / 15.f; // ~0.008
 
     // Handle grapple lasso
     if (prime::CheckGrappleCtl()) {
-      if (!grapple_button_down) {
-        if (grapple_time == 0) {
-          grapple_time = Common::Timer::GetTimeMs();
-        }
-
-        if (grapple_power > 50) {
-          prime::GetVariableManager()->set_variable("grapple_pull_amount", 0.3f);
-        }
-
-        grapple_button_down = true;
-      }   
-    } else if (grapple_button_down && Common::Timer::GetTimeMs() > grapple_time + 250) {
-      grapple_power += 25;
-      grapple_time = 0;
+      if (grapple_time == 0) {
+        grapple_time = Common::Timer::GetTimeMs();
+      }
+      else if (Common::Timer::GetTimeMs() > grapple_time + 800) {
+        if (!grapple_button_down) {
+          grapple_button_down = true;
+        }   
+      }
+    } else if (grapple_button_down && grapple_velocity == 0) {
+      grapple_velocity += 0.22f;
       grapple_button_down = false;
     }
 
-    return;
+    if (grapple_velocity > 0) {
+      grapple_power += delta;
+      grapple_velocity -= delta;
+    }
+    else {
+      grapple_power -= 0.032f;
+      grapple_velocity = 0;
+    }
+
+    grapple_power = std::clamp(grapple_power, 0.f, 1.f);
+    prime::GetVariableManager()->set_variable("grapple_pull_amount", grapple_power);
+
+    if (grapple_power == 1.f) {
+      // State 4 completes the grapple (e.g pull door from frame)
+      prime::GetVariableManager()->set_variable("grapple_lasso_state", (u32) 4);
+    }
+    else {
+      // State 2 "holds" the grapple for lasso/voltage.
+      prime::GetVariableManager()->set_variable("grapple_lasso_state", (u32) 2);
+    }
   }
   else { 
-    prime::GetVariableManager()->set_variable("grapple_pull_amount", (u32) 0);
-    grapple_time, grapple_power = 0;
+    prime::GetVariableManager()->set_variable("grapple_pull_amount", 0.f);
+    // State 0 readys for another grapple connection.
+    prime::GetVariableManager()->set_variable("grapple_lasso_state", (u32) 0);
+    grapple_velocity, grapple_power = 0;
+    grapple_time = 0;
   }
 
   // Lock Camera according to ContextSensitiveControls and interpolate to pitch 0
@@ -749,28 +764,38 @@ void FpsControls::add_grapple_slide_code_mp3(u32 start_point) {
                                                               // ; to their own transform (safety no-op, does other updating too)
 }
 
-void FpsControls::add_grapple_lasso_code_mp3(u32 func1, u32 func2) {
+void FpsControls::add_grapple_lasso_code_mp3(u32 func1, u32 func2, u32 func3) {
   u32 lis, ori;
 
   std::tie<u32, u32>(lis, ori) = prime::GetVariableManager()->make_lis_ori(11, "grapple_pull_amount");
+
+  // Controls how tight the lasso is and if to turn yellow.
   add_code_change(func1, lis, "grapple_lasso");
   add_code_change(func1 + 0x4, ori, "grapple_lasso");
-  add_code_change(func1 + 0xC, 0xC04B0000, "grapple_lasso");  // lfs
+  add_code_change(func1 + 0xC, 0xC04B0000, "grapple_lasso");  // lfs f2, 0(r11)
 
+  // Skips the game's checks and lets us control grapple lasso ourselves.
   add_code_change(func1 + 0x8, 0x40800160, "grapple_lasso"); // first conditional branch changed to jmp to end
   add_code_change(func1 + 0x18, 0x40810148, "grapple_lasso"); // second conditional branch changed to jmp to end
   add_code_change(func1 + 0x54, 0x4800010C, "grapple_lasso"); // end of 'yellow' segment jmp to end
 
+  // Controls the pulling animation.
+  add_code_change(func2, lis, "grapple_lasso_animation");
+  add_code_change(func2 + 0x8, ori, "grapple_lasso_animation");
+  add_code_change(func2 + 0xC, 0xC00B0000, "grapple_lasso_animation");  // lfs f0, 0(r11)
+
+  // Controls the return value of the "ProcessGrappleLasso" function.
   std::tie<u32, u32>(lis, ori) = prime::GetVariableManager()->make_lis_ori(30, "grapple_lasso_state");
   add_code_change(func1 + 0x160, lis, "grapple_lasso");
   add_code_change(func1 + 0x164, ori, "grapple_lasso");
-  add_code_change(func1 + 0x168, 0x83DE0000, "grapple_lasso"); // lwz
+  add_code_change(func1 + 0x168, 0x83DE0000, "grapple_lasso"); // lwz r30, 0(r30)
 
+  // Triggers grapple.
   std::tie<u32, u32>(lis, ori) = prime::GetVariableManager()->make_lis_ori(3, "trigger_grapple");
-  add_code_change(func2 + 0x0, lis, "grapple_lasso");
-  add_code_change(func2 + 0x4, ori, "grapple_lasso");
-  add_code_change(func2 + 0x8, 0x80630000, "grapple_lasso"); // lwz
-  add_code_change(func2 + 0xC, 0x4E800020, "grapple_lasso");
+  add_code_change(func3 + 0x0, lis, "grapple_lasso");
+  add_code_change(func3 + 0x4, ori, "grapple_lasso");
+  add_code_change(func3 + 0x8, 0x80630000, "grapple_lasso"); // lwz r3, 0(r3)
+  add_code_change(func3 + 0xC, 0x4E800020, "grapple_lasso"); // blr
 }
 
 void FpsControls::add_control_state_hook_mp3(u32 start_point, Region region) {
@@ -1617,7 +1642,7 @@ void FpsControls::init_mod_mp3(Region region) {
     add_code_change(0x8017f88c, 0x60000000);
 
     // grapple lasso
-    add_grapple_lasso_code_mp3(0x800DDE64, 0x80171AD8);
+    add_grapple_lasso_code_mp3(0x800DDE64, 0x80170CFC, 0x80171AD8);
 
     add_control_state_hook_mp3(0x80005880, Region::NTSC_U);
     add_grapple_slide_code_mp3(0x8017f2a0);
