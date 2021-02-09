@@ -67,6 +67,9 @@ namespace prime {
       return;
     }
 
+    if (variables_list.find(name) != variables_list.end())
+      return;
+
     u32 address = base_address + (variables_list.size() * 0x4);
     variables_list[name] = address;
   }
