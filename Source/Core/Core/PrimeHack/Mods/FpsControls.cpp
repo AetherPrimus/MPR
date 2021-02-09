@@ -583,14 +583,13 @@ void FpsControls::run_mod_mp3(Game active_game, Region active_region) {
   
   // If currently grappling. This must be seperate from lock-on for grapple swing.
   if (read8(cplayer_address + 0x378)) {
-
     DevInfo("Grapple Button Down", "%d", grapple_button_down);
     DevInfo("Grapple Power", "%f", grapple_power);
     DevInfo("Grapple Velocity", "%f", grapple_velocity);
     DevInfo("Grapple Time", "%d", grapple_time);
 
-    // Increase per buttion press, divided by quarter a second (frame-time)
-    constexpr float delta = 0.22f / 15.f; // ~0.008
+    // Increase per buttion press, divided by a tenth of a second (frame-time)
+    constexpr float delta = 0.25f / 10.f; // ~0.025
 
     // Handle grapple lasso
     if (prime::CheckGrappleCtl()) {
@@ -603,7 +602,7 @@ void FpsControls::run_mod_mp3(Game active_game, Region active_region) {
         }   
       }
     } else if (grapple_button_down && grapple_velocity == 0) {
-      grapple_velocity += 0.22f;
+      grapple_velocity += 0.25f;
       grapple_button_down = false;
     }
 
@@ -612,7 +611,7 @@ void FpsControls::run_mod_mp3(Game active_game, Region active_region) {
       grapple_velocity -= delta;
     }
     else {
-      grapple_power -= 0.032f;
+      grapple_power -= 0.040f;
       grapple_velocity = 0;
     }
 
