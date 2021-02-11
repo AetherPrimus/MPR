@@ -20,6 +20,7 @@
 #include <wx/notebook.h>
 #include <wx/panel.h>
 #include <wx/spinctrl.h>
+#include <wx/clrpicker.h>
 
 #include "Common/MsgHandler.h"
 #include "Core/Config/GraphicsSettings.h"
@@ -103,6 +104,9 @@ protected:
   void Event_UpdateX(wxCommandEvent &ev);
   void Event_UpdateY(wxCommandEvent &ev);
   void Event_UpdateZ(wxCommandEvent &ev);
+
+  void Event_ResetColour(wxCommandEvent &ev);
+  void Event_ColourChanged(wxCommandEvent &ev);
 
   void Event_ViewModelUpdate(wxCommandEvent &ev);
 
@@ -253,6 +257,11 @@ protected:
 
   wxCheckBox* m_toggle_culling;
   wxCheckBox* m_toggle_secondaryFX;
+  wxCheckBox* m_toggle_gc_show_crosshair;
+
+  wxColourPickerCtrl* m_gc_crosshair_colour;
+  wxSpinCtrl* gc_crosshair_alpha;
+  wxButton* m_reset_btn;
 
   DolphinSlider* m_fov_axis;
   wxSpinCtrl* fov_counter;

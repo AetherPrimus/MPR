@@ -205,6 +205,8 @@ const ConfigInfo<bool> TOGGLE_ARM_REPOSITION{{System::GFX, "PrimeHack Misc", "To
 const ConfigInfo<bool> TOGGLE_CULLING{{System::GFX, "PrimeHack Misc", "ToggleCulling"}, false};
 const ConfigInfo<bool> ARMPOSITION_MODE{{System::GFX, "PrimeHack Misc", "ArmPosition_Mode"}, true};
 const ConfigInfo<bool> ENABLE_SECONDARY_GUNFX{{System::GFX, "PrimeHack Misc", "EnableSecondaryGunFX"}, false};
+const ConfigInfo<bool> GC_SHOW_CROSSHAIR{ {System::GFX, "PrimeHack Misc", "GC_ShowCrosshair"}, false };
+const ConfigInfo<int> GC_CROSSHAIR_COLOR_RGBA{ {System::GFX, "PrimeHack Misc", "GC_Crosshair_Color_RGBA"}, 0x4b7ea331 };
 
 const ConfigInfo<int> ARMPOSITION_LEFTRIGHT{{System::GFX, "PrimeHack Misc", "ArmPosition_LEFTRIGHT"}, 25};
 const ConfigInfo<int> ARMPOSITION_UPDOWN{{System::GFX, "PrimeHack Misc", "ArmPosition_UPDOWN"}, -30};

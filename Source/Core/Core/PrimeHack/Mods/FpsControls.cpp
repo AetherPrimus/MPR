@@ -3,8 +3,10 @@
 #include "Core/PrimeHack/Mods/ContextSensitiveControls.h"
 #include "Core/PrimeHack/PrimeUtils.h"
 
-#include <cmath>
 #include "Common/Timer.h"
+
+#include <cmath>
+
 
 namespace prime {
 namespace {  
@@ -190,6 +192,30 @@ void FpsControls::calculate_pitch_locked(Game game, Region region) {
   pitch = std::clamp(pitch, -1.52f, 1.52f);
 }
 
+
+void FpsControls::calculate_pitch_to_target(float target_pitch)
+{
+  // Smoothly transitions pitch to target through interpolation
+
+  const float margin = 0.05f;
+  if (pitch > (target_pitch - margin) && pitch < (target_pitch + margin)) {
+    delta = 0;
+    pitch = target_pitch;
+    return;
+  }
+
+  if (delta == 0) {
+    start_pitch = pitch;
+  }
+
+  pitch = Lerp(start_pitch, target_pitch, delta / 15.f);
+  pitch = std::clamp(pitch, -1.52f, 1.52f);
+
+  delta++;
+
+  return;
+}
+
 float FpsControls::calculate_yaw_vel() {
   return GetHorizontalAxis() * GetSensitivity() * (InvertedX() ? 1.f : -1.f);;
 }
@@ -321,10 +347,14 @@ void FpsControls::run_mod_mp1(Region region) {
 
 void FpsControls::run_mod_mp1_gc() {
   u8 version = read8(0x80000007);
+  const bool show_crosshair = GetShowGCCrosshair();
+  const u32 crosshair_color = show_crosshair ? GetGCCrosshairColor() : 0x4b7ea331;
 
   if (version != 0) {
     return;
   }
+
+  change_code_group_state("show_crosshair", show_crosshair ? ModState::ENABLED : ModState::DISABLED);
 
   Transform cplayer_xf(mp1_gc_static.cplayer_address + 0x34);
   const u32 orbit_state = read32(mp1_gc_static.orbit_state_address);
@@ -337,6 +367,10 @@ void FpsControls::run_mod_mp1_gc() {
     yaw = atan2f(fwd.y, fwd.x);
 
     return;
+  }
+
+  if (show_crosshair) {
+    write32(crosshair_color, mp1_gc_static.crosshair_color_address);
   }
 
   u32 ball_state = read32(mp1_gc_static.cplayer_address + 0x2f4);
@@ -587,7 +621,7 @@ void FpsControls::run_mod_mp3(Game active_game, Region active_region) {
 
     return;
   }
-  
+
   // If currently grappling. This must be seperate from lock-on for grapple swing.
   if (read8(cplayer_address + 0x378)) {
     DevInfo("Grapple Button Down", "%d", grapple_button_down);
@@ -596,26 +630,27 @@ void FpsControls::run_mod_mp3(Game active_game, Region active_region) {
     DevInfo("Grapple Time", "%d", grapple_time);
 
     // Increase per buttion press, divided by a tenth of a second (frame-time)
-    constexpr float delta = 0.45f / 10.f; // ~0.035
+    constexpr float velocity_delta = 0.45f / 10.f; // ~0.035
 
-    // Handle grapple lasso
+                                                   // Handle grapple lasso
     if (prime::CheckGrappleCtl()) {
       if (grapple_time == 0) {
         grapple_time = Common::Timer::GetTimeMs();
+        grapple_button_down = true;
       }
       else if (Common::Timer::GetTimeMs() > grapple_time + 800) {
         if (!grapple_button_down) {
+          grapple_velocity += 0.45f;
           grapple_button_down = true;
         }   
       }
     } else if (grapple_button_down && grapple_velocity == 0) {
-      grapple_velocity += 0.45f;
       grapple_button_down = false;
     }
 
     if (grapple_velocity > 0) {
-      grapple_power += delta;
-      grapple_velocity -= delta;
+      grapple_power += velocity_delta;
+      grapple_velocity -= velocity_delta;
     }
     else {
       grapple_power -= 0.050f;
@@ -643,22 +678,18 @@ void FpsControls::run_mod_mp3(Game active_game, Region active_region) {
   }
 
   // Lock Camera according to ContextSensitiveControls and interpolate to pitch 0
-  if (prime::GetLockCamera()) {
-    if (pitch > -0.005f && pitch < 0.005f) {
-      delta = 0;
-      writef32(0, pitch_address);
+  if (prime::GetLockCamera() != Unlocked) {
+    const float target_pitch = Centre ? 0.f : 0.23f;
+
+    if (pitch == target_pitch) {
+      writef32(target_pitch, pitch_address);
       mp3_handle_cursor(false);
 
       return;
     }
 
-    if (delta == 0) {
-      start_pitch = pitch;
-    }
-
-    pitch = Lerp(start_pitch, 0.f, delta / 15.f);
+    calculate_pitch_to_target(target_pitch);
     writef32(pitch, pitch_address);
-    delta++;
 
     return;
   }
@@ -1466,6 +1497,13 @@ void FpsControls::init_mod_mp1_gc(Region region) {
       add_code_change(0x8017a190, 0x3881006c);
       add_code_change(0x8017a194, 0x4bed8cf9);
 
+      // Show crosshair but don't consider pressing R button
+      add_code_change(0x80016ee4, 0x3b000001, "show_crosshair"); // li r24, 1
+      add_code_change(0x80016ee8, 0x8afd09c4, "show_crosshair"); // lbz r23, 0x9c4(r29)
+      add_code_change(0x80016eec, 0x53173672, "show_crosshair"); // rlwimi r23, r24, 6, 25, 25 (00000001)
+      add_code_change(0x80016ef0, 0x9afd09c4, "show_crosshair"); // stb r23, 0x9c4(r29)
+      add_code_change(0x80016ef4, 0x4e800020, "show_crosshair"); // blr
+
       add_strafe_code_mp1_ntsc();
 
       mp1_gc_static.yaw_vel_address = 0x8046B97C + 0x110;
@@ -1476,6 +1514,7 @@ void FpsControls::init_mod_mp1_gc(Region region) {
       mp1_gc_static.cplayer_address = 0x8046B97C;
       mp1_gc_static.state_mgr_address = 0x8045a1a8;
       mp1_gc_static.camera_uid_address = 0x8045c5b4;
+      mp1_gc_static.crosshair_color_address = 0x8045b678;
     }
   } else if (region == Region::PAL) {
     add_code_change(0x8000fb4c, 0x48000048);  
@@ -1490,6 +1529,14 @@ void FpsControls::init_mod_mp1_gc(Region region) {
     add_code_change(0x8016fc58, 0x38810064); // 6c-8 = 64
     add_code_change(0x8016fc5c, 0x4bee4345); // bl 80053fa0
 
+    // Show crosshair but don't consider pressing R button
+    add_code_change(0x80017878, 0x3b000001, "show_crosshair"); // li r24, 1
+    add_code_change(0x8001787c, 0x8afd09d4, "show_crosshair"); // lbz r23, 0x9d4(r29)
+    add_code_change(0x80017880, 0x53173672, "show_crosshair"); // rlwimi r23, r24, 6, 25, 25 (00000001)
+    add_code_change(0x80017884, 0x9afd09d4, "show_crosshair"); // stb r23, 0x9d4(r29)
+    add_code_change(0x80017888, 0x4e800020, "show_crosshair"); // blr
+
+
     add_strafe_code_mp1_pal();
 
     mp1_gc_static.yaw_vel_address = 0x803F38B4 + 0x110;
@@ -1500,6 +1547,7 @@ void FpsControls::init_mod_mp1_gc(Region region) {
     mp1_gc_static.cplayer_address = 0x803F38B4;
     mp1_gc_static.state_mgr_address = 0x803e2088;
     mp1_gc_static.camera_uid_address = 0x803e44dc;
+    mp1_gc_static.crosshair_color_address = 0x803e35a4;
   } else {}
 }
 

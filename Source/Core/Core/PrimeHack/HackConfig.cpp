@@ -40,7 +40,7 @@ bool inverted_y = false;
 HackManager hack_mgr;
 EmuVariableManager var_mgr;
 bool is_running = false;
-bool lock_camera = false;
+CameraLock lock_camera = Unlocked;
 bool reticle_lock = false;
 
 std::string pending_modfile = "";
@@ -169,6 +169,14 @@ bool GetEnableSecondaryGunFX() {
   return Config::Get(Config::ENABLE_SECONDARY_GUNFX);
 }
 
+bool GetShowGCCrosshair() {
+  return Config::Get(Config::GC_SHOW_CROSSHAIR);
+}
+
+u32 GetGCCrosshairColor() {
+  return Config::Get(Config::GC_CROSSHAIR_COLOR_RGBA);
+}
+
 bool GetAutoArmAdjust() {
   return Config::Get(Config::ARMPOSITION_MODE) == 1;
 }
@@ -287,11 +295,11 @@ void SetReticleLock(bool lock)
   reticle_lock = lock;
 }
 
-void SetLockCamera(bool lock) {
+void SetLockCamera(CameraLock lock) {
   lock_camera = lock;
 }
 
-bool GetLockCamera() {
+CameraLock GetLockCamera() {
   return lock_camera;
 }
 
