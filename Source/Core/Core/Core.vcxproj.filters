@@ -1661,6 +1661,9 @@
     <ClInclude Include="PrimeHack\EmuVariableManager.h">
       <Filter>PrimeHack</Filter>
     </ClInclude>
+    <ClInclude Include="PrimeHack\Mods\FriendVouchers.h">
+      <Filter>PrimeHack\Mods</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="CMakeLists.txt" />

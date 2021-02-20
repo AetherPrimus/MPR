@@ -544,6 +544,7 @@
     <ClInclude Include="primehack\mods\CutBeamFxMP1.h" />
     <ClInclude Include="PrimeHack\Mods\DisableBloom.h" />
     <ClInclude Include="PrimeHack\Mods\ElfModLoader.h" />
+    <ClInclude Include="PrimeHack\Mods\FriendVouchers.h" />
     <ClInclude Include="PrimeHack\Mods\PortalSkipMP2.h" />
     <ClInclude Include="PrimeHack\Mods\RestoreDashing.h" />
     <ClInclude Include="PrimeHack\Mods\ViewModifier.h" />
