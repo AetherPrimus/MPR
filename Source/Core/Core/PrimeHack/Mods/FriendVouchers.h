@@ -7,6 +7,9 @@ namespace prime {
   class FriendVouchers : public PrimeMod {
   public:
     void run_mod(Game game, Region region) override {
+      if (game != Game::MENU)
+        return;
+
       for (int i = 0; i < 105; i++) {
         u32 vouchers_cost_addr = extras_arr_addr + (i * 0xC) + 0x4;
         if (read8(vouchers_cost_addr) != 0) {
