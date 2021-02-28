@@ -20,6 +20,7 @@
 #include "Core/PrimeHack/Mods/ContextSensitiveControls.h"
 #include "Core/PrimeHack/Mods/PortalSkipMP2.h"
 #include "Core/PrimeHack/Mods/FriendVouchers.h"
+#include "Core/PrimeHack/Mods/RestoreDashing.h"
 
 #include "InputCommon/ControllerInterface/ControllerInterface.h"
 
@@ -58,6 +59,7 @@ void InitializeHack(std::string const& mkb_device_name, std::string const& mkb_d
   hack_mgr.add_mod("invulnerability", std::make_unique<Invulnerability>());
   hack_mgr.add_mod("noclip", std::make_unique<Noclip>());
   hack_mgr.add_mod("skip_cutscene", std::make_unique<SkipCutscene>());
+  hack_mgr.add_mod("restore_dashing", std::make_unique<RestoreDashing>());
   hack_mgr.add_mod("springball_button", std::make_unique<SpringballButton>());
   hack_mgr.add_mod("fov_modifier", std::make_unique<ViewModifier>());
   hack_mgr.add_mod("elf_mod_loader", std::make_unique<ElfModLoader>());
@@ -157,6 +159,10 @@ bool GetInvulnerability() {
 
 bool GetSkipCutscene() {
   return SConfig::GetInstance().bPrimeSkipCutscene;
+}
+
+bool GetRestoreDashing() {
+  return SConfig::GetInstance().bPrimeRestoreDashing;
 }
 
 bool GetEFBTexture() {

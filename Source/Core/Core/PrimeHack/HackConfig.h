@@ -29,6 +29,7 @@ bool GrappleCtlBound();
 void SetEFBToTexture(bool toggle);
 bool UseMPAutoEFB();
 bool LockCameraInPuzzles();
+bool GetRestoreDashing();
 bool GetEFBTexture();
 bool GetBloom();
 

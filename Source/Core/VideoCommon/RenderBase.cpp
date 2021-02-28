@@ -40,6 +40,8 @@
 #include "Core/FifoPlayer/FifoRecorder.h"
 #include "Core/HW/VideoInterface.h"
 
+#include "Core/PrimeHack/PrimeUtils.h"
+
 #include "VideoCommon/AVIDump.h"
 #include "VideoCommon/BPMemory.h"
 #include "VideoCommon/CommandProcessor.h"
@@ -59,7 +61,6 @@
 #include "VideoCommon/VertexManagerBase.h"
 #include "VideoCommon/VertexShaderManager.h"
 #include "VideoCommon/XFMemory.h"
-#include "Core/PrimeHack/PrimeUtils.h"
 
 //std::string cplayer_str;
 
@@ -376,6 +377,12 @@ void Renderer::DrawDebugText()
   if (std::get<2>(prime::GetCheatsTime()) > Common::Timer::GetTimeMs()) // Skip Cutscene
   {
     final_purple += std::string("Skippable Cutscenes: ") + (prime::GetSkipCutscene() ? "Enabled" : "Disabled");
+    final_purple += "\n";
+  }
+
+  if (std::get<3>(prime::GetCheatsTime()) > Common::Timer::GetTimeMs()) // Restore Scan Dashing
+  {
+    final_purple += std::string("Restore Scan Dashing: ") + (prime::GetRestoreDashing() ? "Enabled" : "Disabled");
     final_purple += "\n";
   }
     
