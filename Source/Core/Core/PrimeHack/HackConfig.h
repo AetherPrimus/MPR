@@ -3,8 +3,9 @@
 #include <memory>
 #include <vector>
 
-#include "Core/PrimeHack/HackManager.h"
+#include "Core/PrimeHack/AddressDB.h"
 #include "Core/PrimeHack/EmuVariableManager.h"
+#include "Core/PrimeHack/HackManager.h"
 #include "InputCommon/ControlReference/ControlReference.h"
 
 // Naming scheme will match dolphin as this place acts as an interface between the hack & dolphin proper
@@ -70,6 +71,7 @@ std::string const& GetCtlDeviceSource();
 std::tuple<bool, bool> GetMenuOptions();
 
 HackManager *GetHackManager();
+AddressDB *GetAddressDB();
 EmuVariableManager *GetVariableManager();
 
 bool ModPending();

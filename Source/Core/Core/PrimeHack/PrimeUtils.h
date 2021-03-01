@@ -50,4 +50,10 @@ void AddCheatsTime(int index, u32 time);
 std::string GetDevInfo();
 void ClrDevInfo();
 
+template <typename T>
+T lerp(T lo, T hi, T t) {
+  static_assert(std::is_floating_point<T>::value, "Lerp accepts only float type");
+  return (hi - lo) * t + lo;
+}
+
 }  // namespace prime

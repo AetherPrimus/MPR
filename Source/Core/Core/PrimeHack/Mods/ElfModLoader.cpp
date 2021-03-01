@@ -8,7 +8,7 @@
 #include <fstream>
 #include <regex>
 #include <vector>
-#pragma optimize("", off)
+
 namespace prime {
 namespace {
 size_t get_type_size(CVarType t) {
@@ -106,7 +106,7 @@ bool ElfModLoader::init_mod(Game game, Region region) {
     add_code_change(0x8180000c, 0x3d608180);
     add_code_change(0x81800010, 0x39800001);
     add_code_change(0x81800014, 0x918b0038);
-    entry_point_index = get_codechanges().size();
+    entry_point_index = get_code_changes().size();
     add_code_change(0x81800018, 0x48000005);
     add_code_change(0x8180001c, 0x3d608180);
     add_code_change(0x81800020, 0x39800000);
@@ -233,7 +233,7 @@ void ElfModLoader::parse_and_load_modfile(std::string const& path) {
   }
   if (parsed_elf) {
     load_elf(*parsed_elf);
-    get_codechanges().insert(get_codechanges().end(), parsed_changes.begin(), parsed_changes.end());
+    get_code_changes().insert(get_code_changes().end(), parsed_changes.begin(), parsed_changes.end());
     update_active_changes();
 
     for (CVar const& cvar : parsed_cvars) {
@@ -259,12 +259,12 @@ void ElfModLoader::load_elf(std::string const& path) {
   elf_file.LoadSymbols();
   const u32 entry_delta = elf_file.GetEntryPoint() - 0x81800018;
   set_code_change(entry_point_index, 0x48000001 | (entry_delta & 0x3ffffffc));
-  write_invalidate(get_codechanges()[entry_point_index].address, get_codechanges()[entry_point_index].var);
+  write_invalidate(get_code_changes()[entry_point_index].address, get_code_changes()[entry_point_index].var);
 }
 
 void ElfModLoader::on_state_change(ModState old_state) {
   if (mod_state() != ModState::ENABLED) {
-    get_codechanges().clear();
+    get_code_changes().clear();
     init_mod(GetHackManager()->get_active_game(), GetHackManager()->get_active_region());
   }
 }
@@ -305,4 +305,3 @@ CVar* ElfModLoader::get_cvar(std::string const& name) {
 }
 
 }
-#pragma optimize("", on)

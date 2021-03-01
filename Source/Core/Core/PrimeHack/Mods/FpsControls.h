@@ -17,6 +17,7 @@ class FpsControls : public PrimeMod {
 public:
   void run_mod(Game game, Region region) override;
   bool init_mod(Game game, Region region) override;
+  void on_state_change(ModState old_state) override {}
 
 private:
   // ------------------------------
@@ -62,82 +63,9 @@ private:
   void init_mod_mp2_gc(Region region);
   void init_mod_mp3_standalone(Region region);
 
-  // All 3 of these games have this in common (MP3 just ignores beams)
-  u32 active_visor_offset;
-  u32 powerups_ptr_address;
-  u32 powerups_ptr_offset;
-  u32 powerups_size;
-  u32 powerups_offset;
-  u32 new_beam_address;
-  u32 beamchange_flag_address;
   // Required due to MP3
   bool has_beams;
   bool fighting_ridley;
-
-  // No particular reason to make a union
-  // No particular reason not to
-  union {
-    struct {
-      u32 yaw_vel_address;
-      u32 pitch_address;
-      u32 pitch_goal_address;
-      u32 angvel_limiter_address;
-      u32 orbit_state_address;
-      u32 lockon_address;
-      u32 tweak_player_address;
-      u32 cplayer_address;
-      u32 object_list_ptr_address;
-      u32 camera_uid_address;
-      u32 beamvisor_menu_address;
-      u32 beamvisor_menu_offset;
-      u32 cursor_base_address;
-      u32 cursor_offset;
-    } mp1_static;
-
-    struct {
-      u32 yaw_vel_address;
-      u32 pitch_address;
-      u32 angvel_max_address;
-      u32 orbit_state_address;
-      u32 tweak_player_address;
-      u32 cplayer_address;
-      u32 camera_uid_address;
-      u32 state_mgr_address;
-    } mp1_gc_static;
-
-    struct {
-      u32 cplayer_ptr_address;
-      u32 load_state_address;
-      u32 lockon_address;
-      u32 beamvisor_menu_address;
-      u32 beamvisor_menu_offset;
-      u32 cursor_base_address;
-      u32 cursor_offset;
-      u32 tweak_player_offset;
-      u32 object_list_ptr_address;
-      u32 camera_uid_address;
-    } mp2_static;
-
-    struct {
-      u32 state_mgr_address;
-      u32 tweak_player_offset;
-    } mp2_gc_static;
-
-    struct {
-      u32 cplayer_ptr_address;
-      u32 cursor_dlg_enabled_address;
-      u32 cursor_ptr_address;
-      u32 cursor_offset;
-      u32 boss_info_address;
-      u32 lockon_address;
-      u32 gun_lag_toc_offset;
-      u32 beamvisor_menu_address;
-      u32 beamvisor_menu_offset;
-      u32 cplayer_pitch_offset;
-      u32 cam_uid_ptr_address;
-      u32 state_mgr_ptr_address;
-    } mp3_static;
-  };
 
   // We store our pitch value interally to have full control over it
   float pitch;

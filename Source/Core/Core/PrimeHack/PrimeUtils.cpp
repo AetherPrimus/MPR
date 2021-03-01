@@ -300,4 +300,9 @@ void handle_cursor(u32 x_address, u32 y_address, float right_bound, float bottom
   writef32(cursor_x, x_address);
   writef32(cursor_y, y_address);
 }
+
+float lerp(float low, float high, float t) {
+  return (high - low) * t + low;
+}
+
 }  // namespace prime

@@ -123,6 +123,7 @@ void HackManager::run_active_mods() {
     for (auto& mod : mods) {
       mod.second->reset_mod();
     }
+    GetVariableManager()->reset_variables();
   }
 
   ClrDevInfo(); // Clear the dev info stream before the mods print again.
@@ -155,8 +156,7 @@ void HackManager::run_active_mods() {
   prime::g_mouse_input->ResetDeltas();
 }
 
-void HackManager::update_mod_states()
-{
+void HackManager::update_mod_states() {
   set_mod_enabled("auto_efb", UseMPAutoEFB());
   set_mod_enabled("disable_bloom", GetBloom());
   set_mod_enabled("cut_beam_fx_mp1", GetEnableSecondaryGunFX());
@@ -178,8 +178,7 @@ void HackManager::update_mod_states()
 
   if (ImprovedMotionControls()) {
     enable_mod("context_sensitive_controls");
-  }
-  else {
+  } else {
     auto result = mods.find("context_sensitive_controls");
     if (result == mods.end()) {
       return;

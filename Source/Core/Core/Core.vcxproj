@@ -289,6 +289,8 @@
     <ClCompile Include="PowerPC\PPCSymbolDB.cpp" />
     <ClCompile Include="PowerPC\PPCTables.cpp" />
     <ClCompile Include="PowerPC\Profiler.cpp" />
+    <ClCompile Include="PrimeHack\AddressDB.cpp" />
+    <ClCompile Include="PrimeHack\AddressDBInit.cpp" />
     <ClCompile Include="PrimeHack\EmuVariableManager.cpp" />
     <ClCompile Include="primehack\mods\AutoEFB.cpp" />
     <ClCompile Include="PrimeHack\Mods\ContextSensitiveControls.cpp" />
@@ -299,6 +301,7 @@
     <ClCompile Include="PrimeHack\Mods\FpsControls.cpp" />
     <ClCompile Include="primehack\mods\Noclip.cpp" />
     <ClCompile Include="primehack\mods\SpringballButton.cpp" />
+    <ClCompile Include="PrimeHack\PrimeMod.cpp" />
     <ClCompile Include="PrimeHack\PrimeUtils.cpp" />
     <ClCompile Include="PrimeHack\HackConfig.cpp" />
     <ClCompile Include="PrimeHack\HackManager.cpp" />
@@ -538,6 +541,7 @@
     <ClInclude Include="PowerPC\PPCSymbolDB.h" />
     <ClInclude Include="PowerPC\PPCTables.h" />
     <ClInclude Include="PowerPC\Profiler.h" />
+    <ClInclude Include="PrimeHack\AddressDB.h" />
     <ClInclude Include="PrimeHack\EmuVariableManager.h" />
     <ClInclude Include="PrimeHack\Mods\AutoEFB.h" />
     <ClInclude Include="PrimeHack\Mods\ContextSensitiveControls.h" />

@@ -38,6 +38,7 @@ std::string device_name, device_source;
 bool inverted_x = false;
 bool inverted_y = false;
 HackManager hack_mgr;
+AddressDB addr_db;
 EmuVariableManager var_mgr;
 bool is_running = false;
 bool lock_camera = false;
@@ -48,6 +49,9 @@ std::string pending_modfile = "";
 
 void InitializeHack(std::string const& mkb_device_name, std::string const& mkb_device_source) {
   if (is_running) return; is_running = true;
+  PrimeMod::set_hack_manager(GetHackManager());
+  PrimeMod::set_address_database(GetAddressDB());
+  init_db(*GetAddressDB());
 
   // Create all mods
   hack_mgr.add_mod("auto_efb", std::make_unique<AutoEFB>());
@@ -301,6 +305,10 @@ std::tuple<bool, bool> GetMenuOptions() {
 
 HackManager* GetHackManager() {
   return &hack_mgr;
+}
+
+AddressDB* GetAddressDB() {
+  return &addr_db;
 }
 
 EmuVariableManager* GetVariableManager() {
