@@ -82,7 +82,8 @@ void InitializeHack(std::string const& mkb_device_name, std::string const& mkb_d
   hack_mgr.enable_mod("springball_button");
   hack_mgr.enable_mod("context_sensitive_controls");
   hack_mgr.enable_mod("elf_mod_loader");
-  hack_mgr.enable_mod("portal_skip_mp2");
+  // Hold onto this until UI is made for it
+  // hack_mgr.enable_mod("portal_skip_mp2");
 }
 
 bool CheckBeamCtl(int beam_num) {

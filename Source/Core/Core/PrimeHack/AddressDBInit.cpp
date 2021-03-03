@@ -71,6 +71,7 @@ void init_db(AddressDB& addr_db) {
   addr_db.register_address(Game::PRIME_2, "world_id", 0x805081cc, 0x8050f76c);
   addr_db.register_address(Game::PRIME_2, "control_flag", 0x805373f8, 0x8053ebf8, 0x80537bb8);
   addr_db.register_address(Game::PRIME_2, "beamvisor_menu_base", 0x805cb314, 0x805d2d80, 0x805cbaec);
+  addr_db.register_address(Game::PRIME_2, "cursor_base", 0x805cb2c8, 0x805d2d30, 0x805cbaa0);
   addr_db.register_address(Game::PRIME_2, "tweak_player_offset", -0x6410, -0x6368, -0x63f8);
   addr_db.register_address(Game::PRIME_2, "powerups_size", 12, 12, 12);
   addr_db.register_address(Game::PRIME_2, "powerups_offset", 0x5c, 0x5c, 0x5c);
@@ -104,7 +105,7 @@ void init_db(AddressDB& addr_db) {
   addr_db.register_dynamic_address(Game::PRIME_2_GCN, "angular_vel", "player", {mrt1(0x1bc)});
 
 
-  addr_db.register_address(Game::PRIME_3, "state_manager", 0x805c6c68, 0x805c7598); // +0x1010 object list [+0x10]+0xc]+0x16
+  addr_db.register_address(Game::PRIME_3, "state_manager", 0x805c6c68, 0x805ca0e8); // +0x1010 object list [+0x10]+0xc]+0x16
   addr_db.register_address(Game::PRIME_3, "tweakgun", 0x8066f87c, 0x806730fc);
   addr_db.register_address(Game::PRIME_3, "motion_vf", 0x802e0dac, 0x802e0a88);
   addr_db.register_address(Game::PRIME_3, "cursor_base", 0x8066fd08, 0x80673588);

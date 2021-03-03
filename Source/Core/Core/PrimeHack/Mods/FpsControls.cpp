@@ -359,8 +359,6 @@ void FpsControls::run_mod_mp2(Region region) {
     read8(lockon_state) || beamvisor_menu);
 
   LOOKUP_DYN(cursor);
-  u32 cursor_base = read32(cursor);
-  
   LOOKUP_DYN(angular_momentum);
   if (locked) {
     // Angular velocity (not really, but momentum) is being messed with like mp1
@@ -380,11 +378,11 @@ void FpsControls::run_mod_mp2(Region region) {
           set_code_group_state("beam_change", ModState::DISABLED);
         }
 
-        handle_cursor(cursor_base + 0x9c, cursor_base + 0x15c, 0.95f, 0.90f);
+        handle_cursor(cursor + 0x9c, cursor + 0x15c, 0.95f, 0.90f);
         menu_open = true;
       }
     } else if (HandleReticleLockOn()) {
-      handle_cursor(cursor_base + 0x9c, cursor_base + 0x15c, 0.95f, 0.90f);
+      handle_cursor(cursor + 0x9c, cursor + 0x15c, 0.95f, 0.90f);
     }
   } else {
     if (menu_open) {
@@ -394,8 +392,8 @@ void FpsControls::run_mod_mp2(Region region) {
     }
 
     set_cursor_pos(0, 0);
-    write32(0, cursor_base + 0x9c);
-    write32(0, cursor_base + 0x15c);
+    write32(0, cursor + 0x9c);
+    write32(0, cursor + 0x15c);
 
     calculate_pitch_delta();
     // Grab the arm cannon address, go to its transform field (NOT the
@@ -494,7 +492,7 @@ void FpsControls::run_mod_mp3(Game active_game, Region active_region) {
   set_code_group_state("grapple_lasso", GrappleCtlBound() ? ModState::ENABLED : ModState::DISABLED);
 
   // Handles menu screen cursor
-  LOOKUP_DYN(cursor_dlg_enabled);
+  LOOKUP(cursor_dlg_enabled);
   if (read8(cursor_dlg_enabled)) {
     mp3_handle_cursor(false);
     return;
