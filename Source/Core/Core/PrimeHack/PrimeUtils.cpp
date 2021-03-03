@@ -32,6 +32,7 @@ std::array<std::array<CodeChange, static_cast<int>(Game::MAX_VAL) + 1>,
 static u32 noclip_msg_time;
 static u32 invulnerability_msg_time;
 static u32 cutscene_msg_time;
+static u32 scandash_msg_time;
 
 u8 read8(u32 addr) {
   return PowerPC::HostRead_U8(addr);
@@ -246,11 +247,13 @@ std::string GetDevInfo()
 }
 
 // Common::Timer::GetTimeMs()
-std::tuple<u32, u32, u32> GetCheatsTime()
+std::tuple<u32, u32, u32, u32> GetCheatsTime()
 {
-  return std::make_tuple(noclip_msg_time, invulnerability_msg_time, cutscene_msg_time);
+  return std::make_tuple(noclip_msg_time, invulnerability_msg_time, cutscene_msg_time, scandash_msg_time);
 }
 
+
+// To-Do: Refactor this garbage.
 void AddCheatsTime(int index, u32 time)
 {
   switch (index)
@@ -263,6 +266,9 @@ void AddCheatsTime(int index, u32 time)
     break;
   case 2:
     cutscene_msg_time = Common::Timer::GetTimeMs() + 3000;
+    break;
+  case 3:
+    scandash_msg_time = Common::Timer::GetTimeMs() + 3000;
   }
 }
 

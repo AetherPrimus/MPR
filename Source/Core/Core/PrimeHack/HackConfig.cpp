@@ -19,6 +19,8 @@
 #include "Core/PrimeHack/Mods/ViewModifier.h"
 #include "Core/PrimeHack/Mods/ContextSensitiveControls.h"
 #include "Core/PrimeHack/Mods/PortalSkipMP2.h"
+#include "Core/PrimeHack/Mods/FriendVouchers.h"
+#include "Core/PrimeHack/Mods/RestoreDashing.h"
 
 #include "InputCommon/ControllerInterface/ControllerInterface.h"
 
@@ -41,7 +43,7 @@ HackManager hack_mgr;
 AddressDB addr_db;
 EmuVariableManager var_mgr;
 bool is_running = false;
-bool lock_camera = false;
+CameraLock lock_camera = Unlocked;
 bool reticle_lock = false;
 
 std::string pending_modfile = "";
@@ -61,11 +63,13 @@ void InitializeHack(std::string const& mkb_device_name, std::string const& mkb_d
   hack_mgr.add_mod("invulnerability", std::make_unique<Invulnerability>());
   hack_mgr.add_mod("noclip", std::make_unique<Noclip>());
   hack_mgr.add_mod("skip_cutscene", std::make_unique<SkipCutscene>());
+  hack_mgr.add_mod("restore_dashing", std::make_unique<RestoreDashing>());
   hack_mgr.add_mod("springball_button", std::make_unique<SpringballButton>());
   hack_mgr.add_mod("fov_modifier", std::make_unique<ViewModifier>());
   hack_mgr.add_mod("elf_mod_loader", std::make_unique<ElfModLoader>());
   hack_mgr.add_mod("context_sensitive_controls", std::make_unique<ContextSensitiveControls>());
   hack_mgr.add_mod("portal_skip_mp2", std::make_unique<PortalSkipMP2>());
+  hack_mgr.add_mod("friend_vouchers_cheat", std::make_unique<FriendVouchers>());
 
   device_name = mkb_device_name;
   device_source = mkb_device_source;
@@ -162,6 +166,10 @@ bool GetSkipCutscene() {
   return SConfig::GetInstance().bPrimeSkipCutscene;
 }
 
+bool GetRestoreDashing() {
+  return SConfig::GetInstance().bPrimeRestoreDashing;
+}
+
 bool GetEFBTexture() {
   return Config::Get(Config::GFX_HACK_SKIP_EFB_COPY_TO_RAM);
 }
@@ -172,6 +180,14 @@ bool GetBloom() {
 
 bool GetEnableSecondaryGunFX() {
   return Config::Get(Config::ENABLE_SECONDARY_GUNFX);
+}
+
+bool GetShowGCCrosshair() {
+  return Config::Get(Config::GC_SHOW_CROSSHAIR);
+}
+
+u32 GetGCCrosshairColor() {
+  return Config::Get(Config::GC_CROSSHAIR_COLOR_RGBA);
 }
 
 bool GetAutoArmAdjust() {
@@ -292,11 +308,11 @@ void SetReticleLock(bool lock)
   reticle_lock = lock;
 }
 
-void SetLockCamera(bool lock) {
+void SetLockCamera(CameraLock lock) {
   lock_camera = lock;
 }
 
-bool GetLockCamera() {
+CameraLock GetLockCamera() {
   return lock_camera;
 }
 

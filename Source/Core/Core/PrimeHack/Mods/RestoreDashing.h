@@ -24,11 +24,15 @@ namespace prime {
         } else if (region == Region::PAL) {
           add_code_change(0x801935cc, 0x48000018);
           add_code_change(0x80194df8, 0x4800001c);
-          add_code_change(0x80192f58, 0x801f037c); // CPlayer + 0x37c
-        } else { // region == Region::NTSC-J
+          // stop dash when done dashing
+          add_code_change(0x80192f58, 0x881f037c); // CPlayer + 0x37c
+        }
+        else { // region == Region::NTSC-J
+          // remove scan visor check
           add_code_change(0x80193eb4, 0x48000018);
           add_code_change(0x801956e0, 0x4800001c);
-          add_code_change(0x80193840, 0x801f037c); // CPlayer + 0x37c
+          // stop dash when done dashing
+          add_code_change(0x80193840, 0x881f037c); // CPlayer + 0x37c
         }
         break;
       case Game::PRIME_1_GCN:

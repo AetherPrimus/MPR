@@ -161,6 +161,8 @@ extern const ConfigInfo<bool> TOGGLE_ARM_REPOSITION;
 extern const ConfigInfo<bool> TOGGLE_CULLING;
 extern const ConfigInfo<bool> ARMPOSITION_MODE;
 extern const ConfigInfo<bool> ENABLE_SECONDARY_GUNFX;
+extern const ConfigInfo<bool> GC_SHOW_CROSSHAIR;
+extern const ConfigInfo<int> GC_CROSSHAIR_COLOR_RGBA;
 
 extern const ConfigInfo<int> ARMPOSITION_LEFTRIGHT;
 extern const ConfigInfo<int> ARMPOSITION_UPDOWN;

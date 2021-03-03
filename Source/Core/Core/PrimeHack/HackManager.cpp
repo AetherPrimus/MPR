@@ -163,6 +163,8 @@ void HackManager::update_mod_states() {
   set_mod_enabled("noclip", GetNoclip());
   set_mod_enabled("invulnerability", GetInvulnerability());
   set_mod_enabled("skip_cutscene", GetSkipCutscene());
+  set_mod_enabled("restore_dashing", GetRestoreDashing());
+  set_mod_enabled("friend_vouchers_cheat", SConfig::GetInstance().bEnableCheats);
 
   // Disallow any PrimeHack control mods
   if (!SConfig::GetInstance().bEnablePrimeHack) {

@@ -17,6 +17,7 @@
 #include <wx/sizer.h>
 #include <wx/slider.h>
 #include <wx/stattext.h>
+#include <wx/clrpicker.h>
 
 #include "Common/Assert.h"
 #include "Common/CommonPaths.h"
@@ -330,6 +331,7 @@ static wxString autoefb_desc =  _("Automatically disables 'Store EFB Copies to T
 static wxString motionlock_desc =  _("Automatically locks the camera in all motion puzzles and buttons.");
 static wxString guneffects_desc = _("Reintroduce the original secondary gun effects that were in the GameCube version of Metroid Prime.\n\n"
                 "These effects were disabled and cut in the Trilogy but still remained as unused assets.");
+static wxString gc_crosshair_desc = _("Toggles on the free aim crosshair.");
 static wxString bloom_desc =  _("Disables Bloom.\n\nSource: TheHatedGravity and dreamsyntax.");
 static wxString repositon_arm_desc =  _("Toggles repositioning of Samus's arms in the viewmodel. Repositioning her arms is visually beneficial for high Field Of Views.");
 static wxString culling_desc = _("Disables graphical culling. This allows for Field of Views above 101 in Metroid Prime 1 and Metroid Prime 2, and above 94 in Metroid Prime 3.");
@@ -1490,7 +1492,8 @@ VideoConfigDiag::VideoConfigDiag(wxWindow* parent, const std::string& title)
     m_fov_axis = new DolphinSlider(page_primehack, wxID_ANY, Config::Get(Config::FOV), 1, 170, wxDefaultPosition,
       wxDefaultSize, wxSL_HORIZONTAL | wxSL_BOTTOM);
 
-    fov_counter = new wxSpinCtrl(page_primehack, wxID_ANY, "", wxDefaultPosition, *new wxSize(50, -1), wxSP_ARROW_KEYS, 1, 170, Config::Get(Config::FOV));
+    fov_counter = new wxSpinCtrl(page_primehack, wxID_ANY, "",
+      wxDefaultPosition, *new wxSize(50, -1), wxSP_ARROW_KEYS, 1, 170, Config::Get(Config::FOV));
     RegisterControl(m_fov_axis, (fov_desc));
 
     fov_box->Add(new wxStaticText(page_primehack, wxID_ANY, _("Field of View")), 0, wxEXPAND | wxLEFT, space5);
@@ -1507,9 +1510,56 @@ VideoConfigDiag::VideoConfigDiag(wxWindow* parent, const std::string& title)
       m_toggle_culling->Disable();
       m_toggle_culling->SetValue(true);
     }
-      
-    if (prime::GetEnableSecondaryGunFX())
-      m_toggle_secondaryFX->Disable();
+
+    wxSize countersize = *new wxSize(50, -1);
+
+    wxStaticBoxSizer* const crosshair_group =
+      new wxStaticBoxSizer(wxHORIZONTAL, page_primehack, _("GCN Crosshair"));
+
+    m_toggle_gc_show_crosshair =
+      CreateCheckBox(page_primehack, _("Show GCN Crosshair"), (guneffects_desc), Config::GC_SHOW_CROSSHAIR);
+
+    // WX is so insanely stupid. SetRGB seems to set it in REVERSE. Not RED-GREEN-BLUE. But BLUE-GREEN-RED. The function is literally called R. G. B.
+    // Now we have to do some stupid crap to reverse the bytes. And it needs to be shifted forwards? What. did they forget this doesn't have alpha?
+    // speaking of, the windows colour picker doesn't have an alpha option so i have to do it myself. Windows and Wx are poopoo.
+    wxColour* c = new wxColour();
+
+    u32 rgb = Config::Get(Config::GC_CROSSHAIR_COLOR_RGBA);
+    u32 r = (rgb & 0xFF000000) >> 16;
+    u32 g = (rgb & 0x00FF0000);
+    u32 b = (rgb & 0x0000FF00) << 16;
+
+    c->SetRGB((b | g | r) >> 8);
+    
+    m_gc_crosshair_colour = new wxColourPickerCtrl(page_primehack, wxID_ANY, *c,
+      wxDefaultPosition, wxDefaultSize, wxCLRP_DEFAULT_STYLE, wxDefaultValidator, _("Crosshair Colour"));
+
+    m_reset_btn = new wxButton(page_primehack, wxID_ANY, _("Reset Colour"));
+
+    gc_crosshair_alpha = new wxSpinCtrl(page_primehack, wxID_ANY, "",
+      wxDefaultPosition, countersize, wxSP_ARROW_KEYS, 0, 0xFF, Config::Get(Config::GC_CROSSHAIR_COLOR_RGBA) & 0x000000FF);
+ 
+    crosshair_group->Add(m_toggle_gc_show_crosshair, 0, wxEXPAND | wxLEFT | wxRIGHT, space5);
+    crosshair_group->AddStretchSpacer();
+    crosshair_group->Add(m_gc_crosshair_colour, 0, wxEXPAND | wxLEFT | wxRIGHT, space5);
+    crosshair_group->AddSpacer(2);
+    crosshair_group->Add(new wxStaticText(page_primehack, wxID_ANY, _("Alpha:")), 0, wxEXPAND | wxLEFT, space5);
+    crosshair_group->AddSpacer(2);
+    crosshair_group->Add(gc_crosshair_alpha, 0, wxEXPAND | wxLEFT, space5);
+    crosshair_group->AddSpacer(2);
+    crosshair_group->Add(m_reset_btn, 0, wxEXPAND | wxLEFT | wxRIGHT, space5);
+
+    m_gc_crosshair_colour->Bind(wxEVT_COLOURPICKER_CHANGED, &VideoConfigDiag::Event_ColourChanged,
+      this);
+
+    m_reset_btn->Bind(wxEVT_BUTTON, &VideoConfigDiag::Event_ResetColour,
+      this);
+    
+    gc_crosshair_alpha->Bind(wxEVT_SPINCTRL, &VideoConfigDiag::Event_ColourChanged,
+      this);
+
+    gc_crosshair_alpha->Bind(wxEVT_TEXT, &VideoConfigDiag::Event_ColourChanged,
+      this);
 
     wxStaticBoxSizer* const viewmodel_group =
       new wxStaticBoxSizer(wxVERTICAL, page_primehack, _("Viewmodel"));
@@ -1540,8 +1590,6 @@ VideoConfigDiag::VideoConfigDiag(wxWindow* parent, const std::string& title)
     viewmodel_group->AddSpacer(FromDIP(20));
     viewmodel_group->Add(viewmodel_sizer, 0, wxEXPAND | wxLEFT | wxRIGHT, space5);
     viewmodel_group->AddSpacer(space5);
-
-    wxSize countersize = *new wxSize(50, -1);
 
     m_x_axis = new DolphinSlider(page_primehack, wxID_ANY, Config::Get(Config::ARMPOSITION_LEFTRIGHT), -50, 50, wxDefaultPosition,
       wxDefaultSize, wxSL_HORIZONTAL | wxSL_BOTTOM);
@@ -1593,6 +1641,8 @@ VideoConfigDiag::VideoConfigDiag(wxWindow* parent, const std::string& title)
 
     szr_primehack->AddSpacer(space5);
     szr_primehack->Add(graphics_sizer, 0, wxEXPAND | wxLEFT | wxRIGHT, space5);
+    szr_primehack->AddSpacer(space5); //
+    szr_primehack->Add(crosshair_group, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, space5);
     szr_primehack->AddSpacer(space5);
     szr_primehack->Add(viewmodel_group, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, space5);
     szr_primehack->AddSpacer(space5);
@@ -1842,6 +1892,27 @@ void VideoConfigDiag::Event_UpdateZ(wxCommandEvent& ev)
   } else {
     z_counter->SetValue(ev.GetInt());
   }
+  ev.Skip();
+}
+
+void VideoConfigDiag::Event_ResetColour(wxCommandEvent& ev)
+{
+  m_gc_crosshair_colour->SetColour(*new wxColour(0x4B, 0x7E, 0xA3, 0x31));
+  gc_crosshair_alpha->SetValue(0x31);
+
+  Config::SetBaseOrCurrent(Config::GC_CROSSHAIR_COLOR_RGBA, 0x4B7EA331);
+  ev.Skip();
+}
+
+void VideoConfigDiag::Event_ColourChanged(wxCommandEvent& ev)
+{
+  wxColour c = m_gc_crosshair_colour->GetColour();
+  u32 r = c.Red();
+  u32 g = c.Green();
+  u32 b = c.Blue();
+  u32 a = ev.GetEventType() == wxEVT_SPINCTRL ? ev.GetInt() : gc_crosshair_alpha->GetValue();
+
+  Config::SetBaseOrCurrent(Config::GC_CROSSHAIR_COLOR_RGBA, (int) (r << 24 | g << 16 | b << 8 | a));
   ev.Skip();
 }
 
@@ -2224,12 +2295,6 @@ void VideoConfigDiag::OnUpdateUI(wxUpdateUIEvent& ev)
 
   if (Core::IsRunning())
   {
-    if (prime::GetFov() > 94)
-    {
-      m_toggle_culling->Disable();
-      m_toggle_culling->SetValue(true);
-    }
-
     if (vconfig.backend_info.bSupportsComputeTextureEncoding)
     {
       Compute_Shader_encoding->Disable();
@@ -2266,8 +2331,6 @@ void VideoConfigDiag::OnUpdateUI(wxUpdateUIEvent& ev)
   }
   else
   {
-    m_toggle_secondaryFX->Enable();
-    m_toggle_culling->Enable();
     // Predictive_FIFO->Enable(!vconfig.bWaitForShaderCompilation);
   }
   // Don't enable 'vertex rounding' at native
@@ -2279,6 +2342,16 @@ void VideoConfigDiag::OnUpdateUI(wxUpdateUIEvent& ev)
   {
     vertex_rounding_checkbox->Enable(true);
   }
+
+  if (prime::GetFov() > 94)
+  {
+    m_toggle_culling->Disable();
+    m_toggle_culling->SetValue(true);
+  }
+  else {
+    m_toggle_culling->Enable();
+  }
+
   ev.Skip();
 }
 

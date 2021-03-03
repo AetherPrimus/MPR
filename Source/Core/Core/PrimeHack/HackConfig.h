@@ -30,6 +30,7 @@ bool GrappleCtlBound();
 void SetEFBToTexture(bool toggle);
 bool UseMPAutoEFB();
 bool LockCameraInPuzzles();
+bool GetRestoreDashing();
 bool GetEFBTexture();
 bool GetBloom();
 
@@ -38,6 +39,8 @@ bool GetInvulnerability();
 bool GetSkipCutscene();
 
 bool GetEnableSecondaryGunFX();
+bool GetShowGCCrosshair();
+u32 GetGCCrosshairColor();
 
 bool GetAutoArmAdjust();
 bool GetToggleArmAdjust();
@@ -59,8 +62,10 @@ bool GetCulling();
 bool HandleReticleLockOn();
 void SetReticleLock(bool lock);
 
-void SetLockCamera(bool lock);
-bool GetLockCamera();
+enum CameraLock { Centre, Angle45, Unlocked };
+
+void SetLockCamera(CameraLock lock);
+CameraLock GetLockCamera();
 
 double GetHorizontalAxis();
 double GetVerticalAxis();

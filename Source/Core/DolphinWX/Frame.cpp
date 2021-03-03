@@ -1594,11 +1594,18 @@ void CFrame::ParseHotkeys()
       SConfig::GetInstance().bPrimeSkipCutscene = !SConfig::GetInstance().bPrimeSkipCutscene;
       prime::AddCheatsTime(2, 3000);
     }
+
+    if (IsHotkey(HK_RESTORE_SCANDASH))
+    {
+      SConfig::GetInstance().bPrimeRestoreDashing = !SConfig::GetInstance().bPrimeRestoreDashing;
+      prime::AddCheatsTime(3, 3000);
+    }
   }
   else {
     SConfig::GetInstance().bPrimeNoclip = false;
     SConfig::GetInstance().bPrimeInvulnerability = false;
     SConfig::GetInstance().bPrimeSkipCutscene = false;
+    SConfig::GetInstance().bPrimeRestoreDashing = false;
   }
 
   if (IsHotkey(HK_MOTIONS_LOCK))
