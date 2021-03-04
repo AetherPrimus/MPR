@@ -1543,7 +1543,7 @@ void FpsControls::init_mod_mp2_gc(Region region) {
   if (region == Region::NTSC_U) {
     add_code_change(0x801b00b4, 0x48000050);
     add_code_change(0x801aef58, 0x60000000);
-    add_code_change(0x80015ed8, 0x4e800020);
+    //add_code_change(0x80015ed8, 0x4e800020);
     add_code_change(0x800129c8, 0x4e800020);
     add_code_change(0x801af160, 0x60000000);
     add_code_change(0x801b0248, 0x48000078);
@@ -1562,7 +1562,7 @@ void FpsControls::init_mod_mp2_gc(Region region) {
   } else if (region == Region::PAL) {
     add_code_change(0x801b03c0, 0x48000050);
     add_code_change(0x801af264, 0x60000000);
-    add_code_change(0x80015f74, 0x4e800020);
+    //add_code_change(0x80015f74, 0x4e800020);
     add_code_change(0x80012a2c, 0x4e800020);
     add_code_change(0x801af46c, 0x60000000);
     add_code_change(0x801b0554, 0x48000078);
