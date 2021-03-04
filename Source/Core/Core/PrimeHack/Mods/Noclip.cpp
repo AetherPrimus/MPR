@@ -460,7 +460,7 @@ bool Noclip::init_mod(Game game, Region region) {
     break;
   case Game::PRIME_3_STANDALONE:
     if (region == Region::NTSC_U) {
-      noclip_code_mp3(0x805c4f6c, 0x80004380, 0x8000bee8);
+      noclip_code_mp3(0x805c4f70, 0x80004380, 0x8000bee8);
       add_code_change(0x8017c054, 0x60000000);
       add_code_change(0x8017c05c, 0x60000000);
       add_code_change(0x8017c064, 0x60000000);

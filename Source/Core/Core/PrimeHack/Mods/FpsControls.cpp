@@ -6,7 +6,7 @@
 #include "Common/Timer.h"
 
 #include <cmath>
-
+#pragma optimize("", off)
 
 namespace prime {
 namespace {  
@@ -115,7 +115,7 @@ void FpsControls::calculate_pitch_locked(Game game, Region region) {
     return;
   }
   const u32 camera = read32(object_list + ((camera_uid & 0x3ff) << 3) + 4);
-  u32 camera_xf_offset;
+  u32 camera_xf_offset = 0;
 
   switch (game) {
     case Game::PRIME_1:

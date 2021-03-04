@@ -137,8 +137,8 @@ void init_db(AddressDB& addr_db) {
   addr_db.register_address(Game::PRIME_3_STANDALONE, "cursor_dlg_enabled", 0x805c70c7, 0x805c96df, 0x805ccbd7);
   addr_db.register_address(Game::PRIME_3_STANDALONE, "boss_info_base", 0x8067c0e4, 0x8067c87c, 0x80681f54);
   addr_db.register_address(Game::PRIME_3_STANDALONE, "beamvisor_menu_base", 0x8067dc0c, 0x80680234, 0x80683a7c);
-  addr_db.register_address(Game::PRIME_3_STANDALONE, "lockon_state", 0x805c50e4, 0x805c76e7, 0x805caba7);
-  addr_db.register_address(Game::PRIME_3_STANDALONE, "gun_lag_toc_offset", -0x5ff0, -0x6000, -0x5f68);
+  addr_db.register_address(Game::PRIME_3_STANDALONE, "lockon_state", 0x805c50e7, 0x805c76e7, 0x805caba7);
+  addr_db.register_address(Game::PRIME_3_STANDALONE, "gun_lag_toc_offset", -0x5fb0, -0x6000, -0x5f68);
   addr_db.register_address(Game::PRIME_3_STANDALONE, "powerups_size", 12, 12, 12);
   addr_db.register_address(Game::PRIME_3_STANDALONE, "powerups_offset", 0x58, 0x58, 0x58);
   addr_db.register_dynamic_address(Game::PRIME_3_STANDALONE, "camera_manager", "state_manager", {mrt1(0x10), mrt1(0xc), mrt1(0x16)});
@@ -149,10 +149,10 @@ void init_db(AddressDB& addr_db) {
   addr_db.register_dynamic_address(Game::PRIME_3_STANDALONE, "powerups_array", "player", {rt(0x35a0, 0x35a8, 0x35a0), rt0});
   addr_db.register_dynamic_address(Game::PRIME_3_STANDALONE, "boss_name", "boss_info_base", {rt0, mrt1(0x6e0), mrt1(0x24), mrt1(0x150), rt0});
   addr_db.register_dynamic_address(Game::PRIME_3_STANDALONE, "pitch", "player", {rt(0x77c, 0x77c, 0x784)});
-  // I don't particularly trust this....
-  addr_db.register_dynamic_address(Game::PRIME_3_STANDALONE, "beamvisor_menu_state", "beamvisor_menu_base", {rt0, mrt1(0x1708), rt0});
+  addr_db.register_dynamic_address(Game::PRIME_3_STANDALONE, "beamvisor_menu_state", "beamvisor_menu_base", {rt0, mrt1(0x1708)});
   addr_db.register_dynamic_address(Game::PRIME_3_STANDALONE, "active_visor", "powerups_array", {mrt1(0x34)});
   addr_db.register_dynamic_address(Game::PRIME_3_STANDALONE, "angular_momentum", "player", {mrt1(0x174)});
   addr_db.register_dynamic_address(Game::PRIME_3_STANDALONE, "ball_state", "player", {mrt1(0x358)});
+  addr_db.register_dynamic_address(Game::PRIME_3_STANDALONE, "grapple_state", "player", {mrt1(0x378)});
 }
 }
