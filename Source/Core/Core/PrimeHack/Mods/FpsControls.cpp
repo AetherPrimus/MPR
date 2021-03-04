@@ -313,11 +313,12 @@ void FpsControls::run_mod_mp1_gc() {
   }
 
   const bool show_crosshair = GetShowGCCrosshair();
-  const u32 crosshair_color = show_crosshair ? GetGCCrosshairColor() : 0x4b7ea331;
+  const u32 crosshair_color_rgba = show_crosshair ? GetGCCrosshairColor() : 0x4b7ea331;
   set_code_group_state("show_crosshair", show_crosshair ? ModState::ENABLED : ModState::DISABLED);
-//  if (show_crosshair) {
-//    write32(crosshair_color, mp1_gc_static.crosshair_color_address);
-//  }
+  LOOKUP(crosshair_color);
+  if (show_crosshair) {
+    write32(crosshair_color_rgba, crosshair_color);
+  }
 
   LOOKUP_DYN(player);
   if (player == 0) {
@@ -472,6 +473,15 @@ void FpsControls::run_mod_mp2_gc() {
     return;
   }
   DevInfo("Player", "%08x", player);
+
+  const bool show_crosshair = GetShowGCCrosshair();
+  const u32 crosshair_color_rgba = show_crosshair ? GetGCCrosshairColor() : 0x4b7ea331;
+  set_code_group_state("show_crosshair", show_crosshair ? ModState::ENABLED : ModState::DISABLED);
+  LOOKUP(tweakgui_offset);
+  u32 crosshair_color_addr = read32(read32(GPR(13) + tweakgui_offset)) + 0x268;
+  if (show_crosshair) {
+    write32(crosshair_color_rgba, crosshair_color_addr);
+  }
 
   LOOKUP_DYN(orbit_state);
   LOOKUP_DYN(pitch);
@@ -1429,7 +1439,7 @@ void FpsControls::init_mod_mp1_gc(Region region) {
     if (version == 0) {
       add_code_change(0x8000f63c, 0x48000048);
       add_code_change(0x8000e538, 0x60000000);
-      add_code_change(0x80016ee4, 0x4e800020);
+      //add_code_change(0x80016ee4, 0x4e800020);
       add_code_change(0x80014820, 0x4e800020);
       add_code_change(0x8000e73c, 0x60000000);
       add_code_change(0x8000f810, 0x48000244);
@@ -1453,7 +1463,7 @@ void FpsControls::init_mod_mp1_gc(Region region) {
   } else if (region == Region::PAL) {
     add_code_change(0x8000fb4c, 0x48000048);  
     add_code_change(0x8000ea60, 0x60000000);
-    add_code_change(0x80017878, 0x4e800020);
+    //add_code_change(0x80017878, 0x4e800020);
     add_code_change(0x80015258, 0x4e800020);
     add_code_change(0x8000ec64, 0x60000000);
     add_code_change(0x8000fd20, 0x4800022c);
@@ -1544,6 +1554,12 @@ void FpsControls::init_mod_mp2_gc(Region region) {
     // Grapple point yaw fix
     add_code_change(0x8011d9c4, 0x389d0054);
     add_code_change(0x8011d9c8, 0x4bf2d1fd);
+    
+    add_code_change(0x80015ed8, 0x3aa00001, "show_crosshair"); // li r21, 1
+    add_code_change(0x80015edc, 0x8add1268, "show_crosshair"); // lbz r22, 0x1268(r29)
+    add_code_change(0x80015ee0, 0x52b63672, "show_crosshair"); // rlwimi r22, r21, 6, 25, 25 (00000001)
+    add_code_change(0x80015ee4, 0x9add1268, "show_crosshair"); // stb r22, 0x1268(r29)
+    add_code_change(0x80015ee8, 0x4e800020, "show_crosshair"); // blr
   } else if (region == Region::PAL) {
     add_code_change(0x801b03c0, 0x48000050);
     add_code_change(0x801af264, 0x60000000);
@@ -1557,6 +1573,12 @@ void FpsControls::init_mod_mp2_gc(Region region) {
     // Grapple point yaw fix
     add_code_change(0x8011dbf8, 0x389d0054);
     add_code_change(0x8011dbfc, 0x4bf2d145);  // bl 8004ad40
+
+    add_code_change(0x80015f74, 0x3aa00001, "show_crosshair"); // li r21, 1
+    add_code_change(0x80015f78, 0x8add1268, "show_crosshair"); // lbz r22, 0x1268(r29)
+    add_code_change(0x80015f7c, 0x52b63672, "show_crosshair"); // rlwimi r22, r21, 6, 25, 25 (00000001)
+    add_code_change(0x80015f80, 0x9add1268, "show_crosshair"); // stb r22, 0x1268(r29)
+    add_code_change(0x80015f84, 0x4e800020, "show_crosshair"); // blr
   } else {}
 }
 

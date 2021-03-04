@@ -51,6 +51,7 @@ void init_db(AddressDB& addr_db) {
   addr_db.register_address(Game::PRIME_1_GCN, "fov_tp_offset", -0x7fec, -0x7fe4);
   addr_db.register_address(Game::PRIME_1_GCN, "gun_pos", 0x8045bce8, 0x803e3c14);
   addr_db.register_address(Game::PRIME_1_GCN, "tweak_player", 0x8045c208, 0x803e4134);
+  addr_db.register_address(Game::PRIME_1_GCN, "crosshair_color", 0x8045b678, 0x803e35a4);
   addr_db.register_dynamic_address(Game::PRIME_1_GCN, "world", "state_manager", {mrt1(0x850), rt0});
   addr_db.register_dynamic_address(Game::PRIME_1_GCN, "player", "state_manager", {mrt1(0x84c), rt0});
   addr_db.register_dynamic_address(Game::PRIME_1_GCN, "camera_manager", "state_manager", {mrt1(0x86c), rt0});
@@ -95,6 +96,8 @@ void init_db(AddressDB& addr_db) {
   addr_db.register_address(Game::PRIME_2_GCN, "state_manager", 0x803db6e0, 0x803dc900);
   addr_db.register_address(Game::PRIME_2_GCN, "tweakgun_offset", -0x6e1c, -0x6e14);
   addr_db.register_address(Game::PRIME_2_GCN, "tweak_player_offset", -0x6e3c, -0x6e34);
+  addr_db.register_address(Game::PRIME_2_GCN, "tweakgui_offset", -0x6e20, -0x6e18);
+  addr_db.register_address(Game::PRIME_2_GCN, "crosshair_color", 0x80736d30, 0x80738f90);
   addr_db.register_dynamic_address(Game::PRIME_2_GCN, "camera_manager", "state_manager", {mrt1(0x151c), mrt1(0x14)});
   addr_db.register_dynamic_address(Game::PRIME_2_GCN, "object_list", "state_manager", {mrt1(0x810), rt0});
   addr_db.register_dynamic_address(Game::PRIME_2_GCN, "world", "state_manager", {mrt1(0x1604), rt0});

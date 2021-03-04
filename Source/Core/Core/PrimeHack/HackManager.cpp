@@ -5,7 +5,7 @@
 #include "Core/PowerPC/PowerPC.h"
 #include "Core/ConfigManager.h"
 #include "InputCommon/GenericMouse.h"
-
+#pragma optimize("", off)
 namespace prime {
 HackManager::HackManager()
   : active_game(Game::INVALID_GAME),

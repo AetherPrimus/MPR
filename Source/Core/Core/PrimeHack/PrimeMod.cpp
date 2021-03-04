@@ -2,7 +2,7 @@
 
 #include "Core/PrimeHack/AddressDB.h"
 #include "Core/PrimeHack/HackManager.h"
-
+#pragma optimize("", off)
 namespace prime {
 
 bool PrimeMod::should_apply_changes() const {
