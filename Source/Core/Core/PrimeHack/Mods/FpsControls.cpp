@@ -6,7 +6,6 @@
 #include "Common/Timer.h"
 
 #include <cmath>
-#pragma optimize("", off)
 
 namespace prime {
 namespace {  
