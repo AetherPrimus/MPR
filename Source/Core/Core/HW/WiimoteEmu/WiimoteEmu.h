@@ -221,6 +221,7 @@ public:
   bool CheckGrappleCtrl();
   bool IsGrappleBinded();
   bool CheckImprovedMotion();
+  bool CheckUseGrappleTapping();
   bool PrimeControllerMode();
 
   void SetPrimeMode(bool controller);

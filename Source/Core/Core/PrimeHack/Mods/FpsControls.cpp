@@ -529,6 +529,78 @@ void FpsControls::mp3_handle_cursor(bool lock) {
   }
 }
 
+
+void FpsControls::mp3_handle_lasso(u32 grapple_state_addr)
+{
+  if (GrappleCtlBound()) {
+    set_code_group_state("grapple_lasso", ModState::ENABLED);
+
+    // Disable animation code changes if trying to use grapple voltage.
+    set_code_group_state("grapple_lasso_animation",
+      CheckForward() || CheckBack() ? ModState::DISABLED : ModState::ENABLED);
+  }
+  else {
+    set_code_group_state("grapple_lasso", ModState::DISABLED);
+    set_code_group_state("grapple_lasso_animation", ModState::DISABLED);
+  }
+
+  // If currently locked onto a grapple point. This must be seperate from lock-on for grapple swing.
+  if (read8(grapple_state_addr)) {
+    if (grapple_initial_cooldown == 0) {
+      grapple_initial_cooldown = Common::Timer::GetTimeMs();
+    }
+    else if (Common::Timer::GetTimeMs() > grapple_initial_cooldown + 800) {
+      if (prime::CheckGrappleCtl()) {
+        grapple_button_down = true;
+      } else if (grapple_button_down) {
+        grapple_tugging = true;
+        grapple_button_down = false;
+
+        grapple_swap_axis = !grapple_swap_axis;
+
+        // 0.45 for repeated taps. 1 will instantly complete the grapple.
+        grapple_force += GrappleTappingMode() ? 0.45f : 1.0f;
+      }
+
+      if (grapple_tugging) {
+        constexpr float force_delta = 0.045f;
+
+        // Use tapping/force method
+        if (grapple_force > 0) {
+          grapple_hand_pos += force_delta;
+          grapple_force -= force_delta;
+        }
+        else {
+          grapple_hand_pos -= 0.050f;
+          grapple_force = 0;
+        }
+
+        grapple_hand_pos = std::clamp(grapple_hand_pos, 0.f, 1.0f);
+
+        prime::GetVariableManager()->set_variable("grapple_hand_x", grapple_hand_pos);
+        prime::GetVariableManager()->set_variable("grapple_hand_y", grapple_hand_pos / 4);
+
+        if (grapple_hand_pos >= 1.0f) {
+          // State 4 completes the grapple (e.g pull door from frame)
+          prime::GetVariableManager()->set_variable("grapple_lasso_state", (u32) 4);
+        } else {
+          // State 2 "holds" the grapple for lasso/voltage.
+          prime::GetVariableManager()->set_variable("grapple_lasso_state", (u32) 2);
+        }
+      }
+    } 
+  } else {
+    prime::GetVariableManager()->set_variable("grapple_hand_x", 0.f);
+    prime::GetVariableManager()->set_variable("grapple_hand_y", 0.f);
+    prime::GetVariableManager()->set_variable("grapple_lasso_state", (u32) 0);
+
+    grapple_initial_cooldown = 0;
+    grapple_hand_pos = 0;
+    grapple_force = 0;
+    grapple_button_down, grapple_tugging = false;
+  }
+}
+
 // this game is
 void FpsControls::run_mod_mp3(Game active_game, Region active_region) {
   CheckBeamVisorSetting(active_game);
@@ -609,62 +681,8 @@ void FpsControls::run_mod_mp3(Game active_game, Region active_region) {
     return;
   }
 
-  // If currently locked onto a grapple point. This must be seperate from lock-on for grapple swing.
-  if (read8(grapple_state)) {
-    // Increase per buttion press, divided by a tenth of a second (frame-time)
-    constexpr float velocity_delta = 0.45f / 10.f; // ~0.035
-
-    DevInfo("Grapple_Pos", "(%f, %f)", grapple_hand_pos_x, grapple_hand_pos_y);
-
-    // Grapple Lasso
-    if (prime::CheckGrappleCtl()) {
-      if (grapple_time == 0) {
-        grapple_time = Common::Timer::GetTimeMs();
-        set_cursor_pos(0, 0);
-        grapple_hand_pos_x = 0, grapple_hand_pos_y = 0;
-      }
-    }
-
-    // Wait for a second to pass to complete grappling before handling mouse
-    if (Common::Timer::GetTimeMs() > grapple_time + 1000) {
-      calculate_pitch_locked(Game::PRIME_3, active_region);
-      int dx = GetHorizontalAxis(), dy = GetVerticalAxis();
-
-      float aspect_ratio = get_aspect_ratio();
-      if (std::isnan(aspect_ratio)) {
-        return;
-      }
-
-      const float cursor_sensitivity_conv = prime::GetCursorSensitivity() / 10000.f;
-      grapple_hand_pos_x += static_cast<float>(dx) * cursor_sensitivity_conv;
-      grapple_hand_pos_y += static_cast<float>(dy) * (cursor_sensitivity_conv * aspect_ratio * -1.f);
-
-      // Grapple x is porportional to grapple y, it will do nothing if the value is too low.
-      //grapple_hand_pos_y += grapple_hand_pos_x * 0.4f;
-
-      grapple_hand_pos_x = std::clamp(grapple_hand_pos_x, 0.f, 1.f);
-      grapple_hand_pos_y = std::clamp(grapple_hand_pos_y, 0.f, 1.f);
-
-      // Swapping these is intentional (though confusing). This is because x mouse is updown but moves the hand left/right.
-      prime::GetVariableManager()->set_variable("grapple_hand_y", grapple_hand_pos_x);
-      prime::GetVariableManager()->set_variable("grapple_hand_x", grapple_hand_pos_y);
-
-      if (grapple_hand_pos_y == 1.f) {
-        prime::GetVariableManager()->set_variable("grapple_lasso_state", (u32) 4);
-      }
-    } else {
-      prime::GetVariableManager()->set_variable("grapple_lasso_state", (u32) 2);
-    }
-  } else {
-    prime::GetVariableManager()->set_variable("grapple_pull_amount", 0.f);
-    // State 0 readys for another grapple connection.
-    prime::GetVariableManager()->set_variable("grapple_lasso_state", (u32) 0);
-
-    prime::GetVariableManager()->set_variable("grapple_hand_y", 0.f);
-    prime::GetVariableManager()->set_variable("grapple_hand_x", 0.f);
-
-    grapple_time = 0;
-  }
+  // Handle grapple lasso bind
+  mp3_handle_lasso(grapple_state);
 
   // Lock Camera according to ContextSensitiveControls and interpolate to pitch 0
   if (prime::GetLockCamera() != Unlocked) {

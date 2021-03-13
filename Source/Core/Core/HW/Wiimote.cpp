@@ -198,6 +198,13 @@ bool CheckImprovedMotion()
   return wiimote->CheckImprovedMotion();
 }
 
+bool UseGrappleTapping()
+{
+  WiimoteEmu::Wiimote* wiimote = static_cast<WiimoteEmu::Wiimote*>(s_config.GetController(0));
+
+  return wiimote->CheckUseGrappleTapping();
+}
+
 bool CheckForward() {
   WiimoteEmu::Wiimote* wiimote = static_cast<WiimoteEmu::Wiimote*>(s_config.GetController(0));
   

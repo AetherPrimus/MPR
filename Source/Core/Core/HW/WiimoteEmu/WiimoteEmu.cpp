@@ -442,6 +442,9 @@ Wiimote::Wiimote(const unsigned int index) : m_index(index), ir_sin(0), ir_cos(1
     new ControllerEmu::Input("Grapple Lasso", "Grapple Lasso"));
 
   m_primehack_misc->boolean_settings.emplace_back(
+    new ControllerEmu::BooleanSetting("Tap Grapple Repeatedly To Pull", false));
+
+  m_primehack_misc->boolean_settings.emplace_back(
     new ControllerEmu::BooleanSetting("Improved Motion Controls", true));
 
   // --- reset eeprom/register/values to default ---
@@ -617,6 +620,11 @@ bool Wiimote::IsGrappleBinded()
 }
 
 bool Wiimote::CheckImprovedMotion()
+{
+  return m_primehack_misc->boolean_settings[1].get()->GetValue();
+}
+
+bool Wiimote::CheckUseGrappleTapping()
 {
   return m_primehack_misc->boolean_settings[0].get()->GetValue();
 }
