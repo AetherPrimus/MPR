@@ -245,6 +245,8 @@ add_library(core
   PrimeHack/HackConfig.cpp
   PrimeHack/HackManager.cpp
   PrimeHack/Transform.cpp
+  PrimeHack/AddressDB.cpp
+  PrimeHack/AddressDBInit.cpp
 )
 
 if(_M_X86)

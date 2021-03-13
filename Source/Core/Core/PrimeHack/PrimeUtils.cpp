@@ -252,7 +252,6 @@ std::tuple<u32, u32, u32, u32> GetCheatsTime()
   return std::make_tuple(noclip_msg_time, invulnerability_msg_time, cutscene_msg_time, scandash_msg_time);
 }
 
-
 // To-Do: Refactor this garbage.
 void AddCheatsTime(int index, u32 time)
 {
@@ -306,9 +305,4 @@ void handle_cursor(u32 x_address, u32 y_address, float right_bound, float bottom
   writef32(cursor_x, x_address);
   writef32(cursor_y, y_address);
 }
-
-float lerp(float low, float high, float t) {
-  return (high - low) * t + low;
-}
-
 }  // namespace prime
