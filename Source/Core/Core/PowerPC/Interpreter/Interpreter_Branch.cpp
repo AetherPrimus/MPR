@@ -141,3 +141,9 @@ void Interpreter::sc(UGeckoInstruction inst)
   PowerPC::CheckExceptions();
   m_end_block = true;
 }
+
+
+// Added this to Dolphin, this is a major security breach
+void Interpreter::vmcall(UGeckoInstruction inst) {
+  PowerPC::ppcState.vmcall_table[inst.VMFI](inst.VMFP);
+}

@@ -52,6 +52,8 @@ struct TLBEntry
   u8 recent = 0;
 };
 
+typedef void(*vm_call)(u32);
+
 // This contains the entire state of the emulated PowerPC "Gekko" CPU.
 struct PowerPCState
 {
@@ -126,6 +128,7 @@ struct PowerPCState
   u32 pagetable_hashmask;
 
   InstructionCache iCache;
+  std::array<vm_call, 1024> vmcall_table;
 };
 
 #if _M_X86_64
@@ -148,6 +151,7 @@ void Reset();
 void Shutdown();
 void DoState(PointerWrap& p);
 void ScheduleInvalidateCacheThreadSafe(u32 address);
+void RegisterVmcall(int index, vm_call pfn);
 
 CoreMode GetMode();
 // [NOT THREADSAFE] CPU Thread or CPU::PauseAndLock or Core::State::Uninitialized

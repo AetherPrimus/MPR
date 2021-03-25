@@ -124,6 +124,13 @@ void CVarDlg::LoadControls() {
         cvar_list->SetItem(idx, 2, "float64");
       }
       break;
+    case prime::CVarType::BOOLEAN: {
+        bool val;
+        mod->get_cvar_val(var->name, &val, sizeof(bool));
+        cvar_list->SetItem(idx, 1, wxString::Format("%s", val ? "true" : "false"));
+        cvar_list->SetItem(idx, 2, "boolean");
+      }
+      break;
     default: {
         cvar_list->SetItem(idx, 1, "");
         cvar_list->SetItem(idx, 2, "unknown");
@@ -181,13 +188,29 @@ void CVarDlg::OnCVarSet(long idx, std::string const& var, wxString val) {
       mod->write_cvar(var, &d);
       cvar_list->SetItem(idx, 1, wxString::Format("%f", d));
     }
-  } else {
+  } else if (cvar->type != prime::CVarType::BOOLEAN) {
     long long i;
     if (!val.ToLongLong(&i)) {
       return;
     }
     mod->write_cvar(var, &i);
     cvar_list->SetItem(idx, 1, val);
+  } else {
+    bool b;
+    if (!val.CmpNoCase("true") ||
+        !val.CmpNoCase("on") ||
+        !val.CmpNoCase("yes") ||
+        !val.CmpNoCase("ok")) {
+      b = true;
+      mod->write_cvar(var, &b);
+      cvar_list->SetItem(idx, 1, "true");
+    } else if (!val.CmpNoCase("false") ||
+               !val.CmpNoCase("off") ||
+               !val.CmpNoCase("no")) {
+      b = false;
+      mod->write_cvar(var, &b);
+      cvar_list->SetItem(idx, 1, "false");
+    }
   }
 }
 

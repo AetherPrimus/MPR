@@ -13,16 +13,15 @@ namespace prime {
 namespace {
 size_t get_type_size(CVarType t) {
   switch (t) {
+  case CVarType::BOOLEAN:
   case CVarType::INT8:
     return 1;
   case CVarType::INT16:
     return 2;
+  case CVarType::FLOAT32:
   case CVarType::INT32:
     return 4;
   case CVarType::INT64:
-    return 8;
-  case CVarType::FLOAT32:
-    return 4;
   case CVarType::FLOAT64:
     return 8;
   default:
@@ -49,6 +48,8 @@ void write_type(u64 val, u32 addr, CVarType type) {
   case CVarType::FLOAT64:
     write64(val, addr);
     break;
+  case CVarType::BOOLEAN:
+    write8(static_cast<bool>(val), addr);
   default:
     break;
   }
@@ -57,25 +58,20 @@ u64 read_type(u32 addr, CVarType type) {
   switch (type) {
   case CVarType::INT8:
     return static_cast<u64>(read8(addr));
-    break;
   case CVarType::INT16:
     return static_cast<u64>(read16(addr));
-    break;
   case CVarType::INT32:
     return static_cast<u64>(read32(addr));
-    break;
   case CVarType::INT64:
     return read64(addr);
-    break;
   case CVarType::FLOAT32:
     return static_cast<u64>(read32(addr));
-    break;
   case CVarType::FLOAT64:
     return read64(addr);
-    break;
+  case CVarType::BOOLEAN:
+    return static_cast<u64>(read8(addr));
   default:
     return 0;
-    break;
   }
 }
 }
@@ -91,6 +87,14 @@ void ElfModLoader::run_mod(Game game, Region region) {
     update_bat_regs();
     run_mod_mp1_gc(region);
     break;
+  case Game::PRIME_2_GCN:
+    update_bat_regs();
+    run_mod_mp2_gc(region);
+    break;
+  }
+  if (debug_output_addr != 0) {
+    std::string debug_str = PowerPC::HostGetString(debug_output_addr);
+    DevInfo("Mod Output", "%s", debug_str.c_str());
   }
 }
 
@@ -98,23 +102,23 @@ bool ElfModLoader::init_mod(Game game, Region region) {
   // Mod entry:
   //  add a bit of stack, save LR, forward to mod function, mark "in mod" state
   //  any parameters are implicitly forwarded (*NOT STACK PARAMS*)
-  if (game == Game::PRIME_1_GCN && region == Region::NTSC_U) {
+  if ((game == Game::PRIME_1_GCN || game == Game::PRIME_2_GCN) && region == Region::NTSC_U) {
     update_bat_regs();
-    add_code_change(0x81800000, 0x9421fffc);
-    add_code_change(0x81800004, 0x7c0802a6);
-    add_code_change(0x81800008, 0x90010008);
-    add_code_change(0x8180000c, 0x3d608180);
-    add_code_change(0x81800010, 0x39800001);
-    add_code_change(0x81800014, 0x918b0038);
-    entry_point_index = get_code_changes().size();
-    add_code_change(0x81800018, 0x48000005);
-    add_code_change(0x8180001c, 0x3d608180);
-    add_code_change(0x81800020, 0x39800000);
-    add_code_change(0x81800024, 0x918b0038);
-    add_code_change(0x81800028, 0x80010008);
-    add_code_change(0x8180002c, 0x7c0803a6);
-    add_code_change(0x81800030, 0x38210004);
-    add_code_change(0x81800034, 0x4e800020);
+    //add_code_change(0x81800000, 0x9421fffc);
+    //add_code_change(0x81800004, 0x7c0802a6);
+    //add_code_change(0x81800008, 0x90010008);
+    //add_code_change(0x8180000c, 0x3d608180);
+    //add_code_change(0x81800010, 0x39800001);
+    //add_code_change(0x81800014, 0x918b0038);
+    //entry_point_index = get_code_changes().size();
+    //add_code_change(0x81800018, 0x48000005);
+    //add_code_change(0x8180001c, 0x3d608180);
+    //add_code_change(0x81800020, 0x39800000);
+    //add_code_change(0x81800024, 0x918b0038);
+    //add_code_change(0x81800028, 0x80010008);
+    //add_code_change(0x8180002c, 0x7c0803a6);
+    //add_code_change(0x81800030, 0x38210004);
+    //add_code_change(0x81800034, 0x4e800020);
   }
 
   return true; 
@@ -143,6 +147,18 @@ void ElfModLoader::run_mod_mp1_gc(Region region) {
   }
 }
 
+void ElfModLoader::run_mod_mp2_gc(Region region) {
+  if (region != Region::NTSC_U) {
+    return;
+  }
+  
+  if (ModPending()) {
+    std::string pending_elf = GetPendingModfile();
+    ClearPendingModfile();
+    parse_and_load_modfile(pending_elf);
+  }
+}
+
 std::optional<CodeChange> ElfModLoader::parse_code(std::string const& str) {
   std::regex rx("^([0-9A-Fa-f]{8})\\s+([0-9A-Fa-f]{8})\\s*(#.*)?$");
   std::smatch matches;
@@ -158,8 +174,22 @@ std::optional<CodeChange> ElfModLoader::parse_code(std::string const& str) {
   return std::nullopt;
 }
 
+std::optional<std::pair<std::string, u32>> ElfModLoader::parse_hook(std::string const& str) {
+  std::regex rx("^([a-zA-Z_]\\w*)\\s+([0-9A-Fa-f]{8})\\s*(#.*)?$");
+  std::smatch matches;
+  if (std::regex_match(str, matches, rx)) {
+    if (matches.size() < 3) {
+      return std::nullopt;
+    }
+    std::string replace_fn_name = matches[1], vti_address_string = matches[2];
+    u32 vti_address = static_cast<u32>(strtoul(vti_address_string.c_str(), nullptr, 16));
+    return std::make_optional<std::pair<std::string, u32>>(replace_fn_name, vti_address);
+  }
+  return std::nullopt;
+}
+
 std::optional<CVar> ElfModLoader::parse_cvar(std::string const& str) {
-  std::regex rx("^([a-zA-Z_]\\w*)\\s+(i8|i16|i32|i64|f32|f64)\\s*$");
+  std::regex rx("^([a-zA-Z_]\\w*)\\s+(i8|i16|i32|i64|f32|f64|bool)\\s*$");
   std::smatch matches;
   if (std::regex_match(str, matches, rx)) {
     if (matches.size() < 3) {
@@ -172,7 +202,8 @@ std::optional<CVar> ElfModLoader::parse_cvar(std::string const& str) {
     else if (type == "i32") { parsed_type = CVarType::INT32; }
     else if (type == "i64") { parsed_type = CVarType::INT64; }
     else if (type == "f32") { parsed_type = CVarType::FLOAT32; }
-    else { parsed_type = CVarType::FLOAT64; } // type == "f64"
+    else if (type == "f64") { parsed_type = CVarType::FLOAT64; }
+    else { parsed_type = CVarType::BOOLEAN; } // type == "bool"
     
     return std::make_optional<CVar>(matches[1], 0, parsed_type);
   }
@@ -202,6 +233,9 @@ void ElfModLoader::parse_and_load_modfile(std::string const& path) {
   }
   std::vector<CVar> parsed_cvars;
   std::vector<CodeChange> parsed_changes;
+  std::vector<std::pair<std::string, u32>> parsed_vthooks;
+  std::vector<std::pair<std::string, u32>> parsed_blhooks;
+  std::vector<std::pair<std::string, u32>> parsed_trampolines;
   std::optional<std::string> parsed_elf = std::nullopt;
 
   while (!modfile.eof()) {
@@ -226,6 +260,21 @@ void ElfModLoader::parse_and_load_modfile(std::string const& path) {
         if (opt) {
           parsed_changes.emplace_back(*opt);
         }
+      } else if (type == "vthook") {
+        auto opt = parse_hook(matches[2]);
+        if (opt) {
+          parsed_vthooks.emplace_back(*opt);
+        }
+      } else if (type == "blhook") {
+        auto opt = parse_hook(matches[2]);
+        if (opt) {
+          parsed_blhooks.emplace_back(*opt);
+        }
+      } else if (type == "trampoline") {
+        auto opt = parse_hook(matches[2]);
+        if (opt) {
+          parsed_trampolines.emplace_back(*opt);
+        }
       } else if (type == "elf") {
         parsed_elf = std::move(parse_elfpath(path, matches[2]));
       }
@@ -244,6 +293,45 @@ void ElfModLoader::parse_and_load_modfile(std::string const& path) {
       cvar_map[cvar.name] = cvar;
       cvar_map[cvar.name].addr = cvar_sym->address;
     }
+
+    for (auto&& [hook_fn, hook_addr] : parsed_vthooks) {
+      Symbol* hook_sym = g_symbolDB.GetSymbolFromName(hook_fn);
+      if (hook_sym == nullptr) {
+        continue;
+      }
+      add_code_change(hook_addr, hook_sym->address);
+    }
+
+    for (auto&& [hook_fn, hook_addr] : parsed_blhooks) {
+      Symbol* hook_sym = g_symbolDB.GetSymbolFromName(hook_fn);
+      if (hook_sym == nullptr) {
+        continue;
+      }
+      u32 delta_addr = hook_sym->address - hook_addr;
+      if ((delta_addr & 0x3fffffc) != delta_addr) {
+        continue;
+      }
+      add_code_change(hook_addr, 0x48000001 | delta_addr);
+    }
+
+    for (auto&& [hook_fn, hook_addr] : parsed_trampolines) {
+      Symbol* hook_sym = g_symbolDB.GetSymbolFromName(hook_fn);
+      if (hook_sym == nullptr) {
+        continue;
+      }
+      u32 delta_addr = hook_sym->address - hook_addr;
+      if ((delta_addr & 0x3fffffc) != delta_addr) {
+        continue;
+      }
+      add_code_change(hook_addr, 0x48000000 | delta_addr);
+    }
+
+    Symbol* mod_out_sym = g_symbolDB.GetSymbolFromName("debug_output");
+    if (mod_out_sym != nullptr) {
+      debug_output_addr = mod_out_sym->address;
+    } else {
+      debug_output_addr = 0;
+    }
   }
 }
 
@@ -257,9 +345,9 @@ void ElfModLoader::load_elf(std::string const& path) {
   elf_file.LoadIntoMemory(false);
   g_symbolDB.Clear();
   elf_file.LoadSymbols();
-  const u32 entry_delta = elf_file.GetEntryPoint() - 0x81800018;
-  set_code_change(entry_point_index, 0x48000001 | (entry_delta & 0x3ffffffc));
-  write_invalidate(get_code_changes()[entry_point_index].address, get_code_changes()[entry_point_index].var);
+  // const u32 entry_delta = elf_file.GetEntryPoint() - 0x81800018;
+  // set_code_change(entry_point_index, 0x48000001 | (entry_delta & 0x3ffffffc));
+  // write_invalidate(get_code_changes()[entry_point_index].address, get_code_changes()[entry_point_index].var);
 }
 
 void ElfModLoader::on_state_change(ModState old_state) {

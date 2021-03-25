@@ -484,10 +484,16 @@ void FpsControls::run_mod_mp2_gc() {
 
   LOOKUP_DYN(orbit_state);
   LOOKUP_DYN(pitch);
+  LOOKUP_DYN(player_xf);
+  Transform cplayer_xf(player_xf);
+
   if (read32(orbit_state) != ORBIT_STATE_GRAPPLE &&
       read32(orbit_state) != 0) {
     calculate_pitch_locked(Game::PRIME_2_GCN, GetHackManager()->get_active_region());
     writef32(FpsControls::pitch, pitch);
+    vec3 fwd = cplayer_xf.fwd();
+    yaw = atan2f(fwd.y, fwd.x);
+
     return;
   }
 
@@ -506,16 +512,22 @@ void FpsControls::run_mod_mp2_gc() {
     }
   }
 
-  calculate_pitch_delta();
-  writef32(FpsControls::pitch, pitch);
-
   LOOKUP_DYN(ball_state);
-  if (read32(ball_state) == 0) {
+  if (read32(ball_state) != 0) {
+    vec3 fwd = cplayer_xf.fwd();
+    yaw = atan2f(fwd.y, fwd.x);
+    return;
+  }
+
+  calculate_pitchyaw_delta();
+  writef32(FpsControls::pitch, pitch);
+  cplayer_xf.build_rotation(yaw);
+  cplayer_xf.write_to(player_xf);
+
     // Forgot to note this in MP1 GC, in trilogy we were using angular momentum
     // whereas we're using angvel here, so divide out Samus' mass (200)
-    LOOKUP_DYN(angular_vel);
-    writef32(calculate_yaw_vel() / 200.f, angular_vel);
-  }
+    //LOOKUP_DYN(angular_vel);
+    //writef32(calculate_yaw_vel() / 200.f, angular_vel);
 }
 
 void FpsControls::mp3_handle_cursor(bool lock) {

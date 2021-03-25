@@ -6,7 +6,7 @@
 
 namespace prime {
 enum class CVarType {
-  INT8, INT16, INT32, INT64, FLOAT32, FLOAT64
+  INT8, INT16, INT32, INT64, FLOAT32, FLOAT64, BOOLEAN
 };
 struct CVar {
   std::string name;
@@ -30,6 +30,7 @@ public:
 
 private:
   std::map<std::string, CVar> cvar_map;
+  u32 debug_output_addr = 0;
   
   size_t entry_point_index;
 
@@ -37,9 +38,11 @@ private:
   void parse_and_load_modfile(std::string const& path);
   std::optional<CVar> parse_cvar(std::string const& str);
   std::optional<CodeChange> parse_code(std::string const& str);
+  std::optional<std::pair<std::string, u32>> parse_hook(std::string const& str);
   std::optional<std::string> parse_elfpath(std::string const& rel_file, std::string const& str);
 
   void run_mod_mp1_gc(Region region);
+  void run_mod_mp2_gc(Region region);
 
   bool executing_mod() const;
   void load_elf(std::string const& path);
