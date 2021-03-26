@@ -606,7 +606,6 @@ void FpsControls::mp3_handle_lasso(u32 grapple_state_addr)
 
 // this game is
 void FpsControls::run_mod_mp3(Game active_game, Region active_region) {
-  const bool is_mp3_standalone_us = hack_mgr->get_active_game() == Game::PRIME_3_STANDALONE && hack_mgr->get_active_region() == Region::NTSC_U;
   CheckBeamVisorSetting(active_game);
 
   if (GrappleCtlBound()) {
@@ -668,8 +667,9 @@ void FpsControls::run_mod_mp3(Game active_game, Region active_region) {
   LOOKUP_DYN(angular_momentum);
   LOOKUP_DYN(beamvisor_menu_state);
   LOOKUP_DYN(lockon_type);
+  LOOKUP(lockon_state);
   bool beamvisor_menu = read32(beamvisor_menu_state) == 3;
-  if (read32(lockon_type) == 1 || beamvisor_menu) {
+  if ((read32(lockon_type) == 0 && read8(lockon_state)) || read32(lockon_type) == 1 || beamvisor_menu) {
     write32(0, angular_momentum);
     calculate_pitch_locked(active_game, active_region);
 
