@@ -23,18 +23,20 @@ const std::array<std::tuple<int, int>, 4> prime_three_visors = {
   std::make_tuple<int, int>(2, 0x0d), std::make_tuple<int, int>(3, 0x0e)};
 
 constexpr u32 ORBIT_STATE_GRAPPLE = 5;
+#define RIDLEY_STR(r) (r == Region::NTSC_J ? L"ÉÅÉ^ÉäÉhÉäÅ[" : L"Meta Ridley")
+#define RIDLEY_STR_LEN(r) (r == Region::NTSC_J ? 6 : 11)
 
-bool is_string_ridley(u32 string_base) {
+bool is_string_ridley(Region active_region, u32 string_base) {
   if (string_base == 0) {
     return false;
   }
 
-  const char ridley_str[] = "Meta Ridley";
-  constexpr auto str_len = sizeof(ridley_str) - 1;
+  const wchar_t * ridley_str = RIDLEY_STR(active_region);
+  const auto str_len = RIDLEY_STR_LEN(active_region);
   int str_idx = 0;
 
   while (read16(string_base) != 0 && str_idx < str_len) {
-    if (static_cast<char>(read16(string_base)) != ridley_str[str_idx]) {
+    if (static_cast<wchar_t>(read16(string_base)) != ridley_str[str_idx]) {
       return false;
     }
     str_idx++;
@@ -57,6 +59,7 @@ void FpsControls::run_mod(Game game, Region region) {
     run_mod_mp2(region);
     break;
   case Game::PRIME_3:
+  case Game::PRIME_3_STANDALONE:
     run_mod_mp3(game, region);
     break;
   case Game::PRIME_1_GCN:
@@ -64,9 +67,6 @@ void FpsControls::run_mod(Game game, Region region) {
     break;
   case Game::PRIME_2_GCN:
     run_mod_mp2_gc();
-    break;
-  case Game::PRIME_3_STANDALONE:
-    run_mod_mp3(game, region);
     break;
   default:
     break;
@@ -129,8 +129,8 @@ void FpsControls::calculate_pitch_locked(Game game, Region region) {
     case Game::PRIME_2_GCN:
       camera_xf_offset = 0x24;
       break;
-    case Game::PRIME_3_STANDALONE:
     case Game::PRIME_3:
+    case Game::PRIME_3_STANDALONE:
       camera_xf_offset = 0x3c;
       break;
   }
@@ -226,7 +226,7 @@ void FpsControls::run_mod_menu(Game game, Region region) {
     }
   }
   else if (region == Region::PAL) {
-    u32 cursor_address = PowerPC::HostRead_U32(0x80621ffc);
+    u32 cursor_address = read32(0x80621ffc);
     handle_cursor(cursor_address + 0xdc, cursor_address + 0x19c, 0.95f, 0.90f);
   }
 }
@@ -256,13 +256,13 @@ void FpsControls::run_mod_mp1(Region region) {
   LOOKUP_DYN(cursor);
   LOOKUP_DYN(angular_vel);
   LOOKUP_DYN(angular_momentum);
-  LOOKUP_DYN(pitch);
+  LOOKUP_DYN(firstperson_pitch);
   LOOKUP(arm_cannon_matrix);
   if (locked) {
     write32(0, angular_momentum);
     write32(0, angular_vel);
     calculate_pitch_locked(Game::PRIME_1, region);
-    writef32(FpsControls::pitch, pitch);
+    writef32(FpsControls::pitch, firstperson_pitch);
     writef32(FpsControls::pitch, arm_cannon_matrix);
 
     if (beamvisor_menu_enabled) {
@@ -290,7 +290,7 @@ void FpsControls::run_mod_mp1(Region region) {
     write32(0, cursor + 0x15c);
 
     calculate_pitch_delta();
-    writef32(FpsControls::pitch, pitch);
+    writef32(FpsControls::pitch, firstperson_pitch);
     writef32(FpsControls::pitch, arm_cannon_matrix);
 
     LOOKUP(tweakplayer);
@@ -332,8 +332,8 @@ void FpsControls::run_mod_mp1_gc() {
   if (orbit_state_val != ORBIT_STATE_GRAPPLE &&
     orbit_state_val != 0) {
     calculate_pitch_locked(Game::PRIME_1_GCN, GetHackManager()->get_active_region());
-    LOOKUP_DYN(pitch);
-    writef32(FpsControls::pitch, pitch);
+    LOOKUP_DYN(firstperson_pitch);
+    writef32(FpsControls::pitch, firstperson_pitch);
 
     vec3 fwd = cplayer_xf.fwd();
     yaw = atan2f(fwd.y, fwd.x);
@@ -350,9 +350,9 @@ void FpsControls::run_mod_mp1_gc() {
 
   calculate_pitchyaw_delta();
   LOOKUP(tweak_player);
-  LOOKUP_DYN(pitch);
+  LOOKUP_DYN(firstperson_pitch);
   LOOKUP_DYN(angular_vel);
-  writef32(FpsControls::pitch, pitch);
+  writef32(FpsControls::pitch, firstperson_pitch);
   writef32(1.52f, tweak_player + 0x134);
   writef32(0, angular_vel);
   cplayer_xf.build_rotation(yaw);
@@ -397,10 +397,10 @@ void FpsControls::run_mod_mp2(Region region) {
   if (locked) {
     // Angular velocity (not really, but momentum) is being messed with like mp1
     // just being accessed relative to cplayer
-    LOOKUP_DYN(pitch);
+    LOOKUP_DYN(firstperson_pitch);
     write32(0, angular_momentum);
     calculate_pitch_locked(Game::PRIME_2, region);
-    writef32(FpsControls::pitch, pitch);
+    writef32(FpsControls::pitch, firstperson_pitch);
 
     if (beamvisor_menu) {
       LOOKUP_DYN(beamvisor_menu_mode);
@@ -432,8 +432,8 @@ void FpsControls::run_mod_mp2(Region region) {
     calculate_pitch_delta();
     // Grab the arm cannon address, go to its transform field (NOT the
     // Actor's xf @ 0x30!!)
-    LOOKUP_DYN(pitch);
-    writef32(FpsControls::pitch, pitch);
+    LOOKUP_DYN(firstperson_pitch);
+    writef32(FpsControls::pitch, firstperson_pitch);
 
     // For whatever god forsaken reason, writing pitch to the z component of the
     // right vector for this xf makes the gun not lag. Won't fix what ain't broken
@@ -483,17 +483,11 @@ void FpsControls::run_mod_mp2_gc() {
   }
 
   LOOKUP_DYN(orbit_state);
-  LOOKUP_DYN(pitch);
-  LOOKUP_DYN(player_xf);
-  Transform cplayer_xf(player_xf);
-
+  LOOKUP_DYN(firstperson_pitch);
   if (read32(orbit_state) != ORBIT_STATE_GRAPPLE &&
       read32(orbit_state) != 0) {
     calculate_pitch_locked(Game::PRIME_2_GCN, GetHackManager()->get_active_region());
-    writef32(FpsControls::pitch, pitch);
-    vec3 fwd = cplayer_xf.fwd();
-    yaw = atan2f(fwd.y, fwd.x);
-
+    writef32(FpsControls::pitch, firstperson_pitch);
     return;
   }
 
@@ -512,22 +506,16 @@ void FpsControls::run_mod_mp2_gc() {
     }
   }
 
+  calculate_pitch_delta();
+  writef32(FpsControls::pitch, firstperson_pitch);
+
   LOOKUP_DYN(ball_state);
-  if (read32(ball_state) != 0) {
-    vec3 fwd = cplayer_xf.fwd();
-    yaw = atan2f(fwd.y, fwd.x);
-    return;
-  }
-
-  calculate_pitchyaw_delta();
-  writef32(FpsControls::pitch, pitch);
-  cplayer_xf.build_rotation(yaw);
-  cplayer_xf.write_to(player_xf);
-
+  if (read32(ball_state) == 0) {
     // Forgot to note this in MP1 GC, in trilogy we were using angular momentum
     // whereas we're using angvel here, so divide out Samus' mass (200)
-    //LOOKUP_DYN(angular_vel);
-    //writef32(calculate_yaw_vel() / 200.f, angular_vel);
+    LOOKUP_DYN(angular_vel);
+    writef32(calculate_yaw_vel() / 200.f, angular_vel);
+  }
 }
 
 void FpsControls::mp3_handle_cursor(bool lock) {
@@ -557,7 +545,11 @@ void FpsControls::mp3_handle_lasso(u32 grapple_state_addr)
   }
 
   // If currently locked onto a grapple point. This must be seperate from lock-on for grapple swing.
-  if (read8(grapple_state_addr)) {
+  // On US Standalone we check at 0x370 which is the lock type because 0x378 isn't existing in that version
+  // 1 => Locked On
+  // 2 => Grapple Lasso(/Voltage)
+  // 3 => Grapple Swing
+  if (read8(grapple_state_addr) == 2) {
     if (grapple_initial_cooldown == 0) {
       grapple_initial_cooldown = Common::Timer::GetTimeMs();
     }
@@ -615,6 +607,7 @@ void FpsControls::mp3_handle_lasso(u32 grapple_state_addr)
 
 // this game is
 void FpsControls::run_mod_mp3(Game active_game, Region active_region) {
+  const bool is_mp3_standalone_us = hack_mgr->get_active_game() == Game::PRIME_3_STANDALONE && hack_mgr->get_active_region() == Region::NTSC_U;
   CheckBeamVisorSetting(active_game);
 
   if (GrappleCtlBound()) {
@@ -639,8 +632,8 @@ void FpsControls::run_mod_mp3(Game active_game, Region active_region) {
   // In NTSC-J version there is a quiz to select the difficulty
   // This checks if we are ingame
   LOOKUP(state_manager);
-  // I won't add (state_manager + 0x298) to the address db, not sure what it is
-  if (active_region == Region::NTSC_J && read32(state_manager + 0x298) == 0xffffffff) {
+  // I won't add (state_manager + 0x29C) to the address db, not sure what it is
+  if (active_region == Region::NTSC_J && read32(state_manager + 0x29C) == 0xffffffff) {
     mp3_handle_cursor(false);
     return;
   }
@@ -654,47 +647,45 @@ void FpsControls::run_mod_mp3(Game active_game, Region active_region) {
   handle_beam_visor_switch({}, prime_three_visors);
 
   LOOKUP_DYN(boss_name);
-  bool is_boss_metaridley = is_string_ridley(boss_name);
+  LOOKUP_DYN(boss_status);
+  bool is_boss_metaridley = is_string_ridley(active_region, boss_name);
 
   // Compare based on boss name string, Meta Ridley only appears once
   if (is_boss_metaridley) {
-    if (!fighting_ridley) {
-      fighting_ridley = true;
-      set_state(ModState::CODE_DISABLED);
-    }
-    mp3_handle_cursor(false);
-    return;
-  } else {
-    if (fighting_ridley) {
-      fighting_ridley = false;
+    // If boss is dead
+    if (read8(boss_status) == 8) {
       set_state(ModState::ENABLED);
+      mp3_handle_cursor(true);
+    } else {
+      set_state(ModState::CODE_DISABLED);
+      mp3_handle_cursor(false);
+      return;
     }
-    mp3_handle_cursor(true);
   }
 
   prime::GetVariableManager()->set_variable("trigger_grapple", prime::CheckGrappleCtl() ? u32{1} : u32{0});
 
-  LOOKUP_DYN(pitch);
+  LOOKUP_DYN(firstperson_pitch);
   LOOKUP_DYN(angular_momentum);
   LOOKUP_DYN(beamvisor_menu_state);
-  LOOKUP_DYN(grapple_state);
+  LOOKUP_DYN(lockon_type);
   LOOKUP(lockon_state);
   bool beamvisor_menu = read32(beamvisor_menu_state) == 3;
-  if (!read8(grapple_state) && read8(lockon_state) || beamvisor_menu) {
+  if (read8(lockon_state) == 1 || beamvisor_menu) {
     write32(0, angular_momentum);
-    calculate_pitch_locked(Game::PRIME_3, active_region);
+    calculate_pitch_locked(active_game, active_region);
 
     if (HandleReticleLockOn() || beamvisor_menu) {
       mp3_handle_cursor(false);
     }
 
-    writef32(FpsControls::pitch, pitch);
+    writef32(FpsControls::pitch, firstperson_pitch);
 
     return;
   }
 
   // Handle grapple lasso bind
-  mp3_handle_lasso(grapple_state);
+  mp3_handle_lasso(lockon_state);
 
   // Lock Camera according to ContextSensitiveControls and interpolate to pitch 0
   if (prime::GetLockCamera() != Unlocked) {
@@ -708,7 +699,7 @@ void FpsControls::run_mod_mp3(Game active_game, Region active_region) {
     }
 
     calculate_pitch_to_target(target_pitch);
-    writef32(FpsControls::pitch, pitch);
+    writef32(FpsControls::pitch, firstperson_pitch);
 
     return;
   }
@@ -718,10 +709,11 @@ void FpsControls::run_mod_mp3(Game active_game, Region active_region) {
 
   calculate_pitch_delta();
   // Gun damping uses its own TOC value, so screw it (I checked the binary)
+  // Byte pattern to find the offset : c0?2???? ec23082a fc60f850
   LOOKUP(gun_lag_toc_offset);
   u32 rtoc_gun_damp = GPR(2) + gun_lag_toc_offset;
   write32(0, rtoc_gun_damp);
-  writef32(FpsControls::pitch, pitch);
+  writef32(FpsControls::pitch, firstperson_pitch);
 
   LOOKUP_DYN(ball_state);
   if (read32(ball_state) == 0) {
@@ -741,8 +733,8 @@ void FpsControls::CheckBeamVisorSetting(Game game)
   case Game::PRIME_1:
   case Game::PRIME_2:
     set_code_group_state("beam_menu", beam ? ModState::DISABLED : ModState::ENABLED);
-  case Game::PRIME_3_STANDALONE: 
   case Game::PRIME_3:
+  case Game::PRIME_3_STANDALONE:
     set_code_group_state("visor_menu", visor ? ModState::DISABLED : ModState::ENABLED);
     break;
   default:
@@ -1659,6 +1651,10 @@ void FpsControls::init_mod_mp3(Region region) {
 }
 
 void FpsControls::init_mod_mp3_standalone(Region region) {
+  prime::GetVariableManager()->register_variable("grapple_lasso_state");
+  prime::GetVariableManager()->register_variable("grapple_hand_x");
+  prime::GetVariableManager()->register_variable("grapple_hand_y");
+  prime::GetVariableManager()->register_variable("trigger_grapple");
   prime::GetVariableManager()->register_variable("new_beam");
   prime::GetVariableManager()->register_variable("beamchange_flag");
   if (region == Region::NTSC_U) {
@@ -1673,6 +1669,9 @@ void FpsControls::init_mod_mp3_standalone(Region region) {
     add_code_change(0x80183288, 0x60000000);
 
     add_code_change(0x800617e4, 0x60000000, "visor_menu");
+
+    // Grapple Lasso
+    add_grapple_lasso_code_mp3(0x800DF790, 0x80174D70, 0x80175B54);
 
     add_control_state_hook_mp3(0x80005880, Region::NTSC_U);
     add_grapple_slide_code_mp3(0x80182c9c);
@@ -1689,6 +1688,9 @@ void FpsControls::init_mod_mp3_standalone(Region region) {
 
     add_code_change(0x80075f0c, 0x80061958, "visor_menu");
 
+    // Grapple Lasso
+    add_grapple_lasso_code_mp3(0x800E003C, 0x80176B20, 0x80177908);
+
     add_control_state_hook_mp3(0x80005880, Region::NTSC_J);
     add_grapple_slide_code_mp3(0x801849e8);
   } else if (region == Region::PAL) {
@@ -1703,6 +1705,9 @@ void FpsControls::init_mod_mp3_standalone(Region region) {
     add_code_change(0x80183dc8, 0x60000000);
 
     add_code_change(0x80061a88, 0x60000000, "visor_menu");
+
+    // Grapple Lasso
+    add_grapple_lasso_code_mp3(0x800DFC4C, 0x80175914, 0x801766FC);
 
     add_control_state_hook_mp3(0x80005880, Region::PAL);
     add_grapple_slide_code_mp3(0x801837dc);
