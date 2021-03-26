@@ -545,11 +545,10 @@ void FpsControls::mp3_handle_lasso(u32 grapple_state_addr)
   }
 
   // If currently locked onto a grapple point. This must be seperate from lock-on for grapple swing.
-  // On US Standalone we check at 0x370 which is the lock type because 0x378 isn't existing in that version
   // 1 => Locked On
   // 2 => Grapple Lasso(/Voltage)
   // 3 => Grapple Swing
-  if (read8(grapple_state_addr) == 2) {
+  if (read32(grapple_state_addr) == 2) {
     if (grapple_initial_cooldown == 0) {
       grapple_initial_cooldown = Common::Timer::GetTimeMs();
     }
@@ -669,9 +668,8 @@ void FpsControls::run_mod_mp3(Game active_game, Region active_region) {
   LOOKUP_DYN(angular_momentum);
   LOOKUP_DYN(beamvisor_menu_state);
   LOOKUP_DYN(lockon_type);
-  LOOKUP(lockon_state);
   bool beamvisor_menu = read32(beamvisor_menu_state) == 3;
-  if (read8(lockon_state) == 1 || beamvisor_menu) {
+  if (read32(lockon_type) == 1 || beamvisor_menu) {
     write32(0, angular_momentum);
     calculate_pitch_locked(active_game, active_region);
 
@@ -685,7 +683,7 @@ void FpsControls::run_mod_mp3(Game active_game, Region active_region) {
   }
 
   // Handle grapple lasso bind
-  mp3_handle_lasso(lockon_state);
+  mp3_handle_lasso(lockon_type);
 
   // Lock Camera according to ContextSensitiveControls and interpolate to pitch 0
   if (prime::GetLockCamera() != Unlocked) {
@@ -1668,7 +1666,7 @@ void FpsControls::init_mod_mp3_standalone(Region region) {
     add_code_change(0x8007fef0, 0x480000e4);
     add_code_change(0x80183288, 0x60000000);
 
-    add_code_change(0x800617e4, 0x60000000, "visor_menu");
+    add_code_change(0x800617c8, 0x60000000, "visor_menu");
 
     // Grapple Lasso
     add_grapple_lasso_code_mp3(0x800DF790, 0x80174D70, 0x80175B54);
@@ -1676,23 +1674,24 @@ void FpsControls::init_mod_mp3_standalone(Region region) {
     add_control_state_hook_mp3(0x80005880, Region::NTSC_U);
     add_grapple_slide_code_mp3(0x80182c9c);
   } else if (region == Region::NTSC_J) {
-    add_code_change(0x80081018, 0xec010072);
-    add_code_change(0x80153ed4, 0x60000000);
-    add_code_change(0x80153eac, 0x60000000);
-    add_code_change(0x8013a054, 0x60000000);
-    add_code_change(0x8013969c, 0x60000000);
-    add_code_change(0x8000ae44, 0x4bffaa3d);
-    add_code_change(0x8008129c, 0x60000000);
-    add_code_change(0x80080320, 0x480000e4);
-    add_code_change(0x80184fd4, 0x60000000);
+    // Out of commission, fix me!!
+    //add_code_change(0x80081018, 0xec010072);
+    //add_code_change(0x80153ed4, 0x60000000);
+    //add_code_change(0x80153eac, 0x60000000);
+    //add_code_change(0x8013a054, 0x60000000);
+    //add_code_change(0x8013969c, 0x60000000);
+    //add_code_change(0x8000ae44, 0x4bffaa3d);
+    //add_code_change(0x8008129c, 0x60000000);
+    //add_code_change(0x80080320, 0x480000e4);
+    //add_code_change(0x80184fd4, 0x60000000);
 
-    add_code_change(0x80075f0c, 0x80061958, "visor_menu");
+    //add_code_change(0x80075f0c, 0x80061958, "visor_menu");
 
-    // Grapple Lasso
-    add_grapple_lasso_code_mp3(0x800E003C, 0x80176B20, 0x80177908);
+    //// Grapple Lasso
+    //add_grapple_lasso_code_mp3(0x800E003C, 0x80176B20, 0x80177908);
 
-    add_control_state_hook_mp3(0x80005880, Region::NTSC_J);
-    add_grapple_slide_code_mp3(0x801849e8);
+    //add_control_state_hook_mp3(0x80005880, Region::NTSC_J);
+    //add_grapple_slide_code_mp3(0x801849e8);
   } else if (region == Region::PAL) {
     add_code_change(0x80080e84, 0xec010072);
     add_code_change(0x80152d50, 0x60000000);
