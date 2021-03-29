@@ -150,23 +150,19 @@ void Nunchuk::LoadDefaults(const ControllerInterface& ciface)
   m_stick->SetControlExpression(1, "S | DOWN");   // Pull
   m_stick->SetControlExpression(2, "A | LEFT");   // Tilt left
   m_stick->SetControlExpression(3, "D | RIGHT");  // Tilt right
-                                                  // Grapple lasso controls (Only used in Prime 3)
-  m_tilt->SetControlExpression(0, "`Axis Y-`");   // Swing up
-  m_tilt->SetControlExpression(1, "`Axis Y+`");   // Swing dowm
-  m_swing->SetControlExpression(0, "`Axis Y-`");  // Push
-  m_swing->SetControlExpression(1, "`Axis Y+`");  // Pull
 
-#ifdef _WIN32
   // Morph Ball
-  m_buttons->SetControlExpression(0, "LCONTROL");
-  // Lock/Sacn/Spider Ball
-  m_buttons->SetControlExpression(1, "LSHIFT");
-#elif __APPLE__
-  m_buttons->SetControlExpression(0, "Left Control");  // C
-  m_buttons->SetControlExpression(1, "Left Shift");    // Z
+#ifdef HAVE_X11
+  m_buttons->SetControlExpression(0, "`Control_L`");
 #else
-  m_buttons->SetControlExpression(0, "Control_L");  // C
-  m_buttons->SetControlExpression(1, "Shift_L");    // Z
+  m_buttons->SetControlExpression(0, "LCONTROL");
+#endif
+
+  // Lock/Sacn/Spider Ball
+#ifdef HAVE_X11
+  m_buttons->SetControlExpression(1, "`Click 3`");
+#else
+  m_buttons->SetControlExpression(1, "`Click 1`");
 #endif
 
   // Shake (Only used in Prime 3, may need revision

@@ -1144,42 +1144,32 @@ void Wiimote::LoadDefaults(const ControllerInterface& ciface)
   EmulatedController::LoadDefaults(ciface);
 
   // Button defaults
-#if defined HAVE_X11 && HAVE_X11
-  // A
-  m_buttons->SetControlExpression(0, "Click 0");
-  // B
-  m_buttons->SetControlExpression(1, "Space");
-#else
   // Fire
+#ifdef HAVE_X11
+  m_buttons->SetControlExpression(0, "`Click 1` | RETURN");
+#else
   m_buttons->SetControlExpression(0, "`Click 0` | RETURN");
+#endif
+
   // Jump
   m_buttons->SetControlExpression(1, "SPACE");
-#endif
+
   // Map screen
   m_buttons->SetControlExpression(2, "TAB");
-  // Pause menu
-  m_buttons->SetControlExpression(3, "GRAVE");
 
+  // Pause menu
+#ifdef HAVE_X11
+  m_buttons->SetControlExpression(3, "`dead_grave`");
+#else
+  m_buttons->SetControlExpression(3, "GRAVE");
+#endif
   // +-
   m_buttons->SetControlExpression(4, "E");
   m_buttons->SetControlExpression(5, "R");
 
   // DPad
-#ifdef _WIN32
   // Missiles
   m_dpad->SetControlExpression(1, "F");
-
-#elif __APPLE__
-  m_dpad->SetControlExpression(0, "Up Arrow");     // Up
-  m_dpad->SetControlExpression(1, "Down Arrow");   // Down
-  m_dpad->SetControlExpression(2, "Left Arrow");   // Left
-  m_dpad->SetControlExpression(3, "Right Arrow");  // Right
-#else
-  m_dpad->SetControlExpression(0, "Up");     // Up
-  m_dpad->SetControlExpression(1, "Down");   // Down
-  m_dpad->SetControlExpression(2, "Left");   // Left
-  m_dpad->SetControlExpression(3, "Right");  // Right
-#endif
 
   m_extension->switch_extension = 1;
 
@@ -1204,6 +1194,7 @@ void Wiimote::LoadDefaults(const ControllerInterface& ciface)
 
   // Misc. Defaults
   m_primehack_misc->SetControlExpression(0, "LMENU"); // Spring Ball
+  m_primehack_misc->SetControlExpression(1, "Shift");
 }
 
 int Wiimote::CurrentExtension() const
