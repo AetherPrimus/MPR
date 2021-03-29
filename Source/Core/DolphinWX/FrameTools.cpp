@@ -220,6 +220,7 @@ void CFrame::BindMenuBarEvents()
   
   Bind(wxEVT_MENU, &CFrame::OnModLoad, this, IDM_MODMENU_LOADMOD);
   Bind(wxEVT_MENU, &CFrame::OnModLoad, this, IDM_MODMENU_CVARS);
+  Bind(wxEVT_MENU, &CFrame::OnModLoad, this, IDM_MODMENU_SUSPEND);
 
   if (m_use_debugger)
     BindDebuggerMenuBarEvents();
@@ -1128,14 +1129,19 @@ void CFrame::OnModLoad(wxCommandEvent& event)
       prime::SetPendingModfile(path.ToStdString());
     }
     break;
-  case IDM_MODMENU_CVARS: {
-      if (!m_cvar_menu) {
-        m_cvar_menu = new CVarDlg(this);
-      }
-      m_cvar_menu->ClearControls();
-      m_cvar_menu->LoadControls();
-      m_cvar_menu->Show();
-      break;
+  case IDM_MODMENU_CVARS:
+    if (!m_cvar_menu) {
+      m_cvar_menu = new CVarDlg(this);
+    }
+    m_cvar_menu->ClearControls();
+    m_cvar_menu->LoadControls();
+    m_cvar_menu->Show();
+    break;
+  case IDM_MODMENU_SUSPEND:
+    if (event.IsChecked()) {
+      prime::SuspendMod();
+    } else {
+      prime::ResumeMod();
     }
     break;
   }

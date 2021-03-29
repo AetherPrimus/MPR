@@ -536,6 +536,7 @@ wxMenu* MainMenuBar::CreateModMenu() const
   auto* const mod_menu = new wxMenu;
   mod_menu->Append(IDM_MODMENU_LOADMOD, _("&Load Mod"));
   mod_menu->Append(IDM_MODMENU_CVARS, _("&CVars"));
+  mod_menu->Append(IDM_MODMENU_SUSPEND, _("&Suspend"), _(""), true);
 
   return mod_menu;
 }

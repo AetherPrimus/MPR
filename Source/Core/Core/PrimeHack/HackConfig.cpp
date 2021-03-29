@@ -47,6 +47,7 @@ CameraLock lock_camera = Unlocked;
 bool reticle_lock = false;
 
 std::string pending_modfile = "";
+bool mod_suspended = false;
 }
 
 void InitializeHack(std::string const& mkb_device_name, std::string const& mkb_device_source) {
@@ -350,6 +351,18 @@ std::string GetPendingModfile() {
 
 void SetPendingModfile(std::string const& path) {
   pending_modfile = path;
+}
+
+bool ModSuspended() {
+  return mod_suspended;
+}
+
+void SuspendMod() {
+  mod_suspended = true;
+}
+
+void ResumeMod() {
+  mod_suspended = false;
 }
 
 void Shutdown() {

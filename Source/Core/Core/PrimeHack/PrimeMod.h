@@ -62,17 +62,17 @@ public:
   // Should NOT do any modifying of the game!!!
   virtual bool init_mod(Game game, Region region) = 0;
   virtual void on_state_change(ModState old_state) = 0;
+  virtual void on_reset() {}
 
   virtual bool should_apply_changes() const;
   void apply_instruction_changes(bool invalidate = true);
   // Gets the corresponding list of code changes to apply per-frame
   const std::vector<CodeChange>& get_changes_to_apply() const;
-  void save_original_instructions();
   void add_code_change(u32 addr, u32 code, std::string_view group = "");
   void set_code_change(u32 address, u32 var);
-  void update_active_changes();
-  std::vector<CodeChange>& get_code_changes() { return code_changes; }
-  std::vector<CodeChange>& get_original_instructions() { return original_instructions; }
+  void update_original_instructions();
+  std::vector<CodeChange> const& get_code_changes() const { return code_changes; }
+  std::vector<CodeChange> const& get_original_instructions() const { return original_instructions; }
 
   bool has_saved_instructions() const { return !original_instructions.empty(); }
   bool is_initialized() const { return initialized; }
@@ -100,6 +100,7 @@ private:
 
   std::vector<CodeChange> original_instructions;
   std::vector<CodeChange> code_changes;
+  std::vector<u32> pending_change_backups;
   std::map<std::string, group_change> code_groups;
   ModState state = ModState::DISABLED;
 
