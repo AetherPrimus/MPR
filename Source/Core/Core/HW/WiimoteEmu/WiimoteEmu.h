@@ -229,7 +229,7 @@ public:
   std::tuple<double, double> GetPrimeStickXY();
   std::tuple<bool, bool> GetBVMenuOptions();
 
-  std::tuple<double, double, bool, bool, bool> GetPrimeSettings();
+  std::tuple<double, double, bool, bool, bool, bool> GetPrimeSettings();
 
   void Reset();
 
@@ -301,6 +301,8 @@ private:
 
   ControllerEmu::BooleanSetting* m_primehack_invert_y;
   ControllerEmu::BooleanSetting* m_primehack_invert_x;
+
+  ControllerEmu::BooleanSetting* m_primehack_scalesens;
 
   ControllerEmu::BooleanSetting* m_primehack_movereticle;
 

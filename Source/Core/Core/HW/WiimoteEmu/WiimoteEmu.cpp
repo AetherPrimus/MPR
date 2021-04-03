@@ -418,6 +418,9 @@ Wiimote::Wiimote(const unsigned int index) : m_index(index), ir_sin(0), ir_cos(1
     m_primehack_invert_y = new ControllerEmu::BooleanSetting("Invert Y Axis", false));
 
   m_primehack_camera->boolean_settings.emplace_back(
+    m_primehack_scalesens = new ControllerEmu::BooleanSetting("Scale Cursor Sensitivity by Window Size", false));
+
+  m_primehack_camera->boolean_settings.emplace_back(
     m_primehack_movereticle = new ControllerEmu::BooleanSetting("Control Reticle When Locked-On", false));
 
   groups.emplace_back(m_primehack_stick = new ControllerEmu::AnalogStick(_trans("Camera Control"), 1.0f));
@@ -652,11 +655,11 @@ void Wiimote::SetPrimeMode(bool controller)
   m_primehack_modes->SetSelectedDevice(controller ? 1 : 0);
 }
 
-std::tuple<double, double, bool, bool, bool> Wiimote::GetPrimeSettings()
+std::tuple<double, double, bool, bool, bool, bool> Wiimote::GetPrimeSettings()
 {
   std::tuple t = std::make_tuple(
       m_primehack_camera_sensitivity->GetValue() * 100, m_primehack_cursor_sensitivity->GetValue() * 100, m_primehack_invert_x->GetValue(),
-      m_primehack_invert_y->GetValue(), m_primehack_movereticle->GetValue());
+      m_primehack_invert_y->GetValue(), m_primehack_scalesens->GetValue(), m_primehack_movereticle->GetValue());
 
   return t;
 }

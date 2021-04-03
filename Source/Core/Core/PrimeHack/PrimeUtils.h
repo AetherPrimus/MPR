@@ -44,16 +44,16 @@ constexpr u32 get_branch_offset(u32 instr) {
   return offset_masked;
 }
 
-constexpr float TURNRATE_RATIO = 0.00498665500569808449206349206349f;
+constexpr float kTurnrateRatio = 0.00498665500569808449206349206349f;
 
 int get_beam_switch(std::array<int, 4> const& beams);
 std::tuple<int, int> get_visor_switch(std::array<std::tuple<int, int>, 4> const& visors, bool combat_visor);
 
-void handle_cursor(u32 x_address, u32 y_address, float right_bound, float bottom_bound);
+void handle_cursor(u32 x_address, u32 y_address, Region region);
+void handle_reticle(u32 x_address, u32 y_address, Region region, float fov);
 
 bool mem_check(u32 address);
 void write_invalidate(u32 address, u32 value);
-float get_aspect_ratio();
 
 void set_beam_owned(int index, bool owned);
 void set_visor_owned(int index, bool owned);

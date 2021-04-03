@@ -39,6 +39,7 @@ float cursor_sensitivity;
 std::string device_name, device_source;
 bool inverted_x = false;
 bool inverted_y = false;
+bool scale_cursor_sens = false;
 HackManager hack_mgr;
 AddressDB addr_db;
 EmuVariableManager var_mgr;
@@ -213,19 +214,20 @@ std::tuple<float, float, float> GetArmXYZ() {
 
 void UpdateHackSettings() {
   double camera, cursor;
-  bool invertx, inverty, reticle_lock = false;
+  bool invertx, inverty, scale_sens = false, reticle_lock = false;
 
   if (hack_mgr.get_active_game() == Game::PRIME_1_GCN)
     std::tie<double, double, bool, bool>(camera, cursor, invertx, inverty) =
       Pad::PrimeSettings();
   else
-    std::tie<double, double, bool, bool>(camera, cursor, invertx, inverty, reticle_lock) =
+    std::tie<double, double, bool, bool, bool>(camera, cursor, invertx, inverty, scale_sens, reticle_lock) =
       Wiimote::PrimeSettings();
 
   SetSensitivity((float)camera);
   SetCursorSensitivity((float)cursor);
   SetInvertedX(invertx);
   SetInvertedY(inverty);
+  SetScaleCursorSensitivity(scale_sens);
   SetReticleLock(reticle_lock);
 }
 
@@ -263,6 +265,14 @@ bool InvertedX() {
 
 void SetInvertedX(bool inverted) {
   inverted_x = inverted;
+}
+
+bool ScaleCursorSensitivity() {
+  return scale_cursor_sens;
+}
+
+void SetScaleCursorSensitivity(bool scale) {
+  scale_cursor_sens = scale;
 }
 
 double GetHorizontalAxis() {

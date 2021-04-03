@@ -74,7 +74,7 @@ void FpsControls::run_mod(Game game, Region region) {
 }
 
 void FpsControls::calculate_pitch_delta() {
-  const float compensated_sens = GetSensitivity() * TURNRATE_RATIO / 60.f;
+  const float compensated_sens = GetSensitivity() * kTurnrateRatio / 60.f;
 
   pitch += static_cast<float>(GetVerticalAxis()) * compensated_sens *
     (InvertedY() ? 1.f : -1.f);
@@ -88,7 +88,7 @@ void FpsControls::calculate_pitchyaw_delta() {
     return (t > PI) ? (t - TWO_PI) : ((t < -PI) ? (t + TWO_PI) : (t));
   };
 
-  const float compensated_sens = GetSensitivity() * TURNRATE_RATIO / 60.f;
+  const float compensated_sens = GetSensitivity() * kTurnrateRatio / 60.f;
 
   pitch += static_cast<float>(GetVerticalAxis()) * compensated_sens *
     (InvertedY() ? 1.f : -1.f);
@@ -215,19 +215,17 @@ void FpsControls::handle_beam_visor_switch(std::array<int, 4> const &beams,
 
 void FpsControls::run_mod_menu(Game game, Region region) {
   if (region == Region::NTSC_U) {
-    handle_cursor(0x80913c9c, 0x80913d5c, 0.95f, 0.90f);
-  }
-  else if (region == Region::NTSC_J) {
+    handle_cursor(0x80913c9c, 0x80913d5c, region);
+  } else if (region == Region::NTSC_J) {
     if (game == Game::MENU_PRIME_1) {
-      handle_cursor(0x805a7da8, 0x805a7dac, 0.95f, 0.90f);
+      handle_cursor(0x805a7da8, 0x805a7dac, region);
     }
     if (game == Game::MENU_PRIME_2) {
-      handle_cursor(0x805a7ba8, 0x805a7bac, 0.95f, 0.90f);
+      handle_cursor(0x805a7ba8, 0x805a7bac, region);
     }
-  }
-  else if (region == Region::PAL) {
+  } else if (region == Region::PAL) {
     u32 cursor_address = read32(0x80621ffc);
-    handle_cursor(cursor_address + 0xdc, cursor_address + 0x19c, 0.95f, 0.90f);
+    handle_cursor(cursor_address + 0xdc, cursor_address + 0x19c, region);
   }
 }
 
@@ -251,7 +249,6 @@ void FpsControls::run_mod_mp1(Region region) {
   // Allows freelook in grapple, otherwise we are orbiting (locked on) to something
   bool locked = (read32(orbit_state) != ORBIT_STATE_GRAPPLE &&
     read8(lockon_state) || beamvisor_menu_enabled);
-  
 
   LOOKUP_DYN(cursor);
   LOOKUP_DYN(angular_vel);
@@ -264,7 +261,7 @@ void FpsControls::run_mod_mp1(Region region) {
     calculate_pitch_locked(Game::PRIME_1, region);
     writef32(FpsControls::pitch, firstperson_pitch);
     writef32(FpsControls::pitch, arm_cannon_matrix);
-
+    
     if (beamvisor_menu_enabled) {
       LOOKUP_DYN(beamvisor_menu_mode);
       // if the menu id is not null
@@ -273,11 +270,11 @@ void FpsControls::run_mod_mp1(Region region) {
           set_code_group_state("beam_change", ModState::DISABLED);
         }
 
-        handle_cursor(cursor + 0x9c, cursor + 0x15c, 0.95f, 0.90f);
+        handle_reticle(cursor + 0x9c, cursor + 0x15c, region, GetFov());
         menu_open = true;
       }
     } else if (HandleReticleLockOn()) {  // If we handle menus, this doesn't need to be ran
-      handle_cursor(cursor + 0x9c, cursor + 0x15c, 0.95f, 0.90f);
+      handle_reticle(cursor + 0x9c, cursor + 0x15c, region, GetFov());
     }
   } else {
     if (menu_open) {
@@ -412,16 +409,15 @@ void FpsControls::run_mod_mp2(Region region) {
           set_code_group_state("beam_change", ModState::DISABLED);
         }
 
-        handle_cursor(cursor + 0x9c, cursor + 0x15c, 0.95f, 0.90f);
+        handle_reticle(cursor + 0x9c, cursor + 0x15c, region, GetFov());
         menu_open = true;
       }
     } else if (HandleReticleLockOn()) {
-      handle_cursor(cursor + 0x9c, cursor + 0x15c, 0.95f, 0.90f);
+      handle_reticle(cursor + 0x9c, cursor + 0x15c, region, GetFov());
     }
   } else {
     if (menu_open) {
       set_code_group_state("beam_change", ModState::ENABLED);
-
       menu_open = false;
     }
 
@@ -518,17 +514,6 @@ void FpsControls::run_mod_mp2_gc() {
   }
 }
 
-void FpsControls::mp3_handle_cursor(bool lock) {
-  LOOKUP_DYN(cursor);
-  if (lock) {
-    write32(0, cursor + 0x9c);
-    write32(0, cursor + 0x15c);
-  }
-  else {
-    handle_cursor(cursor + 0x9c, cursor + 0x15c, 0.95f, 0.90f);
-  }
-}
-
 
 void FpsControls::mp3_handle_lasso(u32 grapple_state_addr)
 {
@@ -619,11 +604,23 @@ void FpsControls::run_mod_mp3(Game active_game, Region active_region) {
     set_code_group_state("grapple_lasso", ModState::DISABLED);
     set_code_group_state("grapple_lasso_animation", ModState::DISABLED);
   }
+
+  LOOKUP_DYN(cursor);
+  const auto mp3_handle_cursor = [cursor, active_region] (bool locked, bool for_reticle) {
+    if (locked) {
+      write32(0, cursor + 0x9c);
+      write32(0, cursor + 0x15c);
+    } else if (for_reticle) {
+      handle_reticle(cursor + 0x9c, cursor + 0x15c, active_region, GetFov());
+    } else {
+      handle_cursor(cursor + 0x9c, cursor + 0x15c, active_region);
+    }
+  };
   
   // Handles menu screen cursor
   LOOKUP(cursor_dlg_enabled);
   if (read8(cursor_dlg_enabled)) {
-    mp3_handle_cursor(false);
+    mp3_handle_cursor(false, false);
     return;
   }
 
@@ -632,7 +629,7 @@ void FpsControls::run_mod_mp3(Game active_game, Region active_region) {
   LOOKUP(state_manager);
   // I won't add (state_manager + 0x29C) to the address db, not sure what it is
   if (active_region == Region::NTSC_J && read32(state_manager + 0x29C) == 0xffffffff) {
-    mp3_handle_cursor(false);
+    mp3_handle_cursor(false, false);
     return;
   }
 
@@ -653,10 +650,10 @@ void FpsControls::run_mod_mp3(Game active_game, Region active_region) {
     // If boss is dead
     if (read8(boss_status) == 8) {
       set_state(ModState::ENABLED);
-      mp3_handle_cursor(true);
+      mp3_handle_cursor(true, true);
     } else {
       set_state(ModState::CODE_DISABLED);
-      mp3_handle_cursor(false);
+      mp3_handle_cursor(false, true);
       return;
     }
   }
@@ -674,7 +671,7 @@ void FpsControls::run_mod_mp3(Game active_game, Region active_region) {
     calculate_pitch_locked(active_game, active_region);
 
     if (HandleReticleLockOn() || beamvisor_menu) {
-      mp3_handle_cursor(false);
+      mp3_handle_cursor(false, true);
     }
 
     writef32(FpsControls::pitch, firstperson_pitch);
@@ -691,7 +688,7 @@ void FpsControls::run_mod_mp3(Game active_game, Region active_region) {
 
     if (FpsControls::pitch == target_pitch) {
       writef32(target_pitch, pitch);
-      mp3_handle_cursor(false);
+      mp3_handle_cursor(false, false);
 
       return;
     }
@@ -702,7 +699,7 @@ void FpsControls::run_mod_mp3(Game active_game, Region active_region) {
     return;
   }
 
-  mp3_handle_cursor(true);
+  mp3_handle_cursor(true, true);
   set_cursor_pos(0, 0);
 
   calculate_pitch_delta();
@@ -834,7 +831,7 @@ void FpsControls::add_grapple_lasso_code_mp3(u32 func1, u32 func2, u32 func3) {
   add_code_change(func1 + 0xC, 0xC04B0000, "grapple_lasso");  // lfs f2, 0(r11)
 
                                                               // Skips the game's checks and lets us control grapple lasso ourselves.
-  add_code_change(func1 + 0x8, 0x40800160, "grapple_lasso"); // first conditional branch changed to jmp to end
+  add_code_change(func1 + 0x8, 0x40800158, "grapple_lasso"); // first conditional branch changed to jmp to end
   add_code_change(func1 + 0x18, 0x40810148, "grapple_lasso"); // second conditional branch changed to jmp to end
   add_code_change(func1 + 0x54, 0x4800010C, "grapple_lasso"); // end of 'yellow' segment jmp to end
 
@@ -1419,6 +1416,9 @@ void FpsControls::init_mod_mp1(Region region) {
     add_code_change(0x80075f0c, 0x60000000, "visor_menu");
 
     add_beam_change_code_mp1(0x8018e544);
+
+    // Steps over bounds checking on the reticle
+    add_code_change(0x80015164, 0x4800010c);
   } else if (region == Region::PAL) {
     // Same as NTSC but slightly offset
     add_code_change(0x80099068, 0xec010072);
@@ -1433,6 +1433,9 @@ void FpsControls::init_mod_mp1(Region region) {
     add_code_change(0x80075f8c, 0x60000000, "visor_menu");
 
     add_beam_change_code_mp1(0x8018e7dc);
+
+    // Steps over bounds checking on the reticle
+    add_code_change(0x80015164, 0x4800010c);
   } else { // region == Region::NTSC-J
     // Same as NTSC but slightly offset
     add_code_change(0x80099060, 0xec010072);
@@ -1523,6 +1526,9 @@ void FpsControls::init_mod_mp2(Region region) {
     add_code_change(0x8006fdc4, 0x60000000, "visor_menu");
 
     add_beam_change_code_mp2(0x8018cc88);
+    
+    // Steps over bounds checking on the reticle
+    add_code_change(0x80018528, 0x48000144);
   } else if (region == Region::PAL) {
     add_code_change(0x8008e30c, 0xc0430184);
     add_code_change(0x8008e360, 0x60000000);
@@ -1539,6 +1545,9 @@ void FpsControls::init_mod_mp2(Region region) {
     add_code_change(0x8007133c, 0x60000000, "visor_menu");
 
     add_beam_change_code_mp2(0x8018e41c);
+    
+    // Steps over bounds checking on the reticle
+    add_code_change(0x80018528, 0x48000144);
   } else if (region == Region::NTSC_J) {
     add_code_change(0x8008c944, 0xc0430184);
     add_code_change(0x8008c998, 0x60000000);
@@ -1625,6 +1634,9 @@ void FpsControls::init_mod_mp3(Region region) {
 
     add_control_state_hook_mp3(0x80005880, Region::NTSC_U);
     add_grapple_slide_code_mp3(0x8017f2a0);
+    
+    // Steps over bounds checking on the reticle
+    add_code_change(0x80016f48, 0x48000120);
   } else if (region == Region::PAL) {
     add_code_change(0x80080ab8, 0xec010072);
     add_code_change(0x8014d9e0, 0x60000000);
@@ -1641,6 +1653,9 @@ void FpsControls::init_mod_mp3(Region region) {
 
     add_control_state_hook_mp3(0x80005880, Region::PAL);
     add_grapple_slide_code_mp3(0x8017ebec);
+    
+    // Steps over bounds checking on the reticle
+    add_code_change(0x80016f48, 0x48000120);
   } else {}
 
   // Same for both.
@@ -1673,6 +1688,9 @@ void FpsControls::init_mod_mp3_standalone(Region region) {
 
     add_control_state_hook_mp3(0x80005880, Region::NTSC_U);
     add_grapple_slide_code_mp3(0x80182c9c);
+    
+    // Steps over bounds checking on the reticle
+    add_code_change(0x80017290, 0x48000120);
   } else if (region == Region::NTSC_J) {
     // Out of commission, fix me!!
     //add_code_change(0x80081018, 0xec010072);
