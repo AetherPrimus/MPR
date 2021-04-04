@@ -21,6 +21,7 @@
 #include "Core/PrimeHack/Mods/PortalSkipMP2.h"
 #include "Core/PrimeHack/Mods/FriendVouchers.h"
 #include "Core/PrimeHack/Mods/RestoreDashing.h"
+#include "Core/PrimeHack/Mods/DisableHudMemoPopup.h"
 
 #include "InputCommon/ControllerInterface/ControllerInterface.h"
 
@@ -72,6 +73,7 @@ void InitializeHack(std::string const& mkb_device_name, std::string const& mkb_d
   hack_mgr.add_mod("context_sensitive_controls", std::make_unique<ContextSensitiveControls>());
   hack_mgr.add_mod("portal_skip_mp2", std::make_unique<PortalSkipMP2>());
   hack_mgr.add_mod("friend_vouchers_cheat", std::make_unique<FriendVouchers>());
+  hack_mgr.add_mod("disable_hudmemo_popup", std::make_unique<DisableHudMemoPopup>());
 
   device_name = mkb_device_name;
   device_source = mkb_device_source;
@@ -90,6 +92,7 @@ void InitializeHack(std::string const& mkb_device_name, std::string const& mkb_d
   hack_mgr.enable_mod("elf_mod_loader");
   // Hold onto this until UI is made for it
   // hack_mgr.enable_mod("portal_skip_mp2");
+  // hack_mgr.enable_mod("disable_hudmemo_popup");
 }
 
 bool CheckBeamCtl(int beam_num) {

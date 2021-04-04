@@ -43,6 +43,9 @@ constexpr u32 get_branch_offset(u32 instr) {
   }
   return offset_masked;
 }
+constexpr u32 gen_vmcall(const u32 call_idx, const u32 param) {
+  return (0b010011 << 26) | ((call_idx & 0x3ff) << 16) | ((param & 0x1f) << 11) | ((0b0000110011) << 1) | (0b0);
+}
 
 constexpr float kTurnrateRatio = 0.00498665500569808449206349206349f;
 

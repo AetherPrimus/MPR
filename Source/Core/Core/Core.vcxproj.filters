@@ -945,6 +945,9 @@
     <ClCompile Include="PrimeHack\AddressDB.cpp">
       <Filter>PrimeHack</Filter>
     </ClCompile>
+    <ClCompile Include="PrimeHack\Mods\DisableHudMemoPopup.cpp">
+      <Filter>PrimeHack\Mods</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BootManager.h" />
@@ -1675,6 +1678,9 @@
     </ClInclude>
     <ClInclude Include="PrimeHack\AddressDB.h">
       <Filter>PrimeHack</Filter>
+    </ClInclude>
+    <ClInclude Include="PrimeHack\Mods\DisableHudMemoPopup.h">
+      <Filter>PrimeHack\Mods</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

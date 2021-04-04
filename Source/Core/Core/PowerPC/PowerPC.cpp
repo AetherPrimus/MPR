@@ -225,7 +225,8 @@ void Init(int cpu_core)
 }
 
 void vmcall_noop(u32 param) {
-  INFO_LOG(POWERPC, "Executed vmcall VMFP=%d", param);
+  const u32 pc = PC;
+  WARN_LOG(POWERPC, "Executed unhandled vmcall, PC=%08x VMFP=%d", pc, param);
 }
 
 void Reset()
@@ -263,8 +264,22 @@ void Shutdown()
   s_cpu_core_base = nullptr;
 }
 
-void RegisterVmcall(int index, vm_call pfn) {
+void RegisterVmcallWithIndex(int index, vm_call pfn) {
   ppcState.vmcall_table[index] = pfn;
+}
+
+int RegisterVmcall(vm_call pfn) {
+  for (int i = 0; i < ppcState.vmcall_table.size(); i++) {
+    if (ppcState.vmcall_table[i] == vmcall_noop) {
+      ppcState.vmcall_table[i] = pfn;
+      return i;
+    }
+  }
+  return -1;
+}
+
+void VmcallDefaultFn(u32 param) {
+  vmcall_noop(param);
 }
 
 CoreMode GetMode()
