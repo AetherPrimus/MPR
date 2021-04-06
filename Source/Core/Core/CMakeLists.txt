@@ -240,7 +240,8 @@ add_library(core
   PrimeHack/Mods/ElfModLoader.cpp
   PrimeHack/Mods/ViewModifier.cpp
 	PrimeHack/Mods/PortalSkipMP2.cpp
-	PrimeHack/Mods/FriendVouchers.cpp
+	PrimeHack/Mods/FriendVouchers.h
+	PrimeHack/Mods/DisableHudMemoPopup.cpp
   PrimeHack/EmuVariableManager.cpp
   PrimeHack/HackConfig.cpp
   PrimeHack/HackManager.cpp
