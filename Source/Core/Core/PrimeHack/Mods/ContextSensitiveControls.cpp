@@ -16,6 +16,7 @@ void ContextSensitiveControls::run_mod(Game game, Region region) {
 
   LOOKUP_DYN(object_list);
   LOOKUP(motion_vf);
+  LOOKUP(dna_scanner_vftable);
   u32 obj_list_iterator = object_list + 4;
 
   for (int i = 0; i < 2048; i++) {
@@ -69,18 +70,16 @@ void ContextSensitiveControls::run_mod(Game game, Region region) {
             }
           }
         }  
-      } else if (vft_func == motion_vf + 0x38) {
-        // If the vf is for rotary, confirm this needs to be controlled
-        if (read32(entity + 0x204) == 1) {
-          float velocity = 0;
-          if (CheckRight()) {
-            velocity = 0.04f;
-          }
-          if (CheckLeft()) {
-            velocity -= 0.04f;
-          }
-          prime::GetVariableManager()->set_variable("rotary_velocity", velocity);
+        // motion_vf + 0x38 is combination locks
+      } else if (vft_func == motion_vf + 0x38 || vf_table == dna_scanner_vftable) {
+        float velocity = 0;
+        if (CheckRight()) {
+          velocity = 0.04f;
         }
+        if (CheckLeft()) {
+          velocity -= 0.04f;
+        }
+        prime::GetVariableManager()->set_variable("rotary_velocity", velocity);
       }
     }
 
@@ -97,33 +96,43 @@ bool ContextSensitiveControls::init_mod(Game game, Region region) {
   u32 lis, ori;
   prime::GetVariableManager()->register_variable("rotary_velocity");
   std::tie<u32, u32>(lis, ori) = prime::GetVariableManager()->make_lis_ori(12, "rotary_velocity");
+  u32 lfs = 0xc02c0000;
 
   switch (game) {
   case Game::PRIME_3:
     if (region == Region::NTSC_U) {
-      // Take control of the rotary puzzles
+      // Take control of the combination locks
       add_code_change(0x801f806c, lis);
       add_code_change(0x801f8074, ori);
-      add_code_change(0x801f807c, 0xc02c0000);
+      add_code_change(0x801f807c, lfs);
+
+      // Take control of DNA scanners
+      add_code_change(0x801fa28c, lis);
+      add_code_change(0x801fa290, ori);
+      add_code_change(0x801fa294, lfs);
     } else if (region == Region::PAL) {
       add_code_change(0x801f7b4c, lis);
       add_code_change(0x801f7b54, ori);
-      add_code_change(0x801f7b5c, 0xc02c0000);
+      add_code_change(0x801f7b5c, lfs);
+
+      add_code_change(0x801f9d6c, lis);
+      add_code_change(0x801f9d70, ori);
+      add_code_change(0x801f9d74, lfs);
     }
     break;
   case Game::PRIME_3_STANDALONE:
     if (region == Region::NTSC_U) {
       add_code_change(0x801fb544, lis);
       add_code_change(0x801fb54c, ori);
-      add_code_change(0x801fb554, 0xc02c0000);
+      add_code_change(0x801fb554, lfs);
     } else if (region == Region::NTSC_J) {
       add_code_change(0x801fdb5c, lis);
       add_code_change(0x801fdb64, ori);
-      add_code_change(0x801fdb6c, 0xc02c0000);
+      add_code_change(0x801fdb6c, lfs);
     } else if (region == Region::PAL) {
       add_code_change(0x801fc5a8, lis);
       add_code_change(0x801fc5b0, ori);
-      add_code_change(0x801fc5b8, 0xc02c0000);
+      add_code_change(0x801fc5b8, lfs);
     }
     break;
   default:
