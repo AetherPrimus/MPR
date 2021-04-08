@@ -333,6 +333,7 @@ static wxString guneffects_desc = _("Reintroduce the original secondary gun effe
                 "These effects were disabled and cut in the Trilogy but still remained as unused assets.");
 static wxString gc_crosshair_desc = _("Toggles on the free aim crosshair.");
 static wxString bloom_desc =  _("Disables Bloom.\n\nSource: TheHatedGravity and dreamsyntax.");
+static wxString reduce_desc =  _("Reduces Bloom. Upscaling the resolution massively exaggerates the bloom, especially in Prime 3. This option fixes this.");
 static wxString repositon_arm_desc =  _("Toggles repositioning of Samus's arms in the viewmodel. Repositioning her arms is visually beneficial for high Field Of Views.");
 static wxString culling_desc = _("Disables graphical culling. This allows for Field of Views above 101 in Metroid Prime 1 and Metroid Prime 2, and above 94 in Metroid Prime 3.");
 static wxString fov_desc =
@@ -1458,6 +1459,10 @@ VideoConfigDiag::VideoConfigDiag(wxWindow* parent, const std::string& title)
     m_toggle_secondaryFX =
       CreateCheckBox(page_primehack, _("Enable GCN Gun Effects"), (guneffects_desc), Config::ENABLE_SECONDARY_GUNFX);
 
+    m_toggle_bloom = CreateCheckBox(page_primehack, _("Disable Bloom"), (bloom_desc), Config::DISABLE_BLOOM);
+
+    m_toggle_reduce_bloom = CreateCheckBox(page_primehack, _("Reduce Bloom [Metroid Prime 3]"), (reduce_desc), Config::REDUCE_BLOOM);
+
     auto_viewmodel->Bind(wxEVT_RADIOBUTTON, &VideoConfigDiag::Event_ViewModelUpdate, this);
     manual_viewmodel->Bind(wxEVT_RADIOBUTTON, &VideoConfigDiag::Event_ViewModelUpdate, this);
 
@@ -1473,8 +1478,9 @@ VideoConfigDiag::VideoConfigDiag(wxWindow* parent, const std::string& title)
     graphics_sizer->AddSpacer(space5);
     graphics_sizer->Add(m_toggle_secondaryFX, 0, wxEXPAND | wxLEFT | wxRIGHT, space5);
     graphics_sizer->AddSpacer(space5);
-    graphics_sizer->Add(CreateCheckBox(page_primehack, _("Disable Bloom"), (bloom_desc),
-      Config::DISABLE_BLOOM), 0, wxEXPAND | wxLEFT | wxRIGHT, space5);
+    graphics_sizer->Add(m_toggle_bloom, 0, wxEXPAND | wxLEFT | wxRIGHT, space5);
+    graphics_sizer->AddSpacer(space5);
+    graphics_sizer->Add(m_toggle_reduce_bloom, 0, wxEXPAND | wxLEFT | wxRIGHT, space5);
     graphics_sizer->AddSpacer(space5);
     graphics_sizer->Add(toggle_viewmodel, 0, wxEXPAND | wxLEFT | wxRIGHT, space5);
     graphics_sizer->AddSpacer(space5);
@@ -2546,4 +2552,6 @@ void VideoConfigDiag::UpdatePrimeUI()
     y_counter->Disable();
     z_counter->Disable();
   }
+
+  m_toggle_reduce_bloom->Enable(!m_toggle_bloom->IsChecked());
 }

@@ -259,6 +259,9 @@ protected:
   wxCheckBox* m_toggle_secondaryFX;
   wxCheckBox* m_toggle_gc_show_crosshair;
 
+  wxCheckBox* m_toggle_bloom;
+  wxCheckBox* m_toggle_reduce_bloom;
+
   wxColourPickerCtrl* m_gc_crosshair_colour;
   wxSpinCtrl* gc_crosshair_alpha;
   wxButton* m_reset_btn;

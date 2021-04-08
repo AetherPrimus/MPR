@@ -158,7 +158,6 @@ void HackManager::run_active_mods() {
 
 void HackManager::update_mod_states() {
   set_mod_enabled("auto_efb", UseMPAutoEFB());
-  set_mod_enabled("disable_bloom", GetBloom());
   set_mod_enabled("cut_beam_fx_mp1", GetEnableSecondaryGunFX());
   set_mod_enabled("noclip", GetNoclip());
   set_mod_enabled("invulnerability", GetInvulnerability());

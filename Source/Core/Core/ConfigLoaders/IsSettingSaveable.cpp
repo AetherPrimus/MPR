@@ -163,6 +163,7 @@ bool IsSettingSaveable(const Config::ConfigLocation& config_location)
       Config::ARMPOSITION_FORWARDBACK.location,
       Config::TOGGLE_CULLING.location,
       Config::DISABLE_BLOOM.location,
+      Config::REDUCE_BLOOM.location,
       Config::FOV.location,
       Config::ENABLE_SECONDARY_GUNFX.location,
       Config::GC_SHOW_CROSSHAIR.location,

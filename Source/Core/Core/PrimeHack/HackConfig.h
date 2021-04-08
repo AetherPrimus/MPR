@@ -34,6 +34,7 @@ bool LockCameraInPuzzles();
 bool GetRestoreDashing();
 bool GetEFBTexture();
 bool GetBloom();
+bool GetReduceBloom();
 
 bool GetNoclip();
 bool GetInvulnerability();
