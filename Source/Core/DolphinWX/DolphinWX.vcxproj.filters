@@ -271,6 +271,9 @@
     <ClCompile Include="CVarDlg.cpp">
       <Filter>GUI</Filter>
     </ClCompile>
+    <ClCompile Include="Cheats\PrimeHackCheats.cpp">
+      <Filter>GUI\Cheats</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Main.h" />
@@ -500,6 +503,9 @@
     </ClInclude>
     <ClInclude Include="CVarDlg.h">
       <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="Cheats\PrimeHackCheats.h">
+      <Filter>GUI\Cheats</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

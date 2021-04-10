@@ -24,6 +24,7 @@ namespace Gecko
 class CodeConfigPanel;
 }
 class ActionReplayCodesPanel;
+class PrimeHackCheats;
 
 wxDECLARE_EVENT(DOLPHIN_EVT_ADD_NEW_ACTION_REPLAY_CODE, wxCommandEvent);
 
@@ -48,6 +49,7 @@ private:
 
   wxTextCtrl* m_textctrl_log;
 
+  PrimeHackCheats* m_primehack_cheats;
   ActionReplayCodesPanel* m_ar_codes_panel;
   Gecko::CodeConfigPanel* m_geckocode_panel;
   IniFile m_gameini_default;

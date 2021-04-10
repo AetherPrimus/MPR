@@ -33,6 +33,7 @@
 #include "Core/GeckoCodeConfig.h"
 #include "DolphinWX/Cheats/ActionReplayCodesPanel.h"
 #include "DolphinWX/Cheats/CheatSearchTab.h"
+#include "DolphinWX/Cheats/PrimeHackCheats.h"
 #include "DolphinWX/Cheats/GeckoCodeDiag.h"
 #include "DolphinWX/Frame.h"
 #include "DolphinWX/Globals.h"
@@ -91,6 +92,9 @@ void wxCheatsWindow::CreateGUI()
   // Cheat Search Tab
   m_tab_cheat_search = new CheatSearchTab(m_notebook_main);
 
+  // Cheat Search Tab
+  m_primehack_cheats = new PrimeHackCheats(m_notebook_main, wxID_ANY);
+
   // Log Tab
   m_tab_log = new wxPanel(m_notebook_main, wxID_ANY);
 
@@ -127,6 +131,7 @@ void wxCheatsWindow::CreateGUI()
   // Add Tabs to Notebook
   m_notebook_main->AddPage(tab_cheats, _("AR Codes"));
   m_notebook_main->AddPage(m_geckocode_panel, _("Gecko Codes"));
+  m_notebook_main->AddPage(m_primehack_cheats, _("PrimeHack"));
   m_notebook_main->AddPage(m_tab_cheat_search, _("Cheat Search"));
   m_notebook_main->AddPage(m_tab_log, _("Logging"));
 
@@ -178,6 +183,8 @@ void wxCheatsWindow::UpdateGUI()
     SetTitle(title + StrToWxStr(": " + m_game_id));
   else
     SetTitle(title);
+
+  m_primehack_cheats->LoadGUIValues();
 }
 
 void wxCheatsWindow::Load_ARCodes()

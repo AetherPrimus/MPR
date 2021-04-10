@@ -1259,6 +1259,7 @@ void CFrame::OnShowCheatsWindow(wxCommandEvent& WXUNUSED(event))
   if (!m_cheats_window)
     m_cheats_window = new wxCheatsWindow(this);
 
+  m_cheats_window->UpdateGUI();
   m_cheats_window->Show();
   m_cheats_window->Raise();
 }
