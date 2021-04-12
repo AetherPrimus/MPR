@@ -125,14 +125,26 @@ bool ContextSensitiveControls::init_mod(Game game, Region region) {
       add_code_change(0x801fb544, lis);
       add_code_change(0x801fb54c, ori);
       add_code_change(0x801fb554, lfs);
+
+      add_code_change(0x801fd764, lis);
+      add_code_change(0x801fd768, ori);
+      add_code_change(0x801fd76c, lfs);
     } else if (region == Region::NTSC_J) {
       add_code_change(0x801fdb5c, lis);
       add_code_change(0x801fdb64, ori);
       add_code_change(0x801fdb6c, lfs);
+
+      add_code_change(0x801ffd7c, lis);
+      add_code_change(0x801ffd80, ori);
+      add_code_change(0x801ffd84, lfs);
     } else if (region == Region::PAL) {
       add_code_change(0x801fc5a8, lis);
       add_code_change(0x801fc5b0, ori);
       add_code_change(0x801fc5b8, lfs);
+
+      add_code_change(0x801fe7c8, lis);
+      add_code_change(0x801fe7cc, ori);
+      add_code_change(0x801fe7d0, lfs);
     }
     break;
   default:
