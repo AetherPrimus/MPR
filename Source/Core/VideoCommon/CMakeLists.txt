@@ -54,6 +54,7 @@ set(SRCS	AsyncRequests.cpp
 			TessellationShaderGen.cpp
 			TessellationShaderManager.cpp
 			TextureCacheBase.cpp
+			PrimePixelErrorTextures.h
 			TextureConversionShaderGL.cpp
 			TextureUtil.cpp
 			TextureScalerCommon.cpp

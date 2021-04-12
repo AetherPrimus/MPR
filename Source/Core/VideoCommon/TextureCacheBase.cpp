@@ -30,6 +30,7 @@
 #include "VideoCommon/TextureUtil.h"
 #include "VideoCommon/VideoCommon.h"
 #include "VideoCommon/VideoConfig.h"
+#include "VideoCommon/PrimePixelErrorTextures.h"
 
 static const u64 MAX_TEXTURE_BINARY_SIZE =
     1024 * 1024 * 4;  // 1024 x 1024 texel times 8 nibbles per texel
@@ -744,6 +745,45 @@ TextureCacheBase::TCacheEntry* TextureCacheBase::Load(const u32 stage)
   s32 temp_frameCount = 0x7fffffff;
   TexAddrCache::iterator unconverted_copy = textures_by_address.end();
 
+  std::string basename = HiresTexture::GenBaseName(src_data, texture_size, &texMem[tlutaddr], palette_size,
+    width, height, texformat, use_mipmaps, true);
+
+  constexpr u8 empty_tex[4] = {};
+  bool is_prime_pixel = std::find(prime_pixel_textures.begin(), prime_pixel_textures.end(), basename) != prime_pixel_textures.end();
+  if (is_prime_pixel) {
+    if (iter == iter_range.second) {
+      TextureConfig config;
+      config.width = 1;
+      config.height = 1;
+      config.levels = 1;
+      config.layers = 1;
+      config.pcformat = PC_TEX_FMT_RGBA32;
+
+      TCacheEntry* entry = AllocateCacheEntry(config);
+
+      if (!entry)
+        return nullptr;
+
+      entry->texture->Load(empty_tex, 1, 1, expandedWidth, 0, 0);
+
+      entry->SetGeneralParameters(address, texture_size, full_format);
+      entry->SetDimensions(1, 1, 1);
+      entry->SetHashes(full_hash, tex_hash);
+      entry->is_custom_tex = true;
+      entry->is_efb_copy = false;
+
+      textures_by_address.emplace(address, entry);
+
+      return ReturnEntry(stage, entry);
+    }
+    else {
+      TCacheEntry* entry = iter->second;
+
+      entry = DoPartialTextureUpdates(iter->second, tlutaddr, tlutfmt, palette_size);
+      return ReturnEntry(stage, entry);
+    }
+  }
+
   while (iter != iter_range.second)
   {
     TCacheEntry* entry = iter->second;
@@ -809,7 +849,6 @@ TextureCacheBase::TCacheEntry* TextureCacheBase::Load(const u32 stage)
     }
     ++iter;
   }
-  std::string basename;
   if (unconverted_copy != textures_by_address.end())
   {
     g_texture_cache->LoadLut(tlutfmt, &texMem[tlutaddr], palette_size);
@@ -856,12 +895,6 @@ TextureCacheBase::TCacheEntry* TextureCacheBase::Load(const u32 stage)
   }
 
   std::shared_ptr<HiresTexture> hires_tex;
-  if (g_ActiveConfig.bHiresTextures || g_ActiveConfig.bDumpTextures)
-  {
-    basename =
-        HiresTexture::GenBaseName(src_data, texture_size, &texMem[tlutaddr], palette_size, width,
-                                  height, texformat, use_mipmaps, g_ActiveConfig.bDumpTextures);
-  }
   if (g_ActiveConfig.bHiresTextures)
   {
     hires_tex = HiresTexture::Search(basename, [this](size_t required_size) {

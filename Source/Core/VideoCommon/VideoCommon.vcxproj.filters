@@ -501,6 +501,7 @@
     <ClInclude Include="RenderState.h">
       <Filter>Base</Filter>
     </ClInclude>
+    <ClInclude Include="PrimePixelErrorTextures.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="CMakeLists.txt" />
