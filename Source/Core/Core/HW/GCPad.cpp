@@ -9,6 +9,7 @@
 #include "Common/Common.h"
 #include "Core/HW/GCPadEmu.h"
 #include "InputCommon/ControllerEmu/ControlGroup/ControlGroup.h"
+#include "InputCommon/ControllerEmu/Control/Control.h"
 #include "InputCommon/ControllerInterface/ControllerInterface.h"
 #include "InputCommon/GCPadStatus.h"
 #include "InputCommon/InputConfig.h"
@@ -97,6 +98,36 @@ std::tuple<double, double> GetPrimeStickXY()
   GCPad* gcpad = static_cast<GCPad*>(s_config.GetController(0));
 
   return gcpad->GetPrimeStickXY();
+}
+
+bool CheckForward() {
+  GCPad* gcpad = static_cast<GCPad*>(s_config.GetController(0));
+
+  return gcpad->groups[1]->controls[0].get()->control_ref->State() > 0.5;
+}
+
+bool CheckBack() {
+  GCPad* gcpad = static_cast<GCPad*>(s_config.GetController(0));
+
+  return gcpad->groups[1]->controls[1].get()->control_ref->State() > 0.5;
+}
+
+bool CheckLeft() {
+  GCPad* gcpad = static_cast<GCPad*>(s_config.GetController(0));
+
+  return gcpad->groups[1]->controls[2].get()->control_ref->State() > 0.5;
+}
+
+bool CheckRight() {
+  GCPad* gcpad = static_cast<GCPad*>(s_config.GetController(0));
+
+  return gcpad->groups[1]->controls[3].get()->control_ref->State() > 0.5;
+}
+
+bool CheckJump() {
+  GCPad* gcpad = static_cast<GCPad*>(s_config.GetController(0));
+
+  return gcpad->groups[0]->controls[1]->control_ref->State() > 0.5;
 }
 
 std::tuple<double, double, bool, bool> PrimeSettings()
