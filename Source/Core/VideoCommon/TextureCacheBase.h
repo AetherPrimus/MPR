@@ -190,6 +190,8 @@ public:
   std::unique_ptr<HostTexture> AllocateTexture(const TextureConfig& config);
   void DisposeTexture(std::unique_ptr<HostTexture>& texture);
 
+  void ClearBufferCorners(u8* buffer, u32 width, u32 height);
+
 protected:
   alignas(16) u8* temp = {};
   size_t temp_size = {};

@@ -745,45 +745,6 @@ TextureCacheBase::TCacheEntry* TextureCacheBase::Load(const u32 stage)
   s32 temp_frameCount = 0x7fffffff;
   TexAddrCache::iterator unconverted_copy = textures_by_address.end();
 
-  std::string basename = HiresTexture::GenBaseName(src_data, texture_size, &texMem[tlutaddr], palette_size,
-    width, height, texformat, use_mipmaps, true);
-
-  constexpr u8 empty_tex[4] = {};
-  bool is_prime_pixel = std::find(prime_pixel_textures.begin(), prime_pixel_textures.end(), basename) != prime_pixel_textures.end();
-  if (is_prime_pixel) {
-    if (iter == iter_range.second) {
-      TextureConfig config;
-      config.width = 1;
-      config.height = 1;
-      config.levels = 1;
-      config.layers = 1;
-      config.pcformat = PC_TEX_FMT_RGBA32;
-
-      TCacheEntry* entry = AllocateCacheEntry(config);
-
-      if (!entry)
-        return nullptr;
-
-      entry->texture->Load(empty_tex, 1, 1, expandedWidth, 0, 0);
-
-      entry->SetGeneralParameters(address, texture_size, full_format);
-      entry->SetDimensions(1, 1, 1);
-      entry->SetHashes(full_hash, tex_hash);
-      entry->is_custom_tex = true;
-      entry->is_efb_copy = false;
-
-      textures_by_address.emplace(address, entry);
-
-      return ReturnEntry(stage, entry);
-    }
-    else {
-      TCacheEntry* entry = iter->second;
-
-      entry = DoPartialTextureUpdates(iter->second, tlutaddr, tlutfmt, palette_size);
-      return ReturnEntry(stage, entry);
-    }
-  }
-
   while (iter != iter_range.second)
   {
     TCacheEntry* entry = iter->second;
@@ -849,6 +810,7 @@ TextureCacheBase::TCacheEntry* TextureCacheBase::Load(const u32 stage)
     }
     ++iter;
   }
+  std::string basename;
   if (unconverted_copy != textures_by_address.end())
   {
     g_texture_cache->LoadLut(tlutfmt, &texMem[tlutaddr], palette_size);
@@ -895,6 +857,12 @@ TextureCacheBase::TCacheEntry* TextureCacheBase::Load(const u32 stage)
   }
 
   std::shared_ptr<HiresTexture> hires_tex;
+  if (g_ActiveConfig.bHiresTextures || g_ActiveConfig.bDumpTextures)
+  {
+    basename =
+      HiresTexture::GenBaseName(src_data, texture_size, &texMem[tlutaddr], palette_size, width,
+        height, texformat, use_mipmaps, g_ActiveConfig.bDumpTextures);
+  }
   if (g_ActiveConfig.bHiresTextures)
   {
     hires_tex = HiresTexture::Search(basename, [this](size_t required_size) {
@@ -956,7 +924,9 @@ TextureCacheBase::TCacheEntry* TextureCacheBase::Load(const u32 stage)
       !hires_tex && !use_scaling && g_ActiveConfig.UseGPUTextureDecoding() &&
       g_texture_cache->SupportsGPUTextureDecode(static_cast<TextureFormat>(texformat),
                                                 static_cast<TlutFormat>(tlutfmt)) &&
-      !(from_tmem && texformat == GX_TF_RGBA8);
+      !(from_tmem && texformat == GX_TF_RGBA8) &&
+      tex_hash != PRIME1_PIXEL_HASH &&
+      tex_hash != PRIME2_PIXEL_HASH;
 
   // create the entry/texture
   TextureConfig config;
@@ -1073,7 +1043,16 @@ TextureCacheBase::TCacheEntry* TextureCacheBase::Load(const u32 stage)
                            PC_TEX_FMT_RGBA32 == config.pcformat,
                            config.pcformat >= PC_TEX_FMT_DXT1);
       }
-      if (use_scaling)
+
+      if (full_hash == PRIME2_PIXEL_HASH)
+      {
+        ClearBufferCorners(texturedata, expandedWidth, expandedHeight);
+      }
+      else if (full_hash == PRIME1_PIXEL_HASH)
+      {
+        memset(texturedata, 0, 4096);
+      }
+      else if (use_scaling)
       {
         texturedata =
             reinterpret_cast<u8*>(m_scaler->Scale((u32*)texturedata, expandedWidth, height));
@@ -1116,7 +1095,16 @@ TextureCacheBase::TCacheEntry* TextureCacheBase::Load(const u32 stage)
                            texformat, tlutaddr, static_cast<TlutFormat>(tlutfmt),
                            PC_TEX_FMT_RGBA32 == config.pcformat,
                            config.pcformat >= PC_TEX_FMT_DXT1);
-        if (use_scaling)
+
+        if (full_hash == PRIME2_PIXEL_HASH)
+        {
+          ClearBufferCorners(texturedata, expanded_mip_width, expanded_mip_height);
+        }
+        else if (full_hash == PRIME1_PIXEL_HASH)
+        {
+          memset(texturedata, 0, mip_size);
+        }
+        else if (use_scaling)
         {
           texturedata =
               reinterpret_cast<u8*>(m_scaler->Scale((u32*)texturedata, expandedWidth, height));
@@ -1124,6 +1112,7 @@ TextureCacheBase::TCacheEntry* TextureCacheBase::Load(const u32 stage)
           theight *= g_ActiveConfig.iTexScalingFactor;
           texpandedWidth *= g_ActiveConfig.iTexScalingFactor;
         }
+
         entry->texture->Load(texturedata, twidth, theight, texpandedWidth, level, 0);
       }
       mip_src_data +=
@@ -1837,4 +1826,12 @@ u64 TextureCacheBase::TCacheEntry::CalculateHash() const
     }
     return temp_hash;
   }
+}
+
+void TextureCacheBase::ClearBufferCorners(u8* buffer, u32 width, u32 height)
+{
+  memset(buffer, 0, 4);
+  memset(buffer + width * 4 - 4, 0, 4);
+  memset(buffer + (width * (height - 1) * 4), 0, 4);
+  memset(buffer + (width * height * 4) - 4, 0, 4);
 }
