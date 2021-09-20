@@ -8,7 +8,7 @@
 #include <cmath>
 
 namespace prime {
-namespace {  
+namespace {
 const std::array<int, 4> prime_one_beams = {0, 2, 1, 3};
 const std::array<int, 4> prime_two_beams = {0, 1, 2, 3};
 
@@ -23,7 +23,7 @@ const std::array<std::tuple<int, int>, 4> prime_three_visors = {
   std::make_tuple<int, int>(2, 0x0d), std::make_tuple<int, int>(3, 0x0e)};
 
 constexpr u32 ORBIT_STATE_GRAPPLE = 5;
-#define RIDLEY_STR(r) (r == Region::NTSC_J ? L"ƒƒ^ƒŠƒhƒŠ[" : L"Meta Ridley")
+#define RIDLEY_STR(r) (r == Region::NTSC_J ? L"ãƒ¡ã‚¿ãƒªãƒ‰ãƒ¼" : L"Meta Ridley")
 #define RIDLEY_STR_LEN(r) (r == Region::NTSC_J ? 6 : 11)
 
 bool is_string_ridley(Region active_region, u32 string_base) {
@@ -82,7 +82,7 @@ void FpsControls::calculate_pitch_delta() {
 }
 
 void FpsControls::calculate_pitchyaw_delta() {
-  constexpr auto yaw_clamp = [](float t) -> float { 
+  constexpr auto yaw_clamp = [](float t) -> float {
     constexpr float PI = 3.141592654f;
     constexpr float TWO_PI = PI * 2.f;
     return (t > PI) ? (t - TWO_PI) : ((t < -PI) ? (t + TWO_PI) : (t));
@@ -279,7 +279,7 @@ void FpsControls::run_mod_mp1(Region region) {
     calculate_pitch_locked(Game::PRIME_1, region);
     writef32(FpsControls::pitch, firstperson_pitch);
     writef32(FpsControls::pitch, arm_cannon_matrix);
-    
+
     if (beamvisor_menu_enabled) {
       LOOKUP_DYN(beamvisor_menu_mode);
       // if the menu id is not null
@@ -372,7 +372,7 @@ void FpsControls::run_mod_mp1_gc(Region region) {
   writef32(0, angular_vel);
   cplayer_xf.build_rotation(yaw);
   cplayer_xf.write_to(player_xf);
-    
+
   for (int i = 0; i < 8; i++) {
     writef32(0, (tweak_player + 0x84) + i * 4);
     writef32(0, (tweak_player + 0x84) + i * 4 - 32);
@@ -641,7 +641,7 @@ void FpsControls::run_mod_mp3(Game active_game, Region active_region) {
       handle_cursor(cursor + 0x9c, cursor + 0x15c, active_region);
     }
   };
-  
+
   // Handles menu screen cursor
   LOOKUP(cursor_dlg_enabled);
   if (read8(cursor_dlg_enabled)) {
@@ -927,36 +927,36 @@ void FpsControls::add_control_state_hook_mp3(u32 start_point, Region region) {
 // Truly cursed
 void FpsControls::add_strafe_code_mp1_ntsc() {
   // calculate side movement @ 805afc00
-  // stwu r1, 0x18(r1) 
+  // stwu r1, 0x18(r1)
   // mfspr r0, LR
-  // stw r0, 0x1c(r1) 
-  // lwz r5, -0x5ee8(r13) 
-  // lwz r4, 0x2b0(r29) 
-  // cmpwi r4, 2 
-  // li r4, 4 
-  // bne 0x8 
-  // lwz r4, 0x2ac(r29) 
-  // slwi r4, r4, 2 
+  // stw r0, 0x1c(r1)
+  // lwz r5, -0x5ee8(r13)
+  // lwz r4, 0x2b0(r29)
+  // cmpwi r4, 2
+  // li r4, 4
+  // bne 0x8
+  // lwz r4, 0x2ac(r29)
+  // slwi r4, r4, 2
   // add r3, r4, r5
-  // lfs f1, 0x44(r3) 
-  // lfs f2, 0x4(r3) 
+  // lfs f1, 0x44(r3)
+  // lfs f2, 0x4(r3)
   // fmuls f3, f2, f27
   // lfs f0, 0xe8(r29)
   // fmuls f1, f1, f0
   // fdivs f1, f1, f3
-  // lfs f0, 0xa4(r3) 
+  // lfs f0, 0xa4(r3)
   // stfs f0, 0x10(r1)
-  // fmuls f1, f1, f0 
-  // lfs f0, -0x4260(r2) 
+  // fmuls f1, f1, f0
+  // lfs f0, -0x4260(r2)
   // fcmpo cr0, f30, f0
-  // lfs f0, -0x4238(r2) 
+  // lfs f0, -0x4238(r2)
   // ble 0x8
-  // lfs f0, -0x4280(r2) 
+  // lfs f0, -0x4280(r2)
   // fmuls f0, f0, f1
-  // lfs f3, 0x10(r1) 
+  // lfs f3, 0x10(r1)
   // fsubs f3, f3, f1
   // fmuls f3, f3, f30
-  // fadds f0, f0, f3 
+  // fadds f0, f0, f3
   // stfs f0, 0x18(r1)
   // stfs f2, 0x14(r1)
   // addi r3, r1, 0x4
@@ -966,9 +966,9 @@ void FpsControls::add_strafe_code_mp1_ntsc() {
   // lfs f0, 0x18(r1)
   // lfs f1, 0x4(r1)
   // fsubs f0, f0, f1
-  // lfs f1, 0x10(r1) 
+  // lfs f1, 0x10(r1)
   // fdivs f0, f0, f1
-  // lfs f1, -0x4238(r2) 
+  // lfs f1, -0x4238(r2)
   // fcmpo cr0, f0, f1
   // bge 0xc
   // fmr f0, f1
@@ -1162,36 +1162,36 @@ void FpsControls::add_strafe_code_mp1_ntsc() {
 
 void FpsControls::add_strafe_code_mp1_pal() {
   // calculate side movement @ 80471c00
-  // stwu r1, 0x18(r1) 
+  // stwu r1, 0x18(r1)
   // mfspr r0, LR
-  // stw r0, 0x1c(r1) 
+  // stw r0, 0x1c(r1)
   // lwz r5, -0x5e70(r13)
-  // lwz r4, 0x2c0(r29) 
+  // lwz r4, 0x2c0(r29)
   // cmpwi r4, 2
   // li r4, 4
   // bne 0x8
-  // lwz r4, 0x2bc(r29) 
-  // slwi r4, r4, 2 
+  // lwz r4, 0x2bc(r29)
+  // slwi r4, r4, 2
   // add r3, r4, r5
   // lfs f1, 0x44(r3)
-  // lfs f2, 0x4(r3) 
+  // lfs f2, 0x4(r3)
   // fmuls f3, f2, f27
   // lfs f0, 0xf8(r29)
   // fmuls f1, f1, f0
   // fdivs f1, f1, f3
-  // lfs f0, 0xa4(r3) 
+  // lfs f0, 0xa4(r3)
   // stfs f0, 0x10(r1)
-  // fmuls f1, f1, f0 
+  // fmuls f1, f1, f0
   // lfs f0, -0x4180(r2)
   // fcmpo cr0, f30, f0
   // lfs f0, -0x4158(r2)
   // ble 0x8
   // lfs f0, -0x41A0(r2)
   // fmuls f0, f0, f1
-  // lfs f3, 0x10(r1) 
+  // lfs f3, 0x10(r1)
   // fsubs f3, f3, f1
   // fmuls f3, f3, f30
-  // fadds f0, f0, f3 
+  // fadds f0, f0, f3
   // stfs f0, 0x18(r1)
   // stfs f2, 0x14(r1)
   // addi r3, r1, 0x4
@@ -1201,7 +1201,7 @@ void FpsControls::add_strafe_code_mp1_pal() {
   // lfs f0, 0x18(r1)
   // lfs f1, 0x4(r1)
   // fsubs f0, f0, f1
-  // lfs f1, 0x10(r1) 
+  // lfs f1, 0x10(r1)
   // fdivs f0, f0, f1
   // lfs f1, -0x4158(r2)
   // fcmpo cr0, f0, f1
@@ -1507,7 +1507,7 @@ void FpsControls::init_mod_mp1_gc(Region region) {
       add_strafe_code_mp1_ntsc();
     }
   } else if (region == Region::PAL) {
-    add_code_change(0x8000fb4c, 0x48000048);  
+    add_code_change(0x8000fb4c, 0x48000048);
     add_code_change(0x8000ea60, 0x60000000);
     //add_code_change(0x80017878, 0x4e800020);
     add_code_change(0x80015258, 0x4e800020);
@@ -1548,7 +1548,7 @@ void FpsControls::init_mod_mp2(Region region) {
     add_code_change(0x8006fdc4, 0x60000000, "visor_menu");
 
     add_beam_change_code_mp2(0x8018cc88);
-    
+
     // Steps over bounds checking on the reticle
     add_code_change(0x80018528, 0x48000144);
   } else if (region == Region::PAL) {
@@ -1567,13 +1567,13 @@ void FpsControls::init_mod_mp2(Region region) {
     add_code_change(0x8007133c, 0x60000000, "visor_menu");
 
     add_beam_change_code_mp2(0x8018e41c);
-    
+
     // Steps over bounds checking on the reticle
     add_code_change(0x80018528, 0x48000144);
   } else if (region == Region::NTSC_J) {
     add_code_change(0x8008c944, 0xc0430184);
     add_code_change(0x8008c998, 0x60000000);
-    add_code_change(0x80147578, 0x60000000);      
+    add_code_change(0x80147578, 0x60000000);
     add_code_change(0x801475a0, 0x60000000);
     add_code_change(0x8013511c, 0x60000000);
     add_code_change(0x8008b7c4, 0x60000000);
@@ -1604,7 +1604,7 @@ void FpsControls::init_mod_mp2_gc(Region region) {
     // Grapple point yaw fix
     add_code_change(0x8011d9c4, 0x389d0054);
     add_code_change(0x8011d9c8, 0x4bf2d1fd);
-    
+
     add_code_change(0x80015ed8, 0x3aa00001, "show_crosshair"); // li r21, 1
     add_code_change(0x80015edc, 0x8add1268, "show_crosshair"); // lbz r22, 0x1268(r29)
     add_code_change(0x80015ee0, 0x52b63672, "show_crosshair"); // rlwimi r22, r21, 6, 25, 25 (00000001)
@@ -1681,7 +1681,7 @@ void FpsControls::init_mod_mp3(Region region) {
 
     add_control_state_hook_mp3(0x80005880, Region::NTSC_U);
     add_grapple_slide_code_mp3(0x8017f2a0);
-    
+
     // Steps over bounds checking on the reticle
     add_code_change(0x80016f48, 0x48000120);
   } else if (region == Region::PAL) {
@@ -1700,7 +1700,7 @@ void FpsControls::init_mod_mp3(Region region) {
 
     add_control_state_hook_mp3(0x80005880, Region::PAL);
     add_grapple_slide_code_mp3(0x8017ebec);
-    
+
     // Steps over bounds checking on the reticle
     add_code_change(0x80016f48, 0x48000120);
   } else {}
@@ -1735,7 +1735,7 @@ void FpsControls::init_mod_mp3_standalone(Region region) {
 
     add_control_state_hook_mp3(0x80005880, Region::NTSC_U);
     add_grapple_slide_code_mp3(0x80182c9c);
-    
+
     // Steps over bounds checking on the reticle
     add_code_change(0x80017290, 0x48000120);
   } else if (region == Region::NTSC_J) {

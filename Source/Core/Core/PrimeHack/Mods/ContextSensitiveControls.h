@@ -1,5 +1,7 @@
 #pragma once
 
+#include <set>
+
 #include "Core/PrimeHack/PrimeMod.h"
 
 namespace prime {
