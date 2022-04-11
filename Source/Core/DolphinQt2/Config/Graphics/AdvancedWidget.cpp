@@ -112,13 +112,12 @@ void AdvancedWidget::ConnectWidgets()
 
 void AdvancedWidget::LoadSettings()
 {
-  m_prefetch_custom_textures->setEnabled(Config::Get(Config::GFX_HIRES_TEXTURES));
+  m_prefetch_custom_textures->Disable();
 }
 
 void AdvancedWidget::SaveSettings()
 {
-  const auto hires_enabled = Config::Get(Config::GFX_HIRES_TEXTURES);
-  m_prefetch_custom_textures->setEnabled(hires_enabled);
+  m_prefetch_custom_textures->Disable();
 }
 
 void AdvancedWidget::OnBackendChanged()

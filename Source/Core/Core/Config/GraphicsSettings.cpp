@@ -38,13 +38,13 @@ const ConfigInfo<bool> GFX_LOG_RENDER_TIME_TO_FILE{{System::GFX, "Settings", "Lo
 const ConfigInfo<bool> GFX_OVERLAY_STATS{{System::GFX, "Settings", "OverlayStats"}, false};
 const ConfigInfo<bool> GFX_OVERLAY_PROJ_STATS{{System::GFX, "Settings", "OverlayProjStats"}, false};
 const ConfigInfo<bool> GFX_DUMP_TEXTURES{{System::GFX, "Settings", "DumpTextures"}, false};
-const ConfigInfo<bool> GFX_HIRES_TEXTURES{{System::GFX, "Settings", "HiresTextures"}, false};
-const ConfigInfo<bool> GFX_HIRES_MATERIAL_MAPS{ { System::GFX, "Settings", "HiresMaterialMaps" }, false };
+const ConfigInfo<bool> GFX_HIRES_TEXTURES{{System::GFX, "Settings", "HiresTextures"}, true };
+const ConfigInfo<bool> GFX_HIRES_MATERIAL_MAPS{ { System::GFX, "Settings", "HiresMaterialMaps" }, true };
 const ConfigInfo<bool> GFX_HIRES_MATERIAL_MAPS_BUILD{ { System::GFX, "Settings", "HiresMaterialMapsBuild" }, false };
 const ConfigInfo<bool> GFX_CACHE_HIRES_TEXTURES{{System::GFX, "Settings", "CacheHiresTextures"},
-                                                false};
+                                                true};
 const ConfigInfo<bool> GFX_WAIT_CACHE_HIRES_TEXTURES{{System::GFX, "Settings", "WaitForCachedHiresTextures"},
-                                                false};
+                                                true};
 const ConfigInfo<bool> GFX_DUMP_EFB_TARGET{{System::GFX, "Settings", "DumpEFBTarget"}, false};
 const ConfigInfo<bool> GFX_DUMP_FRAMES_AS_IMAGES{{System::GFX, "Settings", "DumpFramesAsImages"},
                                                  false};
@@ -62,16 +62,16 @@ const ConfigInfo<bool> GFX_ENABLE_GPU_TEXTURE_DECODING{
     {System::GFX, "Settings", "EnableGPUTextureDecoding"}, false};
 const ConfigInfo<bool> GFX_ENABLE_COMPUTE_TEXTURE_ENCODING{ { System::GFX, "Settings", "EnableComputeTextureEncoding" }, false };
 const ConfigInfo<bool> GFX_ENABLE_PIXEL_LIGHTING{{System::GFX, "Settings", "EnablePixelLighting"},
-                                                 false};
+                                                 true};
 const ConfigInfo<bool> GFX_FORCED_LIGHTING{ { System::GFX, "Settings", "ForcedLighting" },
-false };
+true };
 const ConfigInfo<bool> GFX_FORCED_DITHERING{ { System::GFX, "Settings", "ForcedDithering" },
-false };
+true };
 const ConfigInfo<bool> GFX_FORCE_PHONG_SHADING{ { System::GFX, "Settings", "ForcePhongShading" },
-                                                 false };
-const ConfigInfo<int> GFX_RIM_POWER{ { System::GFX, "Settings", "RimPower" }, 80 };
-const ConfigInfo<int> GFX_RIM_INTENSITY{ { System::GFX, "Settings", "RimIntesity" }, 0 };
-const ConfigInfo<int> GFX_RIM_BASE{ { System::GFX, "Settings", "RimBase" }, 10 };
+                                                 true };
+const ConfigInfo<int> GFX_RIM_POWER{ { System::GFX, "Settings", "RimPower" }, 20 };
+const ConfigInfo<int> GFX_RIM_INTENSITY{ { System::GFX, "Settings", "RimIntesity" }, 20 };
+const ConfigInfo<int> GFX_RIM_BASE{ { System::GFX, "Settings", "RimBase" }, 0 };
 const ConfigInfo<int> GFX_SPECULAR_MULTIPLIER{ { System::GFX, "Settings", "SpecularMultiplier" }, 255 };
 
 const ConfigInfo<bool> GFX_SIMULATE_BUMP_MAPPING{ { System::GFX, "Settings", "SimBumpEnabled" },
@@ -85,13 +85,13 @@ const ConfigInfo<bool> GFX_FAST_DEPTH_CALC{{System::GFX, "Settings", "FastDepthC
 const ConfigInfo<u32> GFX_MSAA{{System::GFX, "Settings", "MSAA"}, 1};
 const ConfigInfo<bool> GFX_SSAA{{System::GFX, "Settings", "SSAA"}, false};
 const ConfigInfo<int> GFX_EFB_SCALE{{System::GFX, "Settings", "EFBScale"},
-                                    static_cast<int>(SCALE_1X)};
+                                    static_cast<int>(SCALE_3X)};
 const ConfigInfo<bool> GFX_TEXFMT_OVERLAY_ENABLE{{System::GFX, "Settings", "TexFmtOverlayEnable"},
                                                  false};
 const ConfigInfo<bool> GFX_TEXFMT_OVERLAY_CENTER{{System::GFX, "Settings", "TexFmtOverlayCenter"},
                                                  false};
 const ConfigInfo<bool> GFX_ENABLE_WIREFRAME{{System::GFX, "Settings", "WireFrame"}, false};
-const ConfigInfo<bool> GFX_DISABLE_FOG{{System::GFX, "Settings", "DisableFog"}, false};
+const ConfigInfo<bool> GFX_DISABLE_FOG{{System::GFX, "Settings", "DisableFog"}, true};
 const ConfigInfo<bool> GFX_BORDERLESS_FULLSCREEN{{System::GFX, "Settings", "BorderlessFullscreen"},
                                                  false};
 const ConfigInfo<bool> GFX_ENABLE_VALIDATION_LAYER{
@@ -105,7 +105,7 @@ const ConfigInfo<int> GFX_COMMAND_BUFFER_EXECUTE_INTERVAL{
 const ConfigInfo<bool> GFX_SHADER_CACHE{{System::GFX, "Settings", "ShaderCache"}, true};
 
 const ConfigInfo<bool> GFX_BACKGROUND_SHADER_COMPILING{
-  { System::GFX, "Settings", "BackgroundShaderCompiling" }, false };
+  { System::GFX, "Settings", "BackgroundShaderCompiling" }, true };
 const ConfigInfo<bool> GFX_DISABLE_SPECIALIZED_SHADERS{
   { System::GFX, "Settings", "DisableSpecializedShaders" }, false };
 
@@ -122,15 +122,15 @@ const ConfigInfo<bool> GFX_PREFER_GLES{{System::GFX, "Settings", "PreferGLES"}, 
 
 // Graphics.Enhancements
 
-const ConfigInfo<int> GFX_ENHANCE_FILTERING_MODE{{System::GFX, "Enhancements", "FilteringMode"}, 1};
+const ConfigInfo<int> GFX_ENHANCE_FILTERING_MODE{{System::GFX, "Enhancements", "FilteringMode"}, 3};
 const ConfigInfo<bool> GFX_ENHANCE_DISABLE_FILTERING{ { System::GFX, "Enhancements", "DisableFiltering" },
 false };
-const ConfigInfo<int> GFX_ENHANCE_MAX_ANISOTROPY{{System::GFX, "Enhancements", "MaxAnisotropy"}, 0};
+const ConfigInfo<int> GFX_ENHANCE_MAX_ANISOTROPY{{System::GFX, "Enhancements", "MaxAnisotropy"}, 4};
 const ConfigInfo<bool> GFX_ENHANCE_POST_ENABLED{
-    {System::GFX, "Enhancements", "PostProcessingEnable"}, false};
+    {System::GFX, "Enhancements", "PostProcessingEnable"}, true};
 const ConfigInfo<int> GFX_ENHANCE_POST_TRIGUER{ { System::GFX, "Enhancements", "PostProcessingTrigger" }, 0 };
 const ConfigInfo<std::string> GFX_ENHANCE_POST_SHADERS{
-  { System::GFX, "Enhancements", "PostProcessingShaders" }, "" };
+  { System::GFX, "Enhancements", "PostProcessingShaders" }, "IshiirukaFX" };
 const ConfigInfo<std::string> GFX_ENHANCE_SCALING_SHADER{
   { System::GFX, "Enhancements", "ScalingShader" }, "" };
 
@@ -147,7 +147,7 @@ true };
 const ConfigInfo<bool> GFX_ENHANCE_TESSELLATION{ { System::GFX, "Enhancements", "Tessellation" }, true };
 const ConfigInfo<bool> GFX_ENHANCE_TESSELLATION_EARLY_CULLING{ { System::GFX, "Enhancements", "TessellationEarlyCulling" }, false };
 const ConfigInfo<int> GFX_ENHANCE_TESSELLATION_DISTANCE{ { System::GFX, "Enhancements", "TessellationDistance" }, 0 };
-const ConfigInfo<int> GFX_ENHANCE_TESSELLATION_MAX{ { System::GFX, "Enhancements", "TessellationMax" }, 6 };
+const ConfigInfo<int> GFX_ENHANCE_TESSELLATION_MAX{ { System::GFX, "Enhancements", "TessellationMax" }, 2 };
 const ConfigInfo<int> GFX_ENHANCE_TESSELLATION_ROUNDING_INTENSITY{ { System::GFX, "Enhancements", "TessellationRoundingIntensity" }, 0 };
 const ConfigInfo<int> GFX_ENHANCE_TESSELLATION_DISPLACEMENT_INTENSITY{ { System::GFX, "Enhancements", "TessellationDisplacementIntensity" }, 0 };
 // Graphics.Stereoscopy
@@ -178,7 +178,7 @@ const ConfigInfo<bool> GFX_HACK_EFB_EMULATE_FORMAT_CHANGES{
 const ConfigInfo<bool> GFX_HACK_VERTEX_ROUDING{{System::GFX, "Hacks", "VertexRounding"}, false};
 
 const ConfigInfo<bool> GFX_HACK_FORCE_DUAL_SOURCE{ { System::GFX, "Hacks", "ForceDualSourceBlend" }, false };
-const ConfigInfo<bool> GFX_HACK_FULL_ASYNC_SHADER_COMPILATION{ { System::GFX, "Hacks", "FullAsyncShaderCompilation" }, false };
+const ConfigInfo<bool> GFX_HACK_FULL_ASYNC_SHADER_COMPILATION{ { System::GFX, "Hacks", "FullAsyncShaderCompilation" }, true };
 const ConfigInfo<bool> GFX_HACK_LAST_HISTORY_EFBTORAM{ { System::GFX, "Hacks", "LastStoryEFBToRam" }, false };
 const ConfigInfo<bool> GFX_HACK_FORCE_LOGICOP_BLEND{ { System::GFX, "Hacks", "ForceLogicOpBlend" }, false };
 const ConfigInfo<int> GFX_HACK_CULL_MODE{ { System::GFX, "Hacks", "CullMode" }, 0 };
@@ -198,9 +198,9 @@ const ConfigInfo<bool> GFX_PERF_QUERIES_ENABLE{{System::GFX, "GameSpecific", "Pe
 // Graphics.PrimeHack
 const ConfigInfo<bool> AUTO_EFB{{System::GFX, "PrimeHack Misc", "AutoEFBMP"}, true};
 const ConfigInfo<bool> LOCKCAMERA_IN_PUZZLES{{System::GFX, "PrimeHack Misc", "Lock Camera in Motion Puzzles"}, true};
-const ConfigInfo<bool> DISABLE_BLOOM{{System::GFX, "PrimeHack Misc", "DisableBloom"}, false};
+const ConfigInfo<bool> DISABLE_BLOOM{{System::GFX, "PrimeHack Misc", "DisableBloom"}, true};
 const ConfigInfo<bool> REDUCE_BLOOM{{System::GFX, "PrimeHack Misc", "ReduceBloom"}, true};
-const ConfigInfo<int> FOV{{System::GFX, "PrimeHack Misc", "Field of View"}, 60};
+const ConfigInfo<int> FOV{{System::GFX, "PrimeHack Misc", "Field of View"}, 80};
 
 const ConfigInfo<bool> TOGGLE_ARM_REPOSITION{{System::GFX, "PrimeHack Misc", "ToggleArmRePosition"}, true};
 const ConfigInfo<bool> TOGGLE_CULLING{{System::GFX, "PrimeHack Misc", "ToggleCulling"}, false};

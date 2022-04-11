@@ -332,6 +332,13 @@ struct SConfig
   std::string m_auto_update_track;
   std::string m_auto_update_hash_override;
 
+  // MPR Settings
+  u32 m_mpr_primary_hudcolour;
+  s32 m_mpr_hud_zoom_factor;
+  s64 m_mpr_reticle_selection;
+  bool m_mpr_minimal_mode;
+  bool bNKITWarning;
+
   SConfig(const SConfig&) = delete;
   SConfig& operator=(const SConfig&) = delete;
   SConfig(SConfig&&) = delete;
@@ -366,6 +373,7 @@ private:
   void SaveBluetoothPassthroughSettings(IniFile& ini);
   void SaveUSBPassthroughSettings(IniFile& ini);
   void SaveAutoUpdateSettings(IniFile& ini);
+  void SaveMPRSettings(IniFile& ini);
 
   void LoadGeneralSettings(IniFile& ini);
   void LoadInterfaceSettings(IniFile& ini);
@@ -381,6 +389,7 @@ private:
   void LoadBluetoothPassthroughSettings(IniFile& ini);
   void LoadUSBPassthroughSettings(IniFile& ini);
   void LoadAutoUpdateSettings(IniFile& ini);
+  void LoadMPRSettings(IniFile& ini);
 
   void SetRunningGameMetadata(const std::string& game_id, u64 title_id, u16 revision,
     Core::TitleDatabase::TitleType type);

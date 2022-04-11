@@ -79,6 +79,7 @@ void PrimeMod::add_code_change(u32 addr, u32 code, std::string_view group) {
   current_active_changes.emplace_back(addr, code);
 }
 
+// Broken
 void PrimeMod::set_code_change(u32 address, u32 var) {
   code_changes[address].var = var;
   current_active_changes[address].var = var;
@@ -88,6 +89,13 @@ void PrimeMod::update_original_instructions() {
   for (u32 addr : pending_change_backups) {
     original_instructions.emplace_back(addr, PowerPC::HostRead_Instruction(addr));
   }
+  pending_change_backups.clear();
+}
+
+void PrimeMod::clear_code_changes()
+{
+  code_changes.clear();
+  current_active_changes.clear();
   pending_change_backups.clear();
 }
 

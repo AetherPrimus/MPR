@@ -80,12 +80,15 @@
 #include "VideoCommon/RenderBase.h"
 #include "VideoCommon/VertexShaderManager.h"
 #include "VideoCommon/VideoConfig.h"
-#include <Core/PrimeHack/PrimeUtils.h>
+#include "Core/PrimeHack/PrimeUtils.h"
+#include "Core/PrimeHack/TextureSwapper.h"
+#include "Core/PrimeHack/HackConfig.h"
 
 #if defined(HAVE_X11) && HAVE_X11
 
 #include <gdk/gdkx.h>
 #include <gtk/gtk.h>
+
 
 // X11Utils nastiness that's only used here
 namespace X11Utils
@@ -1577,6 +1580,11 @@ void CFrame::ParseHotkeys()
     Config::SetCurrent(Config::GFX_HIRES_MATERIAL_MAPS, !Config::Get(Config::GFX_HIRES_MATERIAL_MAPS));
   }
 
+  if (IsHotkey(HK_TOGGLE_POSTPROCESSING))
+  {
+    Config::SetCurrent(Config::GFX_ENHANCE_POST_ENABLED, !Config::Get(Config::GFX_ENHANCE_POST_ENABLED));
+  }
+
   if (SConfig::GetInstance().bEnableCheats) {
     if (IsHotkey(HK_NOCLIP_TOGGLE))
     {
@@ -1587,6 +1595,7 @@ void CFrame::ParseHotkeys()
     if (IsHotkey(HK_INVULNERABILITY_TOGGLE))
     {
       SConfig::GetInstance().bPrimeInvulnerability = !SConfig::GetInstance().bPrimeInvulnerability;
+      prime::AddCheatsTime(1, 3000);
     }
 
     if (IsHotkey(HK_SKIP_CUTSCENE))
@@ -1608,9 +1617,40 @@ void CFrame::ParseHotkeys()
     SConfig::GetInstance().bPrimeRestoreDashing = false;
   }
 
+  if (IsHotkey(HK_SHOW_DEV_INFO)) {
+    Config::SetCurrent(Config::TOGGLE_PRIMEHACK_INFO, !Config::Get(Config::TOGGLE_PRIMEHACK_INFO));
+  }
+
   if (IsHotkey(HK_MOTIONS_LOCK))
   {
     Config::SetCurrent(Config::LOCKCAMERA_IN_PUZZLES, !Config::Get(Config::LOCKCAMERA_IN_PUZZLES));
+  }
+
+  if (IsHotkey(HK_RELOAD_ENTITIES))
+  {
+    prime::ReloadEntitiesConfig();
+  }
+
+  if (IsHotkey(HK_TOGGLE_ENTITIES))
+  {
+    prime::ToggleEntities();
+  }
+
+  if (IsHotkey(HK_FORWARDS_TIME))
+  {
+    prime::IncreaseTime();
+    prime::AddCheatsTime(4, 2000);
+  }
+
+  if (IsHotkey(HK_CYCLE_WEATHERING))
+  {
+    prime::CycleWeathering();
+    prime::AddCheatsTime(5, 2000);
+  }
+
+  if (IsHotkey(HK_HOLSTER_CANNON))
+  {
+    prime::ToggleCannonHolster();
   }
 
   static float debugSpeed = 1.0f;

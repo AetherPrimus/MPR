@@ -71,6 +71,7 @@ public:
   void add_code_change(u32 addr, u32 code, std::string_view group = "");
   void set_code_change(u32 address, u32 var);
   void update_original_instructions();
+  void clear_code_changes();
   std::vector<CodeChange> const& get_code_changes() const { return code_changes; }
   std::vector<CodeChange> const& get_original_instructions() const { return original_instructions; }
 

@@ -23,10 +23,10 @@ AboutDolphin::AboutDolphin(wxWindow* parent, wxWindowID id, const wxString& titl
   wxGenericStaticBitmap* const sbDolphinLogo = new wxGenericStaticBitmap(
       this, wxID_ANY, WxUtils::LoadScaledResourceBitmap("dolphin_logo", this));
 
-  const wxString DolphinText = _("Ishiiruka - Dolphin");
+  const wxString DolphinText = _("MPR [Primehack/Ishiiruka]");
   const wxString RevisionText = Common::scm_desc_str;
   const wxString CopyrightText =
-      _("(c) 2003-2015+ Dolphin Team. \"GameCube\" and \"Wii\" are trademarks of Nintendo. Dolphin "
+      _("(c) 2003-2015+ Dolphin Team. 2018-2022+ MPR Team.. \"GameCube\" and \"Wii\" are trademarks of Nintendo. Dolphin "
         "is not affiliated with Nintendo in any way.");
   const wxString BranchText = wxString::Format(_("Branch: %s"), Common::scm_branch_str.c_str());
   const wxString BranchRevText = wxString::Format(_("Revision: %s"), Common::scm_rev_git_str.c_str());

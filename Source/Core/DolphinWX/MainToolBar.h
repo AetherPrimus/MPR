@@ -47,6 +47,7 @@ private:
     TOOLBAR_CONFIGMAIN,
     TOOLBAR_CONFIGGFX,
     TOOLBAR_CONTROLLER,
+    TOOLBAR_MPR,
   };
 
   void BindEvents();

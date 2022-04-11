@@ -269,6 +269,7 @@ void CISOProperties::CreateGUIControls()
     GetElementStyle("Core", "MMU"));
   m_mmu->SetToolTip(_(
     "Enables the Memory Management Unit, needed for some games. (ON = Compatible, OFF = Fast)"));
+  m_mmu->Disable();
   m_dcbz_off = new wxCheckBox(m_GameConfig, ID_DCBZOFF, _("Skip DCBZ clearing"), wxDefaultPosition,
     wxDefaultSize, GetElementStyle("Core", "DCBZ"));
   m_dcbz_off->SetToolTip(_("Bypass the clearing of the data cache by the DCBZ instruction. Usually "
@@ -531,7 +532,7 @@ void CISOProperties::SetCheckboxValueFromGameini(const char* section, const char
 void CISOProperties::LoadGameConfig()
 {
   SetCheckboxValueFromGameini("Core", "CPUThread", m_cpu_thread);
-  SetCheckboxValueFromGameini("Core", "MMU", m_mmu);
+  m_mmu->Set3StateValue(wxCheckBoxState::wxCHK_UNCHECKED);
   SetCheckboxValueFromGameini("Core", "DCBZ", m_dcbz_off);
   SetCheckboxValueFromGameini("Core", "FPRF", m_fprf);
   SetCheckboxValueFromGameini("Core", "SyncGPU", m_sync_gpu);

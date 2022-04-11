@@ -43,7 +43,7 @@ GUIDescription.SPA = Profundidad a partir de la cual finaliza la aplicación de l
 [OptionBool]
 GUIName = SSAO
 OptionName = A_SSAO_ENABLED
-DefaultValue = false
+DefaultValue = true
 ResolveAtCompilation = True
 GUIDescription = Enables Screen Space Ambient Occlusion.
 GUIDescription.SPA = Habilita la Oclusión Ambiental.
@@ -101,7 +101,7 @@ OptionName = E_MAX_DEPTH
 MinValue = 0.0001
 MaxValue = 0.02
 StepAmount = 0.0001
-DefaultValue = 0.0132
+DefaultValue = 0.0059
 DependentOption = A_SSAO_ENABLED
 
 [OptionRangeFloat]
@@ -111,7 +111,7 @@ OptionName = F_MIN_DEPTH
 MinValue = 0.0
 MaxValue = 0.02
 StepAmount = 0.0001
-DefaultValue = 0.0003
+DefaultValue = 0.0005
 DependentOption = A_SSAO_ENABLED
 
 [OptionBool]
@@ -348,7 +348,7 @@ DependentOption = H_PIXEL_VIBRANCE
 [OptionBool]
 GUIName = Scene Tonemapping
 OptionName = C_TONEMAP_PASS
-DefaultValue = false
+DefaultValue = true
 
 [OptionRangeInteger]
 GUIName = TonemapType
@@ -425,7 +425,7 @@ DependentOption = C_TONEMAP_PASS
 [OptionBool]
 GUIName = Texture Sharpen
 OptionName = G_TEXTURE_SHARPEN
-DefaultValue = true
+DefaultValue = false
 
 [OptionRangeFloat]
 GUIName = SharpenStrength

@@ -96,4 +96,6 @@ void PrimeHackCheats::OnCheatsChanged(wxCommandEvent&)
   config.bPrimePortalSkip = m_checkbox_skipportalmp2->GetValue();
   config.bPrimeFriendVouchers = m_checkbox_friendvouchers->GetValue();
   config.bDisableHudMemoPopup = m_checkbox_hudmemo->GetValue();
+
+  config.SaveSettings();
 }

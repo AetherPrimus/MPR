@@ -257,7 +257,7 @@ bool BootCore(std::unique_ptr<BootParameters> boot)
       StartUp.bSyncGPUOnSkipIdleHack);
     core_section->Get("FPRF", &StartUp.bFPRF, StartUp.bFPRF);
     core_section->Get("AccurateNaNs", &StartUp.bAccurateNaNs, StartUp.bAccurateNaNs);
-    core_section->Get("MMU", &StartUp.bMMU, StartUp.bMMU);
+    core_section->Get("MMU", &StartUp.bMMU, false);
     core_section->Get("DCBZ", &StartUp.bDCBZOFF, StartUp.bDCBZOFF);
     core_section->Get("LowDCBZHack", &StartUp.bLowDCBZHack, StartUp.bLowDCBZHack);
     core_section->Get("Video_Rate", &StartUp.iVideoRate, StartUp.iVideoRate);

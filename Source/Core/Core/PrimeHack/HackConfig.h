@@ -74,6 +74,23 @@ CameraLock GetLockCamera();
 double GetHorizontalAxis();
 double GetVerticalAxis();
 
+void ReloadEntitiesConfig(bool reload);
+void ReloadEntitiesConfig();
+bool ShouldReloadEntities();
+
+void ToggleEntities(bool toggle);
+void ToggleEntities();
+bool EntitiesToggled();
+
+int GetCurrentBeam();
+void SetCurrentBeam(int beam);
+
+void ToggleCannonHolster();
+bool GetCannonHolster();
+
+std::pair<u32, u32> GetCurrentPosition();
+void SetCurrentPosition(u32 w, u32 a);
+
 std::string const& GetCtlDeviceName();
 std::string const& GetCtlDeviceSource();
 

@@ -24,6 +24,7 @@
 #include "Core/PowerPC/GDBStub.h"
 #endif
 
+#pragma optimize("", off)
 namespace PowerPC
 {
 constexpr size_t HW_PAGE_SIZE = 4096;
@@ -1296,3 +1297,4 @@ static TranslateAddressResult TranslateAddress(u32 address)
 }
 
 }  // namespace
+#pragma optimize("", on)

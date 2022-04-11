@@ -39,6 +39,7 @@ class LogConfigWindow;
 class NetPlaySetupFrame;
 class TASInputDlg;
 class wxCheatsWindow;
+class MPRConfig;
 
 class wxAuiManager;
 class wxAuiManagerEvent;
@@ -113,6 +114,7 @@ public:
   bool RendererHasFocus();
   bool RendererIsFullscreen();
   void OpenGeneralConfiguration(wxWindowID tab_id = wxID_ANY);
+  void OpenMPRConfiguration(wxWindowID tab_id = wxID_ANY);
 
   wxMenuBar* GetMenuBar() const override;
 
@@ -152,6 +154,7 @@ private:
   static constexpr int MOUSE_HIDE_DELAY = 3000;
   GameListCtrl* m_game_list_ctrl = nullptr;
   CConfigMain* m_main_config_dialog = nullptr;
+  MPRConfig* m_mpr_config_dialog = nullptr;
   wxPanel* m_panel = nullptr;
   CRenderFrame* m_render_frame = nullptr;
   wxWindow* m_render_parent = nullptr;
@@ -320,6 +323,8 @@ private:
   void OnConfigAudio(wxCommandEvent& event);
   void OnConfigControllers(wxCommandEvent& event);
   void OnConfigHotkey(wxCommandEvent& event);
+
+  void OnMPRConfig(wxCommandEvent& event);
 
   void OnToggleFullscreen(wxCommandEvent& event);
   void OnManagerResize(wxAuiManagerEvent& event);

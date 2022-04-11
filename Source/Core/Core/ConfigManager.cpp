@@ -92,6 +92,7 @@ void SConfig::SaveSettings()
   SaveBluetoothPassthroughSettings(ini);
   SaveUSBPassthroughSettings(ini);
   SaveAutoUpdateSettings(ini);
+  SaveMPRSettings(ini);
 
   ini.Save(File::GetUserPath(F_DOLPHINCONFIG_IDX));
 
@@ -288,6 +289,14 @@ void SConfig::SaveCoreSettings(IniFile& ini)
   core->Set("EnableCustomRTC", bEnableCustomRTC);
   core->Set("CustomRTCValue", m_customRTCValue);
   core->Set("EnableSignatureChecks", m_enable_signature_checks);
+
+  core->Set("EnableNoclip", bPrimeNoclip);
+  core->Set("EnableInvulnerability", bPrimeInvulnerability);
+  core->Set("EnableSkipCutscenes", bPrimeSkipCutscene);
+  core->Set("EnableRestoreDashings", bPrimeRestoreDashing);
+  core->Set("EnableMP2PortalSkip", bPrimePortalSkip);
+  core->Set("EnableNoFriendVouchers", bPrimeFriendVouchers);
+  core->Set("EnableDisableHudMemoPopup", bDisableHudMemoPopup);
 }
 
 void SConfig::SaveMovieSettings(IniFile& ini)
@@ -381,6 +390,17 @@ void SConfig::SaveAutoUpdateSettings(IniFile& ini)
   section->Set("HashOverride", m_auto_update_hash_override);
 }
 
+void SConfig::SaveMPRSettings(IniFile& ini)
+{
+  IniFile::Section* input = ini.GetOrCreateSection("MPR");
+
+  input->Set("PrimaryHudColour", m_mpr_primary_hudcolour);
+  input->Set("HudZoom", m_mpr_hud_zoom_factor);
+  input->Set("HudMinimalMode", m_mpr_minimal_mode);
+  input->Set("MPRReticle", m_mpr_reticle_selection);
+  input->Set("NKITWarningSeen", bNKITWarning);
+}
+
 void SConfig::LoadSettings()
 {
   Config::Load();
@@ -403,6 +423,7 @@ void SConfig::LoadSettings()
   LoadBluetoothPassthroughSettings(ini);
   LoadUSBPassthroughSettings(ini);
   LoadAutoUpdateSettings(ini);
+  LoadMPRSettings(ini);
 }
 
 void SConfig::LoadGeneralSettings(IniFile& ini)
@@ -572,7 +593,7 @@ void SConfig::LoadCoreSettings(IniFile& ini)
   core->Get("WiimoteEnableSpeaker", &m_WiimoteEnableSpeaker, false);
   core->Get("RunCompareServer", &bRunCompareServer, false);
   core->Get("RunCompareClient", &bRunCompareClient, false);
-  core->Get("MMU", &bMMU, bMMU);
+  core->Get("MMU", &bMMU, false);
   core->Get("BBDumpPort", &iBBDumpPort, -1);
   core->Get("SyncGPU", &bSyncGPU, false);
   core->Get("SyncGpuMaxDistance", &iSyncGpuMaxDistance, 200000);
@@ -594,6 +615,14 @@ void SConfig::LoadCoreSettings(IniFile& ini)
   // Default to seconds between 1.1.1970 and 1.1.2000
   core->Get("CustomRTCValue", &m_customRTCValue, 946684800);
   core->Get("EnableSignatureChecks", &m_enable_signature_checks, true);
+
+  core->Get("EnableNoclip", &bPrimeNoclip, false);
+  core->Get("EnableInvulnerability", &bPrimeInvulnerability, false);
+  core->Get("EnableSkipCutscenes", &bPrimeSkipCutscene, false);
+  core->Get("EnableRestoreDashings", &bPrimeRestoreDashing, false);
+  core->Get("EnableMP2PortalSkip", &bPrimePortalSkip, false);
+  core->Get("EnableNoFriendVouchers", &bPrimeFriendVouchers, true);
+  core->Get("EnableDisableHudMemoPopup", &bDisableHudMemoPopup, false);
 }
 
 void SConfig::LoadMovieSettings(IniFile& ini)
@@ -693,6 +722,17 @@ void SConfig::LoadAutoUpdateSettings(IniFile& ini)
   // TODO: Rename and default to SCM_UPDATE_TRACK_STR when ready for general consumption.
   section->Get("TrackForTesting", &m_auto_update_track, "");
   section->Get("HashOverride", &m_auto_update_hash_override, "");
+}
+
+void SConfig::LoadMPRSettings(IniFile& ini)
+{
+  IniFile::Section* input = ini.GetOrCreateSection("MPR");
+
+  input->Get("PrimaryHudColour", &m_mpr_primary_hudcolour, -1);
+  input->Get("HudZoom", &m_mpr_hud_zoom_factor, 0);
+  input->Get("HudMinimalMode", &m_mpr_minimal_mode, false);
+  input->Get("MPRReticle", &m_mpr_reticle_selection, 0);
+  input->Get("NKITWarningSeen", &bNKITWarning, false);
 }
 
 void SConfig::ResetRunningGameMetadata()

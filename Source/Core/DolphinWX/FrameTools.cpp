@@ -69,6 +69,7 @@
 #include "DolphinWX/AboutDolphin.h"
 #include "DolphinWX/Cheats/CheatsWindow.h"
 #include "DolphinWX/Config/ConfigMain.h"
+#include "DolphinWX/MPRConfig.h"
 #include "DolphinWX/ControllerConfigDiag.h"
 #include "DolphinWX/Debugger/BreakpointWindow.h"
 #include "DolphinWX/Debugger/CodeWindow.h"
@@ -180,6 +181,7 @@ void CFrame::BindMenuBarEvents()
   Bind(wxEVT_MENU, &CFrame::OnConfigAudio, this, IDM_CONFIG_AUDIO);
   Bind(wxEVT_MENU, &CFrame::OnConfigControllers, this, IDM_CONFIG_CONTROLLERS);
   Bind(wxEVT_MENU, &CFrame::OnConfigHotkey, this, IDM_CONFIG_HOTKEYS);
+  Bind(wxEVT_MENU, &CFrame::OnMPRConfig, this, IDM_CONFIG_MPR);
 
   // Tools menu
   Bind(wxEVT_MENU, &CFrame::OnMemcard, this, IDM_MEMCARD);
@@ -305,6 +307,17 @@ void CFrame::OpenGeneralConfiguration(wxWindowID tab_id)
   m_main_config_dialog->SetFocus();
 }
 
+void CFrame::OpenMPRConfiguration(wxWindowID tab_id)
+{
+  if (!m_mpr_config_dialog)
+    m_mpr_config_dialog = new MPRConfig(this);
+  if (tab_id > wxID_ANY)
+    m_mpr_config_dialog->SetSelectedTab(tab_id);
+
+  m_mpr_config_dialog->Show();
+  m_mpr_config_dialog->SetFocus();
+}
+
 // Menu items
 
 // Start the game or change the disc.
@@ -342,6 +355,22 @@ void CFrame::BootGame(const std::string& filename, const std::optional<std::stri
   }
   if (!bootfile.empty())
   {
+    if (StringEndsWith(bootfile, ".nkit.iso")) {
+      if (!StartUp.bNKITWarning) { 
+        wxMessageBox(
+            _("MPR has detected you're using an NKIT iso.\n\n"
+              "Please be aware that NKIT isos are known to cause many issues, such as crashing "
+              "and longer loading times, and are not officially supported. Please redump if you "
+              "are having any issues."
+              "\n\nPlease do not report errors if you chose to use one. You will not be warned "
+              "again."), _("Bad Dump Warning"),
+            wxOK | wxICON_EXCLAMATION, this->GetParent());
+
+        StartUp.bNKITWarning = true;
+        StartUp.SaveSettings();
+      }
+    }
+
     StartGame(BootParameters::GenerateFromFile(bootfile, savestate_path));
   }
 }
@@ -1037,6 +1066,11 @@ void CFrame::OnReset(wxCommandEvent& WXUNUSED(event))
 void CFrame::OnConfigMain(wxCommandEvent& WXUNUSED(event))
 {
   OpenGeneralConfiguration();
+}
+
+void CFrame::OnMPRConfig(wxCommandEvent& WXUNUSED(event))
+{
+  OpenMPRConfiguration();
 }
 
 void CFrame::OnConfigGFX(wxCommandEvent& WXUNUSED(event))

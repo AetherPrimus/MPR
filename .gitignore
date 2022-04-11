@@ -50,3 +50,8 @@ hack_config.ini
 /Source/Android/build/
 /Source/Android/app/.cxx/
 /Source/Android/app/release/
+/Externals/CryptoPP/x64/Release/cryptlib/cryptlib.vcxproj.FileListAbsolute.txt
+/Externals/CryptoPP/x64/Release/cryptlib/cryptlib.pdb
+/Externals/CryptoPP/x64/Release/cryptlib/cryptlib.pch
+/Externals/CryptoPP/x64/Release/cryptlib/cryptlib.log
+/Externals/CryptoPP/x64/Release/cryptlib/cryptlib.Build.CppClean.log

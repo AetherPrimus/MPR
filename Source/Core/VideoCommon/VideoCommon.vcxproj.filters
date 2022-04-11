@@ -234,6 +234,9 @@
     <ClCompile Include="RenderState.cpp">
       <Filter>Base</Filter>
     </ClCompile>
+    <ClCompile Include="Util\Aether.cpp">
+      <Filter>Util</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CommandProcessor.h" />
@@ -502,6 +505,12 @@
       <Filter>Base</Filter>
     </ClInclude>
     <ClInclude Include="PrimePixelErrorTextures.h" />
+    <ClInclude Include="Util\Aether.h">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\DDSLoader.h">
+      <Filter>Util</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="CMakeLists.txt" />

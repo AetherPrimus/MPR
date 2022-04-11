@@ -169,6 +169,12 @@
     <Filter Include="PrimeHack\Mods">
       <UniqueIdentifier>{a85575b5-3c59-477b-9c34-6724ddbc351a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="PrimeHack\Mods\EntityManager">
+      <UniqueIdentifier>{ebe1af05-ce13-4a9b-91b6-a1321c577a38}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="PrimeHack\Mods\EntityManager\Entities">
+      <UniqueIdentifier>{44b58aee-fbfa-469f-92ec-de8717a567b0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BootManager.cpp" />
@@ -948,6 +954,18 @@
     <ClCompile Include="PrimeHack\Mods\DisableHudMemoPopup.cpp">
       <Filter>PrimeHack\Mods</Filter>
     </ClCompile>
+    <ClCompile Include="PrimeHack\TextureSwapper.cpp">
+      <Filter>PrimeHack</Filter>
+    </ClCompile>
+    <ClCompile Include="PrimeHack\Mods\EntityManager\Entities\Effect.cpp">
+      <Filter>PrimeHack\Mods\EntityManager\Entities</Filter>
+    </ClCompile>
+    <ClCompile Include="PrimeHack\Mods\EntityManager\Entities\Light.cpp">
+      <Filter>PrimeHack\Mods\EntityManager\Entities</Filter>
+    </ClCompile>
+    <ClCompile Include="PrimeHack\Mods\EntityManager\EntityGenerator.cpp">
+      <Filter>PrimeHack\Mods\EntityManager</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BootManager.h" />
@@ -1680,6 +1698,27 @@
       <Filter>PrimeHack</Filter>
     </ClInclude>
     <ClInclude Include="PrimeHack\Mods\DisableHudMemoPopup.h">
+      <Filter>PrimeHack\Mods</Filter>
+    </ClInclude>
+    <ClInclude Include="PrimeHack\Mods\EntityManager\ELFLoader.h">
+      <Filter>PrimeHack\Mods\EntityManager</Filter>
+    </ClInclude>
+    <ClInclude Include="PrimeHack\Mods\EntityManager\InfoTracker.h">
+      <Filter>PrimeHack\Mods\EntityManager</Filter>
+    </ClInclude>
+    <ClInclude Include="PrimeHack\TextureSwapper.h">
+      <Filter>PrimeHack</Filter>
+    </ClInclude>
+    <ClInclude Include="PrimeHack\Mods\EntityManager\Entities\Effect.h">
+      <Filter>PrimeHack\Mods\EntityManager\Entities</Filter>
+    </ClInclude>
+    <ClInclude Include="PrimeHack\Mods\EntityManager\Entities\Light.h">
+      <Filter>PrimeHack\Mods\EntityManager\Entities</Filter>
+    </ClInclude>
+    <ClInclude Include="PrimeHack\Mods\EntityManager\EntityGenerator.h">
+      <Filter>PrimeHack\Mods\EntityManager</Filter>
+    </ClInclude>
+    <ClInclude Include="PrimeHack\Mods\HudAdjuster.h">
       <Filter>PrimeHack\Mods</Filter>
     </ClInclude>
   </ItemGroup>

@@ -13,12 +13,14 @@
 
 #include "VideoCommon/TextureDecoder.h"
 #include "VideoCommon/VideoCommon.h"
+#include "VideoCommon/TextureCacheBase.h"
 
 class HiresTexture
 {
 public:
   static void Init();
   static void Update();
+  static void Update(std::vector<std::string> paths);
   static void Shutdown();
 
   static std::shared_ptr<HiresTexture> Search(const std::string& basename,
@@ -35,14 +37,16 @@ public:
 
   ~HiresTexture(){};
   HostTextureFormat m_format;
+
   u32 m_width, m_height, m_levels, m_nrm_levels, m_lum_levels;
   bool has_arbitrary_mips;
   std::unique_ptr<u8> m_cached_data;
   size_t m_cached_data_size;
 
 private:
-  static void ProccessTexture(const std::string& fileitem, std::string& filename,
-                              const std::string& extension, const bool BuildMaterialMaps);
+  static void ProccessTexture(std::string& fileitem, std::string& filename,
+                              const std::string& extension,
+                              const bool BuildMaterialMaps);
   static void ProccessEnviroment(const std::string& fileitem, std::string& filename,
                                  const std::string& extension);
   static HiresTexture* Load(const std::string& base_filename,
@@ -52,6 +56,7 @@ private:
                                       bool cacheresult);
 
   static void Prefetch();
+  static void PrefetchAP(std::string fileitem);
   HiresTexture();
   static std::set<std::string> GetTextureDirectory(const std::string& game_id);
 };

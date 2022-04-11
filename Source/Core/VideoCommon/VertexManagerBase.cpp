@@ -8,6 +8,7 @@
 
 #include "Common/CommonTypes.h"
 #include "Core/ConfigManager.h"
+#include "Core/PrimeHack/TextureSwapper.h"
 
 #include "VideoCommon/BPStructs.h"
 #include "VideoCommon/Debugger.h"
@@ -214,6 +215,12 @@ void VertexManagerBase::DoFlush()
   NativeVertexFormat* current_vertex_format = VertexLoaderManager::GetCurrentVertexFormat();
   g_video_backend->CheckInvalidState();
   g_vertex_manager->PrepareShaders(m_current_primitive_type, VertexLoaderManager::g_current_components, xfmem, bpmem);
+
+  if (prime::GetInvalidateQueue().size() != 0) {
+    g_texture_cache->InvalidateByNames(prime::GetInvalidateQueue());
+    prime::ClearInvalidateQueue();
+  }
+
 #if defined(_DEBUG) || defined(DEBUGFAST)
   PRIM_LOG("frame%d:\n texgen=%d, numchan=%d, dualtex=%d, ztex=%d, cole=%d, alpe=%d, ze=%d", g_ActiveConfig.iSaveTargetId, xfmem.numTexGen.numTexGens,
     xfmem.numChan.numColorChans, xfmem.dualTexTrans.enabled, bpmem.ztex2.op,

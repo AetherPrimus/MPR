@@ -30,12 +30,15 @@
 #include "Core/Config/GraphicsSettings.h"
 #include "Core/ConfigManager.h"
 #include "Core/Host.h"
+#include "Core/PrimeHack/TextureSwapper.h"
 
 #include "VideoCommon/HiresTextures.h"
 #include "VideoCommon/ImageLoader.h"
 #include "VideoCommon/OnScreenDisplay.h"
 #include "VideoCommon/TextureUtil.h"
 #include "VideoCommon/VideoConfig.h"
+#include "VideoCommon/VertexManagerBase.h"
+#include "VideoCommon/Util/Aether.h"
 
 struct hires_mip_level
 {
@@ -109,6 +112,7 @@ static TextureCache s_textureCache;
 static TextureCache s_enviromentCache;
 
 static std::mutex s_textureCacheMutex;
+static std::mutex s_textureMapMutex;
 static Common::Flag s_textureCacheAbortLoading;
 
 static std::atomic<size_t> size_sum;
@@ -195,6 +199,7 @@ std::set<std::string> HiresTexture::GetTextureDirectory(const std::string& game_
 
 static const std::string ddscode = ".dds";
 static const std::string cddscode = ".DDS";
+static const std::string addscode = ".adds";
 static const std::string miptag = "mip";
 
 void HiresTexture::ProccessEnviroment(const std::string& fileitem, std::string& filename,
@@ -210,7 +215,9 @@ void HiresTexture::ProccessEnviroment(const std::string& fileitem, std::string& 
       break;
     }
   }
-  const bool is_compressed = extension.compare(ddscode) == 0 || extension.compare(cddscode) == 0;
+
+  const bool is_compressed = extension.compare(ddscode) == 0 || extension.compare(cddscode) == 0
+    || extension.compare(addscode) == 0;
   hires_mip_level mip_level_detail(fileitem, extension, is_compressed);
   u32 level = 0;
   size_t idx = filename.find_last_of('_');
@@ -241,12 +248,15 @@ void HiresTexture::ProccessEnviroment(const std::string& fileitem, std::string& 
   }
 }
 
-void HiresTexture::ProccessTexture(const std::string& fileitem, std::string& filename,
+void HiresTexture::ProccessTexture(std::string& fileitem, std::string& filename,
                                    const std::string& extension, const bool BuildMaterialMaps)
 {
+  fileitem = prime::GetAlternateTexture(fileitem);
+
   size_t map_index = 0;
   size_t max_type = BuildMaterialMaps ? MapType::specular : MapType::normal;
   bool arbitrary_mips = false;
+
   for (size_t tag = 1; tag <= MapType::specular; tag++)
   {
     if (StringEndsWith(filename, s_maps_tags[tag]))
@@ -259,7 +269,7 @@ void HiresTexture::ProccessTexture(const std::string& fileitem, std::string& fil
   if (map_index > max_type)
   {
     return;
-  }
+    }
   if (BuildMaterialMaps && map_index == MapType::material)
   {
     return;
@@ -271,7 +281,8 @@ void HiresTexture::ProccessTexture(const std::string& fileitem, std::string& fil
     if (arbitrary_mips)
       filename.erase(arb_index, 4);
   }
-  const bool is_compressed = extension.compare(ddscode) == 0 || extension.compare(cddscode) == 0;
+  const bool is_compressed = extension.compare(ddscode) == 0 || extension.compare(cddscode) == 0
+    || extension.compare(addscode) == 0;
   hires_mip_level mip_level_detail(fileitem, extension, is_compressed);
   u32 level = 0;
   size_t idx = filename.find_last_of('_');
@@ -319,7 +330,7 @@ void HiresTexture::Update()
     s_prefetcher.join();
   }
 
-  if (!g_ActiveConfig.bHiresTextures)
+  if (!g_ActiveConfig.bHiresTextures || !Aether::TestForSnoopers())
   {
     s_textureMap.clear();
     s_enviromentMap.clear();
@@ -346,12 +357,13 @@ void HiresTexture::Update()
   if (!BuildMaterialMaps)
   {
     Extensions.push_back(".dds");
+    Extensions.push_back(".adds");
   }
 
   std::vector<std::string> Resourcefilenames =
       Common::DoFileSearch({resource_directory}, Extensions, /*recursive*/ true);
 
-  for (const std::string& fileitem : Resourcefilenames)
+  for (std::string& fileitem : Resourcefilenames)
   {
     std::string filename;
     std::string extension;
@@ -371,8 +383,7 @@ void HiresTexture::Update()
   {
     std::vector<std::string> filenames =
         Common::DoFileSearch({texture_directory}, Extensions, /*recursive*/ true);
-
-    for (const std::string& fileitem : filenames)
+    for (std::string& fileitem : filenames)
     {
       std::string filename;
       std::string extension;
@@ -386,6 +397,36 @@ void HiresTexture::Update()
         filename = filename.substr(s_enviroment_prefix.length());
         ProccessEnviroment(fileitem, filename, extension);
       }
+    }
+  }
+
+  {
+    std::vector<std::string> pak_files = Common::DoFileSearch(
+        {File::GetSysDirectory() + "AetherLabs" + DIR_SEP + "packages" + DIR_SEP}, {".ap"},
+        /*recursive*/ true);
+
+    std::vector<std::thread> threads (pak_files.size());
+
+    int paks = 0;
+    for (std::string& fileitem : pak_files)
+    {
+      threads.push_back(std::thread(PrefetchAP, fileitem));
+      paks++;
+    }
+
+    for (std::thread& thread : threads)
+    {
+      if (thread.joinable())
+        thread.join();
+    }
+
+    if (paks == 0)
+    {
+      wxMsgAlert(
+          "Error",
+          "MPR has detected missing files. Please ensure all the files were successfully extracted."
+          "\nMPR may not function properly.",
+          false, MsgType::Critical);
     }
   }
 
@@ -428,13 +469,44 @@ void HiresTexture::Update()
   }
 }
 
+void HiresTexture::Update(std::vector<std::string> paths)
+{
+  bool BuildMaterialMaps = g_ActiveConfig.bHiresMaterialMapsBuild;
+
+  for (int i = 0; i < paths.size(); i++) {
+    std::string path = paths[i];
+
+    std::string filename;
+    std::string extension;
+    SplitPath(path, nullptr, &filename, &extension);
+
+    auto iter = s_textureCache.find(filename);
+    if (iter != s_textureCache.end()) {
+      iter = s_textureCache.erase(iter);
+    }
+
+    auto iter1 = s_textureMap.find(filename);
+    if (iter1 != s_textureMap.end()) {
+      iter1 = s_textureMap.erase(iter1);
+    }
+
+    std::unique_lock<std::mutex> lk(s_textureMapMutex);
+    ProccessTexture(path, filename, extension, BuildMaterialMaps);
+
+    prime::AddInvalidateTexture(filename);
+  }
+}
+
 void HiresTexture::Prefetch()
 {
   Common::SetCurrentThreadName("Prefetcher");
-  const size_t total = s_textureMap.size() + s_enviromentMap.size();
+  size_t total = s_textureMap.size() + s_enviromentMap.size();
   size_t count = 0;
   size_t notification = 10;
   u32 starttime = Common::Timer::GetTimeMs();
+
+  std::unique_lock<std::mutex> dialog_lock (Aether::progress_mutex, std::try_to_lock);
+
   for (const auto& entry : s_textureMap)
   {
     const std::string& base_filename = entry.first;
@@ -458,7 +530,7 @@ void HiresTexture::Prefetch()
 
     if (s_textureCacheAbortLoading.IsSet())
     {
-      if (g_ActiveConfig.bWaitForCacheHiresTextures)
+      if (g_ActiveConfig.bWaitForCacheHiresTextures && dialog_lock.owns_lock())
       {
         Host_UpdateProgressDialog("", -1, -1);
       }
@@ -474,7 +546,7 @@ void HiresTexture::Prefetch()
               "Custom Textures prefetching after %.1f MB aborted, not enough RAM available",
               size_sum / (1024.0 * 1024.0)),
           10000);
-      if (g_ActiveConfig.bWaitForCacheHiresTextures)
+      if (g_ActiveConfig.bWaitForCacheHiresTextures && dialog_lock.owns_lock())
       {
         Host_UpdateProgressDialog("", -1, -1);
       }
@@ -484,7 +556,7 @@ void HiresTexture::Prefetch()
     size_t percent = (count * 100) / total;
     if (percent >= notification)
     {
-      if (g_ActiveConfig.bWaitForCacheHiresTextures)
+      if (g_ActiveConfig.bWaitForCacheHiresTextures && (dialog_lock.owns_lock() || dialog_lock.try_lock()))
       {
         Host_UpdateProgressDialog(GetStringT("Prefetching Custom Textures...").c_str(),
                                   static_cast<int>(count), static_cast<int>(total));
@@ -522,7 +594,7 @@ void HiresTexture::Prefetch()
 
     if (s_textureCacheAbortLoading.IsSet())
     {
-      if (g_ActiveConfig.bWaitForCacheHiresTextures)
+      if (g_ActiveConfig.bWaitForCacheHiresTextures && dialog_lock.owns_lock())
       {
         Host_UpdateProgressDialog("", -1, -1);
       }
@@ -538,7 +610,7 @@ void HiresTexture::Prefetch()
               "Custom Textures prefetching after %.1f MB aborted, not enough RAM available",
               size_sum / (1024.0 * 1024.0)),
           10000);
-      if (g_ActiveConfig.bWaitForCacheHiresTextures)
+      if (g_ActiveConfig.bWaitForCacheHiresTextures && dialog_lock.owns_lock())
       {
         Host_UpdateProgressDialog("", -1, -1);
       }
@@ -548,7 +620,8 @@ void HiresTexture::Prefetch()
     size_t percent = (count * 100) / total;
     if (percent >= notification)
     {
-      if (g_ActiveConfig.bWaitForCacheHiresTextures)
+      if (g_ActiveConfig.bWaitForCacheHiresTextures &&
+          (dialog_lock.owns_lock() || dialog_lock.try_lock()))
       {
         Host_UpdateProgressDialog(GetStringT("Prefetching Custom Textures...").c_str(),
                                   static_cast<int>(count), static_cast<int>(total));
@@ -563,10 +636,107 @@ void HiresTexture::Prefetch()
     }
   }
 
-  if (g_ActiveConfig.bWaitForCacheHiresTextures)
+  if (g_ActiveConfig.bWaitForCacheHiresTextures && dialog_lock.owns_lock())
   {
     Host_UpdateProgressDialog("", -1, -1);
   }
+  u32 stoptime = Common::Timer::GetTimeMs();
+  OSD::AddMessage(StringFromFormat("Custom Textures loaded, %.1f MB in %.1f s",
+                                   size_sum / (1024.0 * 1024.0), (stoptime - starttime) / 1000.0),
+                  10000);
+}
+
+void HiresTexture::PrefetchAP(std::string fileitem) {
+  u32 starttime = Common::Timer::GetTimeMs();
+  size_t count = 0;
+  size_t total = 0;
+  size_t notify = 10;
+
+  std::shared_ptr<Aether::AetherPak> pak_ptr = nullptr;
+  bool newPak = true;
+
+  for (auto& ptr : Aether::GetPaks())
+  {
+    if (!ptr->path.compare(fileitem))
+    {
+      pak_ptr = ptr;
+      newPak = false;
+      break;
+    }
+  }
+
+  if (pak_ptr == nullptr)
+    pak_ptr = std::make_shared<Aether::AetherPak>();
+
+  if (pak_ptr->LoadPak(fileitem))
+  {
+    std::unique_lock<std::mutex> dialog_lock(Aether::progress_mutex, std::try_to_lock);
+
+    if (g_ActiveConfig.bWaitForCacheHiresTextures && dialog_lock.owns_lock())
+    {
+      Host_UpdateProgressDialog("Prefetching Package, this may take up to a minute..", 0, 1);
+    }
+
+    std::unique_lock<std::mutex> lk(s_textureMapMutex);
+
+    if (g_ActiveConfig.bWaitForCacheHiresTextures &&
+        (dialog_lock.owns_lock() || dialog_lock.try_lock()))
+    {
+      Host_UpdateProgressDialog("Processing textures..", 0,
+                                static_cast<int>(total));
+    }
+
+    for (auto const& [key, value] : *pak_ptr->GetAllFiles())
+    {
+      std::string filename;
+      std::string extension;
+      SplitPath(key, nullptr, &filename, &extension);
+      extension.pop_back();  // remove string terminator
+
+      std::string copy = key;
+      if (filename.rfind(s_format_prefix, 0) == 0)
+      {
+        ProccessTexture(copy, filename, extension, g_ActiveConfig.bHiresMaterialMapsBuild);
+      }
+      else if (filename.rfind(s_enviroment_prefix, 0) == 0)
+      {
+        filename = filename.substr(s_enviroment_prefix.length());
+        ProccessEnviroment(copy, filename, extension);
+      }  
+        
+      count++;
+      total += value->file_size;
+
+      if ((count * 100) / total >= notify)
+      {
+        if (g_ActiveConfig.bWaitForCacheHiresTextures && (dialog_lock.owns_lock() || dialog_lock.try_lock()))
+        {
+          Host_UpdateProgressDialog("Processing textures..", static_cast<int>(count),
+                                    static_cast<int>(total));
+        }
+        notify += 10;
+      }  
+    }
+
+    if (newPak)
+      Aether::AddPak(std::move(pak_ptr));
+
+    if (g_ActiveConfig.bWaitForCacheHiresTextures && dialog_lock.owns_lock())
+    {
+      Host_UpdateProgressDialog("", -1, -1);
+    }
+  }
+  else
+  {
+    wxMsgAlert(
+        "Error",
+        "MPR has detected an error loading a package. Please ensure all the files were successfully extracted."
+        "\nMPR may not function properly.",
+        false, MsgType::Critical);
+
+    return;
+  }
+
   u32 stoptime = Common::Timer::GetTimeMs();
   OSD::AddMessage(StringFromFormat("Custom Textures loaded, %.1f MB in %.1f s",
                                    size_sum / (1024.0 * 1024.0), (stoptime - starttime) / 1000.0),
@@ -636,16 +806,47 @@ std::string HiresTexture::GenBaseName(const u8* texture, size_t texture_size, co
   return "";
 }
 
+// TODO: APNG
 inline u8* LoadImageFromFile(const char* path, int& width, int& height)
 {
-  File::IOFile file(path, "rb");
-  std::vector<u8> buffer(file.GetSize());
-  if (!file.IsOpen() || !file.ReadBytes(buffer.data(), file.GetSize()))
-  {
+  File::IFile* file;
+  bool ppng = false;
+  if (StringEndsWith(path, ".ppng")) {
+    file = new Aether::AFile();
+    ppng = true;
+  }
+  else {
+    file = new File::IOFile();
+  }
+
+  if (!file->Open(path, "rb")) {
     return nullptr;
   }
+
+  u8* buffer;
+  if (ppng) {
+    if (!static_cast<Aether::AFile*>(file)->RetrieveDataPtr(&buffer, file->GetSize())) {
+      return nullptr;
+    }
+  }
+  else
+  {
+    buffer = new u8[file->GetSize()];
+    if (!file->ReadBytes(buffer, file->GetSize()))
+    {
+      return nullptr;
+    }
+  }
+
+  if (ppng) {
+    static unsigned char png_sig[8] = { 137,80,78,71,13,10,26,10 };
+    for (int i = 0; i < 8; i++) {
+      buffer[i] = png_sig[i];
+    }
+  }
+
   int image_channels;
-  return SOIL_load_image_from_memory(buffer.data(), (int)buffer.size(), &width, &height,
+  return SOIL_load_image_from_memory(buffer, file->GetSize(), &width, &height,
                                      &image_channels, SOIL_LOAD_RGBA);
 }
 
@@ -670,12 +871,14 @@ inline void ReadImageFile(ImageLoaderParams& ImgInfo)
   ImgInfo.Width = image_width;
   ImgInfo.Height = image_height;
   ImgInfo.data_size = image_width * image_height * 4;
+
   ImgInfo.dst = ImgInfo.request_buffer_delegate(ImgInfo.data_size, false);
   if (ImgInfo.dst)
   {
     memcpy(ImgInfo.dst, decoded, ImgInfo.data_size);
     ImgInfo.resultTex = PC_TEX_FMT_RGBA32;
   }
+
   SOIL_free_image_data(decoded);
 }
 

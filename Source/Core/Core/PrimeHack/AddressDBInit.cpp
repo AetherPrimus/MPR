@@ -9,6 +9,8 @@ void init_db(AddressDB& addr_db) {
     return rt(offset_all, offset_all, offset_all);
   };
 
+  addr_db.register_address(Game::PRIME_1, "tweak_gui_colors", 0x804DD4D8, 0x804E1418);
+  addr_db.register_address(Game::PRIME_1, "tweak_gui", 0x804DD758, 0x804E1698);
   addr_db.register_address(Game::PRIME_1, "arm_cannon_matrix", 0x804c10ec, 0x804c502c, 0x804c136c);
   addr_db.register_address(Game::PRIME_1, "state_manager", 0x804bf420, 0x804c3360, 0x804bf6a0);
   addr_db.register_address(Game::PRIME_1, "static_fov_fp", 0x805c0e38, 0x805c5178, 0x80641138);
@@ -48,6 +50,8 @@ void init_db(AddressDB& addr_db) {
   // camera UID = state mgr + 0x868
   // powerups = state mgr + 0x8b4
 
+  addr_db.register_address(Game::PRIME_1_GCN, "tweak_gui_colors", 0x8045B6E0, 0x803E360C);
+  addr_db.register_address(Game::PRIME_1_GCN, "tweak_gui", 0x8045B934, 0x803E3860);
   addr_db.register_address(Game::PRIME_1_GCN, "state_manager", 0x8045a1a8, 0x803e2088); // camera +x870
   addr_db.register_address(Game::PRIME_1_GCN, "fov_fp_offset", -0x7ff0, -0x7fe8);
   addr_db.register_address(Game::PRIME_1_GCN, "fov_tp_offset", -0x7fec, -0x7fe4);

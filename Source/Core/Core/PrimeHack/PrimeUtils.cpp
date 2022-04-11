@@ -35,6 +35,8 @@ static u32 noclip_msg_time;
 static u32 invulnerability_msg_time;
 static u32 cutscene_msg_time;
 static u32 scandash_msg_time;
+static u32 forwards_time_time;
+static u32 weathering_time;
 
 u8 read8(u32 addr) {
   return PowerPC::HostRead_U8(addr);
@@ -158,25 +160,33 @@ int get_beam_switch(std::array<int, 4> const& beams) {
   if (CheckBeamCtl(0)) {
     if (!pressing_button) {
       pressing_button = true;
-      return current_beam = beams[0];
+      if (beam_owned[beams[0]] == true)
+        return current_beam = beams[0];
+      else return -1;
     }
   }
   else if (CheckBeamCtl(1)) {
     if (!pressing_button) {
       pressing_button = true;
-      return current_beam = beams[1];
+      if (beam_owned[beams[1]] == true)
+        return current_beam = beams[1];
+      else return -1;
     }
   }
   else if (CheckBeamCtl(2)) {
     if (!pressing_button) {
       pressing_button = true;
-      return current_beam = beams[2];
+      if (beam_owned[beams[2]] == true)
+        return current_beam = beams[2];
+      else return -1;
     }
   }
   else if (CheckBeamCtl(3)) {
     if (!pressing_button) {
       pressing_button = true;
-      return current_beam = beams[3];
+      if (beam_owned[beams[3]] == true)
+        return current_beam = beams[3];
+      else return -1;
     }
   }
   else if (CheckBeamScrollCtl(true)) {
@@ -249,9 +259,9 @@ std::string GetDevInfo()
 }
 
 // Common::Timer::GetTimeMs()
-std::tuple<u32, u32, u32, u32> GetCheatsTime()
+std::tuple<u32, u32, u32, u32, u32, u32> GetCheatsTime()
 {
-  return std::make_tuple(noclip_msg_time, invulnerability_msg_time, cutscene_msg_time, scandash_msg_time);
+  return std::make_tuple(noclip_msg_time, invulnerability_msg_time, cutscene_msg_time, scandash_msg_time, forwards_time_time, weathering_time);
 }
 
 // To-Do: Refactor this garbage.
@@ -260,16 +270,22 @@ void AddCheatsTime(int index, u32 time)
   switch (index)
   {
   case 0:
-    noclip_msg_time = Common::Timer::GetTimeMs() + 3000;
+    noclip_msg_time = Common::Timer::GetTimeMs() + time;
     break;
   case 1:
-    invulnerability_msg_time = Common::Timer::GetTimeMs() + 3000;
+    invulnerability_msg_time = Common::Timer::GetTimeMs() + time;
     break;
   case 2:
-    cutscene_msg_time = Common::Timer::GetTimeMs() + 3000;
+    cutscene_msg_time = Common::Timer::GetTimeMs() + time;
     break;
   case 3:
-    scandash_msg_time = Common::Timer::GetTimeMs() + 3000;
+    scandash_msg_time = Common::Timer::GetTimeMs() + time;
+    break;
+  case 4:
+    forwards_time_time = Common::Timer::GetTimeMs() + time;
+    break;
+  case 5:
+    weathering_time = Common::Timer::GetTimeMs() + time;
   }
 }
 

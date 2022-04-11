@@ -274,6 +274,12 @@
     <ClCompile Include="Cheats\PrimeHackCheats.cpp">
       <Filter>GUI\Cheats</Filter>
     </ClCompile>
+    <ClCompile Include="MPRConfig.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="MPRPreviewWidget.cpp">
+      <Filter>GUI\Widgets</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Main.h" />
@@ -507,6 +513,12 @@
     <ClInclude Include="Cheats\PrimeHackCheats.h">
       <Filter>GUI\Cheats</Filter>
     </ClInclude>
+    <ClInclude Include="MPRConfig.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="MPRPreviewWidget.h">
+      <Filter>GUI\Widgets</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="CMakeLists.txt" />
@@ -518,5 +530,29 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="$(CoreDir)..\..\Installer\Dolphin.ico" />
+    <Image Include="..\..\..\Data\ishiiruka.png" />
+    <Image Include="wx\msw\std.ico" />
+    <Image Include="wx\msw\folder1.ico" />
+    <Image Include="wx\msw\folder2.ico" />
+    <Image Include="wx\msw\file1.ico" />
+    <Image Include="wx\msw\computer.ico" />
+    <Image Include="wx\msw\drive.ico" />
+    <Image Include="wx\msw\cdrom.ico" />
+    <Image Include="wx\msw\floppy.ico" />
+    <Image Include="wx\msw\removble.ico" />
+    <Image Include="wx\msw\csquery.bmp" />
+    <Image Include="wx\msw\colours.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="wx\msw\hand.cur" />
+    <None Include="wx\msw\bullseye.cur" />
+    <None Include="wx\msw\pencil.cur" />
+    <None Include="wx\msw\magnif1.cur" />
+    <None Include="wx\msw\roller.cur" />
+    <None Include="wx\msw\pbrush.cur" />
+    <None Include="wx\msw\pntleft.cur" />
+    <None Include="wx\msw\pntright.cur" />
+    <None Include="wx\msw\blank.cur" />
+    <None Include="wx\msw\cross.cur" />
   </ItemGroup>
 </Project>

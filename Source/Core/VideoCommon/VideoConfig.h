@@ -333,9 +333,9 @@ struct VideoConfig final
   {
     return backend_info.bSupportsExclusiveFullscreen && !bBorderlessFullscreen;
   }
-  inline bool HiresMaterialMapsEnabled() const
+  bool HiresMaterialMapsEnabled() const
   {
-    return backend_info.bSupportsNormalMaps && bHiresTextures && bHiresMaterialMaps;
+    return backend_info.bSupportsNormalMaps && bHiresTextures && true;
   }
   inline bool TessellationEnabled() const
   {

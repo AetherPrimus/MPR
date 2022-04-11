@@ -24,6 +24,9 @@
 // interface.
 
 class wxRect;
+enum class MsgType;
+
+bool wxMsgAlert(const char* caption, const char* text, bool yes_no, MsgType /*style*/);
 
 bool Host_UINeedsControllerState();
 bool Host_RendererHasFocus();

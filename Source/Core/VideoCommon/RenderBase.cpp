@@ -61,6 +61,8 @@
 #include "VideoCommon/VertexManagerBase.h"
 #include "VideoCommon/VertexShaderManager.h"
 #include "VideoCommon/XFMemory.h"
+#include "Core/PrimeHack/PrimeUtils.h"
+#include "Core/PrimeHack/TextureSwapper.h"
 
 //std::string cplayer_str;
 
@@ -386,6 +388,30 @@ void Renderer::DrawDebugText()
     final_purple += "\n";
   }
     
+  if (std::get<4>(prime::GetCheatsTime()) > Common::Timer::GetTimeMs()) // Increase Time
+  {
+    std::string time_str;
+    int time = prime::GetTime();
+    if (time == prime::DAY) time_str = "day";
+    else if (time == prime::DUSK) time_str = "dusk";
+    else if (time == prime::NIGHT) time_str = "night";
+
+    final_purple += std::string("The time is now ") + time_str;
+    final_purple += "\n";
+  }
+
+  if (std::get<5>(prime::GetCheatsTime()) > Common::Timer::GetTimeMs()) // Increase Time
+  {
+    std::string weather_str;
+    int weathering = prime::GetWeathering();
+    if (weathering == prime::NONE) weather_str = "None";
+    else if (weathering == prime::LIGHT_DIRT) weather_str = "Light Dirt";
+    else if (weathering == prime::HEAVY_DIRT) weather_str = "Heavy Dirt";
+
+    final_purple += std::string("Dirt Amount: ") + weather_str;
+    final_purple += "\n";
+  }
+
   if (SConfig::GetInstance().m_ShowLag)
   {
     final_cyan += StringFromFormat("Lag: %" PRIu64 "\n", Movie::GetCurrentLagCount());

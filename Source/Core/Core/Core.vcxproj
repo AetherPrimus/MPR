@@ -12,12 +12,12 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{8C60E805-0DA5-4E25-8F84-038DB504BB0D}</ProjectGuid>
-    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.19041.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)'=='Debug'" Label="Configuration">
@@ -35,6 +35,13 @@
     <Import Project="..\..\VSProps\PCHUse.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+    </ClCompile>
+  </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="ActionReplay.cpp" />
     <ClCompile Include="Analytics.cpp" />
@@ -297,7 +304,10 @@
     <ClCompile Include="primehack\mods\CutBeamFxMP1.cpp" />
     <ClCompile Include="PrimeHack\Mods\DisableHudMemoPopup.cpp" />
     <ClCompile Include="PrimeHack\Mods\ElfModLoader.cpp" />
+    <ClCompile Include="PrimeHack\Mods\EntityManager\Entities\Effect.cpp" />
+    <ClCompile Include="PrimeHack\Mods\EntityManager\Entities\Light.cpp" />
     <ClCompile Include="PrimeHack\Mods\PortalSkipMP2.cpp" />
+    <ClCompile Include="PrimeHack\Mods\EntityManager\EntityGenerator.cpp" />
     <ClCompile Include="PrimeHack\Mods\ViewModifier.cpp" />
     <ClCompile Include="PrimeHack\Mods\FpsControls.cpp" />
     <ClCompile Include="primehack\mods\Noclip.cpp" />
@@ -306,6 +316,7 @@
     <ClCompile Include="PrimeHack\PrimeUtils.cpp" />
     <ClCompile Include="PrimeHack\HackConfig.cpp" />
     <ClCompile Include="PrimeHack\HackManager.cpp" />
+    <ClCompile Include="PrimeHack\TextureSwapper.cpp" />
     <ClCompile Include="primehack\Transform.cpp" />
     <ClCompile Include="State.cpp" />
     <ClCompile Include="TitleDatabase.cpp" />
@@ -550,9 +561,15 @@
     <ClInclude Include="PrimeHack\Mods\DisableBloom.h" />
     <ClInclude Include="PrimeHack\Mods\DisableHudMemoPopup.h" />
     <ClInclude Include="PrimeHack\Mods\ElfModLoader.h" />
+    <ClInclude Include="PrimeHack\Mods\EntityManager\Entities\Effect.h" />
+    <ClInclude Include="PrimeHack\Mods\EntityManager\Entities\Light.h" />
     <ClInclude Include="PrimeHack\Mods\FriendVouchers.h" />
+    <ClInclude Include="PrimeHack\Mods\HudAdjuster.h" />
     <ClInclude Include="PrimeHack\Mods\PortalSkipMP2.h" />
     <ClInclude Include="PrimeHack\Mods\RestoreDashing.h" />
+    <ClInclude Include="PrimeHack\Mods\EntityManager\InfoTracker.h" />
+    <ClInclude Include="PrimeHack\Mods\EntityManager\EntityGenerator.h" />
+    <ClInclude Include="PrimeHack\Mods\EntityManager\ELFLoader.h" />
     <ClInclude Include="PrimeHack\Mods\ViewModifier.h" />
     <ClInclude Include="PrimeHack\Mods\FpsControls.h" />
     <ClInclude Include="primehack\mods\Noclip.h" />
@@ -563,6 +580,7 @@
     <ClInclude Include="PrimeHack\HackConfig.h" />
     <ClInclude Include="Primehack\HackManager.h" />
     <ClInclude Include="Primehack\PrimeMod.h" />
+    <ClInclude Include="PrimeHack\TextureSwapper.h" />
     <ClInclude Include="PrimeHack\Transform.h" />
     <ClInclude Include="State.h" />
     <ClInclude Include="TitleDatabase.h" />

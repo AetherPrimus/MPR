@@ -2,6 +2,8 @@
 
 #include "Core/PrimeHack/Mods/ContextSensitiveControls.h"
 #include "Core/PrimeHack/PrimeUtils.h"
+#include "Core/PrimeHack/TextureSwapper.h"
+#include "Core/ConfigManager.h"
 
 #include "Common/Timer.h"
 
@@ -199,6 +201,7 @@ void FpsControls::handle_beam_visor_switch(std::array<int, 4> const &beams,
       if (elapsed.count() > 800) {
         prime::GetVariableManager()->set_variable("new_beam", static_cast<u32>(beam_id));
         prime::GetVariableManager()->set_variable("beamchange_flag", u32{1});
+        SwitchBeamCursor(beam_id);
         beam_scroll_timeout = hr_clock::now();
       }
     }
@@ -209,22 +212,34 @@ void FpsControls::handle_beam_visor_switch(std::array<int, 4> const &beams,
   std::tie(visor_id, visor_off) = get_visor_switch(visors,
     read32(active_visor) == 0);
 
-  if (visor_id != -1) {
-    if (read32(powerups_array + (visor_off * powerups_size) + powerups_offset)) {
-      write32(visor_id, active_visor);
+  if (!prime::GetCannonHolster()) {
+    if (visor_id != -1) {
+      if (read32(powerups_array + (visor_off * powerups_size) + powerups_offset)) {
+        write32(visor_id, active_visor);
 
-      // Trigger holster animation.
-      // Prime 3 already animates holstering. Gamecube does not need to use the visor controls.
-      if (visor_id == 2) {
-        auto active_game = GetHackManager()->get_active_game();
-        if (active_game == Game::PRIME_1 || active_game == Game::PRIME_2) {
-          LOOKUP_DYN(gun_holster_state);
-          LOOKUP(holster_timer_offset);
+        // Trigger holster animation.
+        // Prime 3 already animates holstering. Gamecube does not need to use the visor controls.
+        if (visor_id == 2) {
+          auto active_game = GetHackManager()->get_active_game();
+          if (active_game == Game::PRIME_1 || active_game == Game::PRIME_2) {
+            LOOKUP_DYN(gun_holster_state);
+            LOOKUP(holster_timer_offset);
 
-          write32(3, gun_holster_state);
-          writef32(0.2f, gun_holster_state + holster_timer_offset); // Holster timer
+            write32(3, gun_holster_state);
+            writef32(0.2f, gun_holster_state + holster_timer_offset); // Holster timer
+          }
         }
       }
+    }
+  }
+  else {
+    auto active_game = GetHackManager()->get_active_game();
+    if (active_game == Game::PRIME_1 || active_game == Game::PRIME_2) {
+      LOOKUP_DYN(gun_holster_state);
+      LOOKUP(holster_timer_offset);
+
+      write32(3, gun_holster_state);
+      writef32(0.0f, gun_holster_state + holster_timer_offset); // Holster timer
     }
   }
 
@@ -1421,6 +1436,10 @@ void FpsControls::init_mod_menu(Game game, Region region)
 void FpsControls::init_mod_mp1(Region region) {
   prime::GetVariableManager()->register_variable("new_beam");
   prime::GetVariableManager()->register_variable("beamchange_flag");
+
+    // Trigger update of the cursor texture
+  SwitchBeamCursor(0);
+
   if (region == Region::NTSC_U) {
     // This instruction change is used in all 3 games, all 3 regions. It's an update to what I believe
     // to be interpolation for player camera pitch The change is from fmuls f0, f0, f1 (0xec000072) to
@@ -1481,6 +1500,9 @@ void FpsControls::init_mod_mp1(Region region) {
 
 void FpsControls::init_mod_mp1_gc(Region region) {
   u8 version = read8(0x80000007);
+
+  // Trigger update of the cursor texture
+  SwitchBeamCursor(0);
 
   if (region == Region::NTSC_U) {
     if (version == 0) {

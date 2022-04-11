@@ -22,6 +22,9 @@
 #include "Core/PrimeHack/Mods/FriendVouchers.h"
 #include "Core/PrimeHack/Mods/RestoreDashing.h"
 #include "Core/PrimeHack/Mods/DisableHudMemoPopup.h"
+#include "Core/PrimeHack/Mods/HudAdjuster.h"
+#include "Core/PrimeHack/Mods/EntityManager/EntityGenerator.h"
+#include "Core/PrimeHack/Mods/EntityManager/InfoTracker.h"
 
 #include "InputCommon/ControllerInterface/ControllerInterface.h"
 
@@ -50,6 +53,13 @@ bool reticle_lock = false;
 
 std::string pending_modfile = "";
 bool mod_suspended = false;
+bool reload_entities = false;
+bool toggle_entities = true;
+bool holster_cannon = false;
+int current_beam = 0;
+
+u32 world = -1;
+u32 area = -1;
 }
 
 void InitializeHack(std::string const& mkb_device_name, std::string const& mkb_device_source) {
@@ -75,12 +85,19 @@ void InitializeHack(std::string const& mkb_device_name, std::string const& mkb_d
   hack_mgr.add_mod("friend_vouchers_cheat", std::make_unique<FriendVouchers>());
   hack_mgr.add_mod("disable_hudmemo_popup", std::make_unique<DisableHudMemoPopup>());
 
+  hack_mgr.add_mod("entity_generator", std::make_unique<EntityGenerator>());
+  hack_mgr.add_mod("hud_tweaker", std::make_unique<HudAdjuster>());
+  hack_mgr.add_mod("infotracker", std::make_unique<InfoTracker>());
+
   device_name = mkb_device_name;
   device_source = mkb_device_source;
 
   hack_mgr.enable_mod("fov_modifier");
   hack_mgr.enable_mod("skip_cutscene");
   hack_mgr.enable_mod("bloom_modifier");
+  hack_mgr.enable_mod("entity_generator");
+  hack_mgr.enable_mod("infotracker");
+  hack_mgr.enable_mod("hud_tweaker");
 
   // Enable no PrimeHack control mods
   if (!SConfig::GetInstance().bEnablePrimeHack) {
@@ -363,6 +380,55 @@ CameraLock GetLockCamera() {
 
 std::tuple<bool, bool> GetMenuOptions() {
   return Wiimote::GetBVMenuOptions();
+}
+
+void ReloadEntitiesConfig(bool reload = true) {
+  reload_entities = reload;
+}
+
+void ReloadEntitiesConfig() {
+  reload_entities = true;
+}
+
+bool ShouldReloadEntities() {
+  return reload_entities;
+}
+
+void ToggleEntities(bool toggle = true) {
+  toggle_entities = toggle;
+}
+
+void ToggleEntities() {
+  toggle_entities = !toggle_entities;
+}
+
+bool EntitiesToggled() {
+  return toggle_entities;
+}
+
+void SetCurrentBeam(int beam) {
+  current_beam = beam;
+}
+
+int GetCurrentBeam() {
+  return current_beam;
+}
+
+void ToggleCannonHolster() {
+  holster_cannon = !holster_cannon;
+}
+
+bool GetCannonHolster() {
+  return holster_cannon;
+}
+
+std::pair<u32, u32> GetCurrentPosition() {
+  return std::make_pair(world, area);
+}
+
+void SetCurrentPosition(u32 w, u32 a) {
+  world = w;
+  area = a;
 }
 
 HackManager* GetHackManager() {

@@ -167,7 +167,7 @@ bool IsSettingSaveable(const Config::ConfigLocation& config_location)
       Config::FOV.location,
       Config::ENABLE_SECONDARY_GUNFX.location,
       Config::GC_SHOW_CROSSHAIR.location,
-      Config::GC_CROSSHAIR_COLOR_RGBA.location
+      Config::GC_CROSSHAIR_COLOR_RGBA.location,
   };
 
   return std::find(s_setting_saveable.begin(), s_setting_saveable.end(), config_location) !=

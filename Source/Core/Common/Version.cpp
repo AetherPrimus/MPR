@@ -8,7 +8,7 @@
 
 namespace Common
 {
-#define PRIMEHACK_VERSION_STR "Release [v1.0.4 Ishiiruka]"
+#define PRIMEHACK_VERSION_STR "Phaze 1 Beta [PrimeHack-Ishiiruka]"
 
 #ifdef _DEBUG
 #define BUILD_TYPE_STR "Debug "
@@ -18,7 +18,7 @@ namespace Common
 #define BUILD_TYPE_STR ""
 #endif
 
-const std::string scm_rev_str = "PrimeHack"
+const std::string scm_rev_str = "MPR"
 #if !SCM_IS_MASTER
 "[" SCM_BRANCH_STR "] "
 #endif

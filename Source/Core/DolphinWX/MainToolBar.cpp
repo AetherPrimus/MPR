@@ -93,7 +93,8 @@ void MainToolBar::InitializeThemeBitmaps()
                          {TOOLBAR_FULLSCREEN, CreateBitmap("fullscreen")},
                          {TOOLBAR_CONFIGMAIN, CreateBitmap("config")},
                          {TOOLBAR_CONFIGGFX, CreateBitmap("graphics")},
-                         {TOOLBAR_CONTROLLER, CreateBitmap("classic")}});
+                         {TOOLBAR_CONTROLLER, CreateBitmap("classic")},
+                         {TOOLBAR_MPR, CreateBitmap("mpr")}, });
 }
 
 void MainToolBar::InitializeDebuggerBitmaps()
@@ -122,7 +123,7 @@ wxBitmap MainToolBar::CreateDebuggerBitmap(const std::string& name) const
 
 void MainToolBar::ApplyThemeBitmaps()
 {
-  constexpr std::array<std::pair<int, ToolBarBitmapID>, 8> bitmap_entries{
+  constexpr std::array<std::pair<int, ToolBarBitmapID>, 9> bitmap_entries{
       {{wxID_OPEN, TOOLBAR_FILEOPEN},
        {wxID_REFRESH, TOOLBAR_REFRESH},
        {IDM_STOP, TOOLBAR_STOP},
@@ -130,7 +131,8 @@ void MainToolBar::ApplyThemeBitmaps()
        {IDM_SCREENSHOT, TOOLBAR_SCREENSHOT},
        {wxID_PREFERENCES, TOOLBAR_CONFIGMAIN},
        {IDM_CONFIG_GFX_BACKEND, TOOLBAR_CONFIGGFX},
-       {IDM_CONFIG_CONTROLLERS, TOOLBAR_CONTROLLER}}};
+       {IDM_CONFIG_GFX_BACKEND, TOOLBAR_CONFIGGFX},
+       {IDM_CONFIG_MPR, TOOLBAR_MPR}}};
 
   for (const auto& entry : bitmap_entries)
     ApplyBitmap(entry.first, entry.second);
@@ -187,6 +189,8 @@ void MainToolBar::AddMainToolBarButtons()
                    _("Graphics settings"));
   AddToolBarButton(IDM_CONFIG_CONTROLLERS, TOOLBAR_CONTROLLER, _("Controllers"),
                    _("Controller settings"));
+  AddToolBarButton(IDM_CONFIG_MPR, TOOLBAR_MPR, _("MPR"),
+    _("MPR Configuration"));
 }
 
 void MainToolBar::AddDebuggerToolBarButtons()

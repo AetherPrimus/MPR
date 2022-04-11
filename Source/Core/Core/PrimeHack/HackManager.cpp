@@ -4,6 +4,7 @@
 #include "Core/PrimeHack/PrimeUtils.h"
 #include "Core/PowerPC/PowerPC.h"
 #include "Core/ConfigManager.h"
+#include "Core/Core.h"
 #include "InputCommon/GenericMouse.h"
 
 namespace prime {
@@ -19,6 +20,9 @@ HackManager::HackManager()
                             (static_cast<u32>(d) & 0x000000ff))
 
 void HackManager::run_active_mods() {
+  if (Core::GetState() != Core::State::Running)
+    return;
+
   u32 game_sig = PowerPC::HostRead_Instruction(0x8046d340);
   switch (game_sig)
   {
@@ -84,7 +88,8 @@ void HackManager::run_active_mods() {
     break;
   default:
     u32 region_code = PowerPC::HostRead_U32(0x80000000);
-    if (region_code == FOURCC('G', 'M', '8', 'E')) {
+    if (region_code == FOURCC('G', 'M', '8', 'E') && read8(0x80000007) == 0)
+    {
       active_game = Game::PRIME_1_GCN;
       active_region = Region::NTSC_U;
     }
@@ -157,6 +162,7 @@ void HackManager::run_active_mods() {
       }
     }
   }
+
   prime::g_mouse_input->ResetDeltas();
 }
 

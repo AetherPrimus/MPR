@@ -12,10 +12,19 @@
 
 namespace File
 {
+struct IFile {
+public:
+  IFile() {};
+  virtual ~IFile() {};
+  virtual bool ReadBytes(void* data, size_t length) = 0;
+  virtual u64 GetSize() const = 0;
+  virtual bool Open(const std::string& filename, const char openmode[]) = 0;
+};
+
 // simple wrapper for cstdlib file functions to
 // hopefully will make error checking easier
 // and make forgetting an fclose() harder
-class IOFile
+class IOFile : public IFile
 {
 public:
   IOFile();

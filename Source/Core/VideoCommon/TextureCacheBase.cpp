@@ -90,6 +90,23 @@ void TextureCacheBase::Invalidate()
   textures_by_hash.clear();
 }
 
+void TextureCacheBase::InvalidateByNames(std::vector<std::string> base_names)
+{
+  for (std::string base : base_names) {
+    auto iter = textures_by_address.begin();
+    auto end = textures_by_address.end();
+    while (iter != end)
+    {
+      if (iter->second->basename == base) {
+        InvalidateTexture(iter);
+        break;
+      }
+
+      iter++;
+    }
+  }
+}
+
 TextureCacheBase::~TextureCacheBase()
 {
   HiresTexture::Shutdown();
