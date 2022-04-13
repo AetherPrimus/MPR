@@ -23,6 +23,7 @@
 #include "Core/PrimeHack/Mods/RestoreDashing.h"
 #include "Core/PrimeHack/Mods/DisableHudMemoPopup.h"
 #include "Core/PrimeHack/Mods/HudAdjuster.h"
+#include "Core/PrimeHack/Mods/DynSettings.h"
 #include "Core/PrimeHack/Mods/EntityManager/EntityGenerator.h"
 #include "Core/PrimeHack/Mods/EntityManager/InfoTracker.h"
 
@@ -88,6 +89,7 @@ void InitializeHack(std::string const& mkb_device_name, std::string const& mkb_d
   hack_mgr.add_mod("entity_generator", std::make_unique<EntityGenerator>());
   hack_mgr.add_mod("hud_tweaker", std::make_unique<HudAdjuster>());
   hack_mgr.add_mod("infotracker", std::make_unique<InfoTracker>());
+  hack_mgr.add_mod("dynsettings", std::make_unique<DynSettings>());
 
   device_name = mkb_device_name;
   device_source = mkb_device_source;
@@ -98,6 +100,7 @@ void InitializeHack(std::string const& mkb_device_name, std::string const& mkb_d
   hack_mgr.enable_mod("entity_generator");
   hack_mgr.enable_mod("infotracker");
   hack_mgr.enable_mod("hud_tweaker");
+  hack_mgr.enable_mod("dynsettings");
 
   // Enable no PrimeHack control mods
   if (!SConfig::GetInstance().bEnablePrimeHack) {

@@ -91,7 +91,7 @@ const ConfigInfo<bool> GFX_TEXFMT_OVERLAY_ENABLE{{System::GFX, "Settings", "TexF
 const ConfigInfo<bool> GFX_TEXFMT_OVERLAY_CENTER{{System::GFX, "Settings", "TexFmtOverlayCenter"},
                                                  false};
 const ConfigInfo<bool> GFX_ENABLE_WIREFRAME{{System::GFX, "Settings", "WireFrame"}, false};
-const ConfigInfo<bool> GFX_DISABLE_FOG{{System::GFX, "Settings", "DisableFog"}, true};
+const ConfigInfo<bool> GFX_DISABLE_FOG{{System::GFX, "Settings", "DisableFog"}, false};
 const ConfigInfo<bool> GFX_BORDERLESS_FULLSCREEN{{System::GFX, "Settings", "BorderlessFullscreen"},
                                                  false};
 const ConfigInfo<bool> GFX_ENABLE_VALIDATION_LAYER{

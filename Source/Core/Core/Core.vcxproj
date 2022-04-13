@@ -560,6 +560,7 @@
     <ClInclude Include="primehack\mods\CutBeamFxMP1.h" />
     <ClInclude Include="PrimeHack\Mods\DisableBloom.h" />
     <ClInclude Include="PrimeHack\Mods\DisableHudMemoPopup.h" />
+    <ClInclude Include="PrimeHack\Mods\DynSettings.h" />
     <ClInclude Include="PrimeHack\Mods\ElfModLoader.h" />
     <ClInclude Include="PrimeHack\Mods\EntityManager\Entities\Effect.h" />
     <ClInclude Include="PrimeHack\Mods\EntityManager\Entities\Light.h" />

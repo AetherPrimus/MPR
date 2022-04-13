@@ -1721,6 +1721,9 @@
     <ClInclude Include="PrimeHack\Mods\HudAdjuster.h">
       <Filter>PrimeHack\Mods</Filter>
     </ClInclude>
+    <ClInclude Include="PrimeHack\Mods\DynSettings.h">
+      <Filter>PrimeHack\Mods</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="CMakeLists.txt" />
