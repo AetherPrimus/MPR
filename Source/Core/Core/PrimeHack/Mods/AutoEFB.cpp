@@ -12,7 +12,7 @@ void AutoEFB::run_mod(Game game, Region region) {
     return;
   }
 
-  bool should_use = false;
+  bool should_use = true;
 
   if (game == Game::PRIME_2) {
     LOOKUP_DYN(active_visor);
