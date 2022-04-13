@@ -360,6 +360,36 @@ void HiresTexture::Update()
     Extensions.push_back(".adds");
   }
 
+  {
+    std::vector<std::string> pak_files = Common::DoFileSearch(
+        {File::GetSysDirectory() + "AetherLabs" + DIR_SEP + "packages" + DIR_SEP}, {".ap"},
+        /*recursive*/ true);
+
+    std::vector<std::thread> threads(pak_files.size());
+
+    int paks = 0;
+    for (std::string& fileitem : pak_files)
+    {
+      threads.push_back(std::thread(PrefetchAP, fileitem));
+      paks++;
+    }
+
+    for (std::thread& thread : threads)
+    {
+      if (thread.joinable())
+        thread.join();
+    }
+
+    if (paks == 0)
+    {
+      wxMsgAlert(
+          "Error",
+          "MPR has detected missing files. Please ensure all the files were successfully extracted."
+          "\nMPR may not function properly.",
+          false, MsgType::Critical);
+    }
+  }
+
   std::vector<std::string> Resourcefilenames =
       Common::DoFileSearch({resource_directory}, Extensions, /*recursive*/ true);
 
@@ -397,36 +427,6 @@ void HiresTexture::Update()
         filename = filename.substr(s_enviroment_prefix.length());
         ProccessEnviroment(fileitem, filename, extension);
       }
-    }
-  }
-
-  {
-    std::vector<std::string> pak_files = Common::DoFileSearch(
-        {File::GetSysDirectory() + "AetherLabs" + DIR_SEP + "packages" + DIR_SEP}, {".ap"},
-        /*recursive*/ true);
-
-    std::vector<std::thread> threads (pak_files.size());
-
-    int paks = 0;
-    for (std::string& fileitem : pak_files)
-    {
-      threads.push_back(std::thread(PrefetchAP, fileitem));
-      paks++;
-    }
-
-    for (std::thread& thread : threads)
-    {
-      if (thread.joinable())
-        thread.join();
-    }
-
-    if (paks == 0)
-    {
-      wxMsgAlert(
-          "Error",
-          "MPR has detected missing files. Please ensure all the files were successfully extracted."
-          "\nMPR may not function properly.",
-          false, MsgType::Critical);
     }
   }
 
