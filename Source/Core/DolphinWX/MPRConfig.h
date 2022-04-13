@@ -93,6 +93,7 @@ private:
 
   /* HUD - Presets */
   wxListView* m_hud_presets;
+  wxStaticBoxSizer* m_preset_warning_sizer;
   enum HudPresets : long
   {
     Default,
@@ -111,6 +112,7 @@ private:
   wxSpinCtrl* m_hud_zoom;
   wxStaticText* m_opacity_label;
   wxCheckBox* m_minimal_mode;
+  wxStaticBoxSizer* m_custom_warning_sizer;
 
   /* HUD - Reticles */
   wxListView* m_reticle_selection;

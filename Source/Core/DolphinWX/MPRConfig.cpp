@@ -16,6 +16,7 @@
 #include <wx/clrpicker.h>
 #include <wx/generic/statbmpg.h>
 #include <wx/msgdlg.h>
+#include <wx/statbox.h>
 
 #include "Core/ConfigManager.h"
 #include "Core/HW/Wiimote.h"
@@ -113,9 +114,8 @@ wxPanel* MPRConfig::CreateControlsTab()
   m_ctrl_presets->SetSingleStyle(wxLC_SINGLE_SEL);
   m_ctrl_presets->AppendColumn("Default Profiles");
   m_ctrl_presets->InsertItem(MouseKeyboard, _("Mouse & Keyboard"));
-  m_ctrl_presets->InsertItem(DualStickPS4, _("DualStick PS4 (XInput)"));
-  m_ctrl_presets->InsertItem(DualStickXBX, _("DualStick Xbox One (DInput)"));
-  m_ctrl_presets->InsertItem(DualStickSwitch, _("DualStick Switch Pro"));
+  m_ctrl_presets->InsertItem(DualStickXBX, _("DualStick Xbox One (XInput)"));
+  m_ctrl_presets->InsertItem(DualStickSwitch, _("DualStick Switch Pro (XInput/BetterJoy)"));
   m_ctrl_presets->InsertItem(NativeHardware, _("Native (Real Wii Remote/GC Adapter)"));
   m_ctrl_presets->SetColumnWidth(0, 300);
 
@@ -203,10 +203,19 @@ wxPanel* MPRConfig::CreatePresetsPage()
   m_hud_presets->InsertItem(Custom, _("Custom"));
   m_hud_presets->SetColumnWidth(0, 300);
 
+  m_preset_warning_sizer = new wxStaticBoxSizer(wxVERTICAL, panel, "Warning");
+  m_preset_warning_sizer->Add(
+      new wxStaticText(panel, wxID_ANY,
+                       "Please note that not all elements of the HUD update in real time. To fully "
+                       "update the HUD, you must enter a save-station."),
+      0, wxALL | wxEXPAND, space5);
+  m_preset_warning_sizer->AddStretchSpacer();
+
   main_sizer->AddSpacer(space5);
   main_sizer->Add(m_hud_presets, 0, wxALL | wxEXPAND, space5);
-  main_sizer->AddSpacer(space5);
   main_sizer->AddStretchSpacer();
+  main_sizer->Add(m_preset_warning_sizer, 0, wxLEFT | wxRIGHT, space5);
+  main_sizer->AddSpacer(space5);
 
   m_hud_presets->Bind(wxEVT_LIST_ITEM_SELECTED, &MPRConfig::OnHUDPresetSelected, this);
 
@@ -255,11 +264,21 @@ wxPanel* MPRConfig::CreateHUDColoursPage()
                      wxDefaultSpan, wxALIGN_CENTER_VERTICAL);
   settings_grid->Add(m_hud_zoom, wxGBPosition(2, 1), wxDefaultSpan, wxALIGN_CENTER_VERTICAL);
 
+  m_custom_warning_sizer = new wxStaticBoxSizer(wxVERTICAL, panel, "Warning");
+  m_custom_warning_sizer->Add(
+      new wxStaticText(panel, wxID_ANY,
+                       "Please note that not all elements of the HUD update in real time. To fully "
+                       "update the HUD, you must enter a save-station."),
+      0, wxALL | wxEXPAND, space5);
+  m_custom_warning_sizer->AddStretchSpacer();
+    
   main_sizer->AddSpacer(space10);
   main_sizer->Add(settings_grid, 0, wxLEFT | wxRIGHT, space5);
   main_sizer->AddSpacer(space10);
   main_sizer->Add(m_minimal_mode, 0, wxLEFT | wxRIGHT, space5);
-  main_sizer->AddSpacer(space10);
+  main_sizer->AddStretchSpacer();
+  main_sizer->Add(m_custom_warning_sizer, 0, wxLEFT | wxRIGHT, space5);
+  main_sizer->AddSpacer(space5);
 
   panel->SetSizerAndFit(main_sizer);
 
@@ -437,11 +456,11 @@ void MPRConfig::OnApplyCtrlPreset(wxCommandEvent& event)
   sprintf(gc_path, "%s/AetherLabs/defaults/gamecube/%d.ini", File::GetSysDirectory().c_str(),
           m_ctrl_presets->GetFirstSelected());
 
-  if (!inifile.Load(gc_path))
+  if (inifile.Load(gc_path))
   {
     Pad::GetConfig()->GetController(0)->LoadConfig(inifile.GetOrCreateSection("Profile"));
     Pad::GetConfig()->GetController(0)->UpdateReferences(g_controller_interface);
-  } 
+  }
 }
 
 void MPRConfig::OnReticleSelected(wxCommandEvent& event)
@@ -543,6 +562,12 @@ void MPRConfig::OnShow(wxShowEvent& event)
 {
   if (event.IsShown())
     CenterOnParent();
+
+  m_custom_warning_sizer->GetStaticBox()->Show(Core::IsRunning());
+  m_preset_warning_sizer->GetStaticBox()->Show(Core::IsRunning());
+
+  m_custom_warning_sizer->GetItem((size_t) 0)->Show(Core::IsRunning());
+  m_preset_warning_sizer->GetItem((size_t) 0)->Show(Core::IsRunning());
 }
 
 void MPRConfig::OnCloseButton(wxCommandEvent& WXUNUSED(event))
