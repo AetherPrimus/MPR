@@ -24,12 +24,10 @@ AboutDolphin::AboutDolphin(wxWindow* parent, wxWindowID id, const wxString& titl
       this, wxID_ANY, WxUtils::LoadScaledResourceBitmap("dolphin_logo", this));
 
   const wxString DolphinText = _("MPR [Primehack/Ishiiruka]");
-  const wxString RevisionText = Common::scm_desc_str;
   const wxString CopyrightText =
       _("(c) 2003-2015+ Dolphin Team. 2018-2022+ MPR Team.. \"GameCube\" and \"Wii\" are trademarks of Nintendo. Dolphin & MPR Team "
         "are not affiliated with Nintendo in any way.");
-  const wxString BranchText = wxString::Format(_("Branch: %s"), Common::scm_branch_str.c_str());
-  const wxString BranchRevText = wxString::Format(_("Revision: %s"), Common::scm_rev_git_str.c_str());
+  const wxString RevisionText = wxString::Format(_("Revision: %s"), "1.0.1");
   const wxString CheckUpdateText = _("Check for updates: ");
   const wxString Text =
       _("\n"
@@ -44,6 +42,7 @@ AboutDolphin::AboutDolphin(wxWindow* parent, wxWindowID id, const wxString& titl
   wxStaticText* const Copyright = new wxStaticText(this, wxID_ANY, CopyrightText);
   wxStaticText* const Message = new wxStaticText(this, wxID_ANY, Text);
   wxStaticText* const FirstSpacer = new wxStaticText(this, wxID_ANY, "  |  ");
+  wxStaticText* const Revision = new wxStaticText(this, wxID_ANY, RevisionText);
   wxStaticText* const SecondSpacer = new wxStaticText(this, wxID_ANY, "  |  ");
 
   wxHyperlinkCtrl* const License =
@@ -82,6 +81,7 @@ AboutDolphin::AboutDolphin(wxWindow* parent, wxWindowID id, const wxString& titl
 
   wxBoxSizer* const sInfo = new wxBoxSizer(wxVERTICAL);
   sInfo->Add(Dolphin);
+  sInfo->Add(Revision);
   sInfo->AddSpacer(space10);
   sInfo->Add(Message);
   sInfo->Add(sLinks);
