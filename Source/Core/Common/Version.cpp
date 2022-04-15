@@ -8,7 +8,7 @@
 
 namespace Common
 {
-#define PRIMEHACK_VERSION_STR "Phaze 1 Beta [PrimeHack-Ishiiruka]"
+#define PRIMEHACK_VERSION_STR "Phaze 1 [PrimeHack-Ishiiruka]"
 
 #ifdef _DEBUG
 #define BUILD_TYPE_STR "Debug "
