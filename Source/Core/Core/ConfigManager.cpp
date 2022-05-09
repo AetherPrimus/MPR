@@ -399,6 +399,7 @@ void SConfig::SaveMPRSettings(IniFile& ini)
   input->Set("HudMinimalMode", m_mpr_minimal_mode);
   input->Set("MPRReticle", m_mpr_reticle_selection);
   input->Set("NKITWarningSeen", bNKITWarning);
+  input->Set("DLCSelection", m_mpr_dlc);
 }
 
 void SConfig::LoadSettings()
@@ -733,6 +734,7 @@ void SConfig::LoadMPRSettings(IniFile& ini)
   input->Get("HudMinimalMode", &m_mpr_minimal_mode, false);
   input->Get("MPRReticle", &m_mpr_reticle_selection, 0);
   input->Get("NKITWarningSeen", &bNKITWarning, false);
+  input->Get("DLCSelection", &m_mpr_dlc, "");
 }
 
 void SConfig::ResetRunningGameMetadata()

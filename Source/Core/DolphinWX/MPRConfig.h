@@ -13,6 +13,7 @@ class wxStaticText;
 class wxColourPickerCtrl;
 class wxStaticBoxSizer;
 class wxGenericStaticBitmap;
+class wxCheckListBox;
 
 class MPRConfig : public wxDialog
 {
@@ -38,12 +39,14 @@ public:
     ID_HUDNOTEBOOK = 2000,
     ID_CONTROLS,
     ID_HUD,
+    ID_DLC
   };
 
 private:
   void CreateGUIControls();
   wxPanel* CreateControlsTab();
   wxPanel* CreateHUDTab();
+  wxPanel* CreateDLCTab();
   wxPanel* CreateHUDColoursPage();
   wxPanel* CreatePresetsPage();
   wxPanel* CreateReticlesPage();
@@ -63,6 +66,7 @@ private:
   void OnApplyCtrlPreset(wxCommandEvent& event);
   void OnReticleSelected(wxCommandEvent& event);
   void OnZoomChanged(wxCommandEvent& event);
+  void OnDLCChanged(wxCommandEvent& event);
 
   inline void SelectItemNoNotify(wxListView* box, long item) {
     m_hud_presets->SetEvtHandlerEnabled(false);
@@ -116,4 +120,9 @@ private:
 
   /* HUD - Reticles */
   wxListView* m_reticle_selection;
+
+  /* DLC Tab */
+  wxCheckListBox* m_dlc_list;
+  wxStaticText* m_dlc_description;
+  wxStaticBitmap* m_dlc_preview;
 };

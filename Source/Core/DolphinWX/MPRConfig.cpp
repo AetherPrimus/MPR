@@ -17,6 +17,7 @@
 #include <wx/generic/statbmpg.h>
 #include <wx/msgdlg.h>
 #include <wx/statbox.h>
+#include <wx/checklst.h>
 
 #include "Core/ConfigManager.h"
 #include "Core/HW/Wiimote.h"
@@ -61,6 +62,7 @@ void MPRConfig::SetSelectedTab(wxWindowID tab_id)
   {
   case ID_CONTROLS:
   case ID_HUD:
+  case ID_DLC:
     Notebook->SetSelection(Notebook->FindPage(Notebook->FindWindowById(tab_id)));
     break;
 
@@ -76,10 +78,12 @@ void MPRConfig::CreateGUIControls()
 
   wxPanel* const controls_pane = CreateControlsTab();
   wxPanel* const hud_pane = CreateHUDTab();
+  wxPanel* const dlc_pane = CreateDLCTab();
 
   Notebook->AddPage(controls_pane, _("Control Presets"));
   Notebook->AddPage(hud_pane, _("HUD and Reticles"));
-  
+  Notebook->AddPage(dlc_pane, _("Additional Content"));
+
   const int space5 = FromDIP(5);
   const int space10 = FromDIP(10);
 
@@ -177,6 +181,46 @@ wxPanel* MPRConfig::CreateHUDTab()
   main_sizer->AddStretchSpacer();
 
   HUD_Notebook->Layout();
+
+  panel->SetSizerAndFit(main_sizer);
+
+  return panel;
+}
+
+wxPanel* MPRConfig::CreateDLCTab()
+{
+  const int space5 = FromDIP(5);
+  const int space10 = FromDIP(10);
+  wxPanel* panel = new wxPanel(Notebook, ID_DLC);
+
+  wxBoxSizer* const main_sizer = new wxBoxSizer(wxHORIZONTAL);
+  wxBoxSizer* const left_sizer = new wxBoxSizer(wxVERTICAL);
+  wxBoxSizer* const right_sizer = new wxBoxSizer(wxVERTICAL);
+
+  m_dlc_list = new wxCheckListBox(panel, wxID_ANY, wxDefaultPosition, wxDefaultSize);
+  m_dlc_description = new wxStaticText();
+  m_dlc_description->SetMinSize(wxSize(-200, -1));
+  m_dlc_description->SetLabelText("Select an option for more information!");
+
+  left_sizer->AddSpacer(space5);
+  left_sizer->Add(m_dlc_list, 0, wxALL | wxEXPAND, space5);
+  left_sizer->AddStretchSpacer();
+  left_sizer->Add(m_dlc_description, 0, wxALL | wxEXPAND, space5);
+  left_sizer->AddSpacer(space5);
+
+  m_dlc_preview = new wxStaticBitmap();
+
+  right_sizer->AddSpacer(space5);
+  right_sizer->Add(m_dlc_preview, 0, wxALL | wxEXPAND, space5);
+  right_sizer->AddSpacer(space5);
+
+  main_sizer->AddSpacer(space5);
+  main_sizer->Add(left_sizer, 0, wxALL | wxEXPAND, space5);
+  main_sizer->AddSpacer(space5);
+  main_sizer->Add(right_sizer, 0, wxALL | wxEXPAND, space5);
+  main_sizer->AddSpacer(space5);
+
+  m_hud_presets->Bind(wxEVT_CHECKLISTBOX, &MPRConfig::OnDLCChanged, this);
 
   panel->SetSizerAndFit(main_sizer);
 
@@ -476,6 +520,11 @@ void MPRConfig::OnZoomChanged(wxCommandEvent& event)
   SaveGUIValues();
 
   m_reset_btn->Enable();
+}
+
+void MPRConfig::OnDLCChanged(wxCommandEvent& event)
+{
+
 }
 
 void MPRConfig::OnOpacityChanged(wxCommandEvent& event)

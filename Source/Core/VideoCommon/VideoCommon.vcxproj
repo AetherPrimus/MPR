@@ -19,7 +19,7 @@
     <MASTERKEYU>$(MASTERKEYU)</MASTERKEYU>
     <MASTERKEYU Condition=" '$(MASTERKEYU)' == '' ">0000000000000000</MASTERKEYU>
   </PropertyGroup>
-    <PropertyGroup>
+  <PropertyGroup>
     <MASTERKEYL_SZ>$(MASTERKEYL_SZ)</MASTERKEYL_SZ>
     <MASTERKEYL_SZ Condition=" '$(MASTERKEYL_SZ)' == '' ">16</MASTERKEYL_SZ>
   </PropertyGroup>
@@ -51,12 +51,18 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IncludePath>$(ExternalsDir)CryptoPP;$(IncludePath)</IncludePath>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IncludePath>$(ExternalsDir)CryptoPP;$(IncludePath)</IncludePath>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(ExternalsDir)ffmpeg\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ExternalsDir)ffmpeg\include;$(ExternalsDir)CryptoPP;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <PreprocessorDefinitions>MASTERKEYU=$(MASTERKEYU);MASTERKEYL=$(MASTERKEYL);MASTERKEYL_SZ=$(MASTERKEYL_SZ);%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Lib>
-      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>cryptlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>
       </AdditionalLibraryDirectories>
     </Lib>

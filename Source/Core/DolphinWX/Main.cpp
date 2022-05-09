@@ -34,6 +34,8 @@
 #include "Common/Thread.h"
 #include "Common/Version.h"
 
+#include "VideoCommon/Util/Aether.h"
+
 #include "Core/Analytics.h"
 #include "Core/Boot/Boot.h"
 #include "Core/ConfigManager.h"
@@ -175,6 +177,8 @@ bool DolphinApp::OnInit()
   SetTopWindow(main_frame);
 
   AfterInit();
+
+  Aether::InitPaks();
 
   return true;
 }

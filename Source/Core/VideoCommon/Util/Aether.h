@@ -5,11 +5,6 @@
 #include <filesystem>
 #include <map>
 
-#include <gcm.h>
-#include <aes.h>
-#include <filters.h>
-#include <files.h>
-
 #ifdef _WIN32
 #include <Windows.h>
 #include <Winternl.h>
@@ -40,6 +35,13 @@ namespace Aether {
   };
 #pragma pack(pop)
 
+  struct DLCInfo
+  {
+    std::string display_name;
+    std::string description;
+    const char* preview_data;
+  };
+
   struct AFile : public File::IFile {
     std::string name;
     size_t file_size = 0;
@@ -60,25 +62,34 @@ namespace Aether {
   };
 
   static std::mutex progress_mutex;
+  static std::mutex init_mutex;
 
   struct AetherPak {
     u32 priority;
     const char* name;
     std::string path;
+
     bool pak_initialised = false;   
     std::map<std::string, AFile*> file_map;
     std::string buffer_container;
+
+    DLCInfo* dlc_info = nullptr;
 
     bool GetFileByName(std::string, AFile* out);
     const std::map<std::string, AFile*>* GetAllFiles();
     bool LoadPak(std::string path);
     bool ProcessFiles(const char* buffer, size_t size);
+    bool TryGetDLC();
   };
 
+  void InitPaks();
   void ShutDown();
 
   void AddPak(std::shared_ptr<AetherPak> pak_ptr);
+  void EnablePak(std::shared_ptr<AetherPak> pak_ptr);
+  void ClearActivePaks();
   std::vector<std::shared_ptr<AetherPak>> GetPaks();
+
   void PeriodicallyCheckSnoopers();
 
   inline bool TestForSnoopers()
@@ -88,7 +99,9 @@ namespace Aether {
         __readgsqword(reinterpret_cast<DWORD_PTR>(&static_cast<NT_TIB*>(nullptr)->Self)));
     if (tebPtr->ProcessEnvironmentBlock->BeingDebugged)
     {
-      g_texture_cache->Invalidate();
+      if (g_texture_cache)
+        g_texture_cache->Invalidate();
+
       ShutDown();
       return false;
     }
@@ -108,7 +121,9 @@ namespace Aether {
           std::wstring str = std::wstring(szModName);
           if (str.find(L"veh") != std::wstring::npos)
           {
-            g_texture_cache->Invalidate();
+            if (g_texture_cache)
+              g_texture_cache->Invalidate();
+
             ShutDown();
             return false;
           }

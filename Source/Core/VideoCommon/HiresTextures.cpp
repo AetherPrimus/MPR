@@ -621,49 +621,15 @@ void HiresTexture::Prefetch()
 void HiresTexture::PrefetchAllAP()
 {
   u32 starttime = Common::Timer::GetTimeMs();
+
+  // If the packages are still initialising, wait until they're done.
+  std::lock_guard<std::mutex> lock(Aether::init_mutex);
+
   std::vector<std::string> pak_files = Common::DoFileSearch(
     { File::GetSysDirectory() + "AetherLabs" + DIR_SEP + "packages" + DIR_SEP }, { ".ap" },
     /*recursive*/ true);
 
   std::vector<std::thread> threads(pak_files.size());
-
-  for (std::string& fileitem : pak_files)
-  {
-    threads.push_back(std::thread([=]() {
-      for (auto& ptr : Aether::GetPaks())
-      {
-        if (!ptr->path.compare(fileitem))
-        {
-          // No need to load packages twice
-          return;
-        }
-      }
-
-      std::shared_ptr<Aether::AetherPak> pak_ptr = std::make_shared<Aether::AetherPak>();
-
-      if (!pak_ptr->LoadPak(fileitem))
-      {
-        wxMsgAlert("Error",
-                    "MPR has detected an error loading a package. Please ensure all the files "
-                    "were successfully "
-                    "extracted."
-                    "\nMPR may not function properly.",
-                    false, MsgType::Critical);
-      }
-      else
-      {
-        Aether::AddPak(pak_ptr);
-      }
-    }));   
-  }
-
-  for (std::thread& thread : threads)
-  {
-    if (thread.joinable())
-      thread.join();
-  }
-
-  threads.clear();
 
   std::unordered_map<uint32_t, std::set<std::string>> texture_buckets;
   for (const auto& pak_ptr : Aether::GetPaks())
@@ -844,7 +810,6 @@ std::string HiresTexture::GenBaseName(const u8* texture, size_t texture_size, co
   return "";
 }
 
-// TODO: APNG
 inline u8* LoadImageFromFile(const char* path, int& width, int& height)
 {
   File::IFile* file;

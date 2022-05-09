@@ -338,6 +338,7 @@ struct SConfig
   s64 m_mpr_reticle_selection;
   bool m_mpr_minimal_mode;
   bool bNKITWarning;
+  std::string m_mpr_dlc;
 
   SConfig(const SConfig&) = delete;
   SConfig& operator=(const SConfig&) = delete;
