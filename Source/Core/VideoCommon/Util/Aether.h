@@ -29,7 +29,7 @@ namespace Aether {
   struct Header {
     const char magic[3]{ 'A', 'P', ' ' };
     char name[12] = "";
-    uint32_t version = 1;
+    uint32_t priority = 1;
     uint32_t pakversion = PAKVERSION;
     uint32_t file_count = 0;
   };
@@ -62,7 +62,7 @@ namespace Aether {
   static std::mutex progress_mutex;
 
   struct AetherPak {
-    u32 version;
+    u32 priority;
     const char* name;
     std::string path;
     bool pak_initialised = false;   

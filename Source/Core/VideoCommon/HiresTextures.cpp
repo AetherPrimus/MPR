@@ -360,35 +360,7 @@ void HiresTexture::Update()
     Extensions.push_back(".adds");
   }
 
-  {
-    std::vector<std::string> pak_files = Common::DoFileSearch(
-        {File::GetSysDirectory() + "AetherLabs" + DIR_SEP + "packages" + DIR_SEP}, {".ap"},
-        /*recursive*/ true);
-
-    std::vector<std::thread> threads(pak_files.size());
-
-    int paks = 0;
-    for (std::string& fileitem : pak_files)
-    {
-      threads.push_back(std::thread(PrefetchAP, fileitem));
-      paks++;
-    }
-
-    for (std::thread& thread : threads)
-    {
-      if (thread.joinable())
-        thread.join();
-    }
-
-    if (paks == 0)
-    {
-      wxMsgAlert(
-          "Error",
-          "MPR has detected missing files. Please ensure all the files were successfully extracted."
-          "\nMPR may not function properly.",
-          false, MsgType::Critical);
-    }
-  }
+  PrefetchAllAP();
 
   std::vector<std::string> Resourcefilenames =
       Common::DoFileSearch({resource_directory}, Extensions, /*recursive*/ true);
@@ -558,14 +530,14 @@ void HiresTexture::Prefetch()
     {
       if (g_ActiveConfig.bWaitForCacheHiresTextures && (dialog_lock.owns_lock() || dialog_lock.try_lock()))
       {
-        Host_UpdateProgressDialog(GetStringT("Prefetching Custom Textures...").c_str(),
-                                  static_cast<int>(count), static_cast<int>(total));
+      Host_UpdateProgressDialog(GetStringT("Prefetching Custom Textures...").c_str(),
+        static_cast<int>(count), static_cast<int>(total));
       }
       else
       {
-        OSD::AddMessage(StringFromFormat("Custom Textures prefetching %.1f MB %zu %% finished",
-                                         size_sum / (1024.0 * 1024.0), percent),
-                        2000);
+      OSD::AddMessage(StringFromFormat("Custom Textures prefetching %.1f MB %zu %% finished",
+        size_sum / (1024.0 * 1024.0), percent),
+        2000);
       }
       notification += 10;
     }
@@ -582,13 +554,13 @@ void HiresTexture::Prefetch()
     {
       lk.unlock();
       HiresTexture* ptr = LoadEnviroment(
-          base_filename, [](size_t requested_size) { return new u8[requested_size]; }, true);
+        base_filename, [](size_t requested_size) { return new u8[requested_size]; }, true);
       lk.lock();
       if (ptr != nullptr)
       {
         size_sum.fetch_add(ptr->m_cached_data_size);
         iter = s_enviromentCache.insert(
-            iter, std::make_pair(base_filename, std::shared_ptr<HiresTexture>(ptr)));
+          iter, std::make_pair(base_filename, std::shared_ptr<HiresTexture>(ptr)));
       }
     }
 
@@ -606,10 +578,10 @@ void HiresTexture::Prefetch()
       Config::SetCurrent(Config::GFX_HIRES_TEXTURES, false);
 
       OSD::AddMessage(
-          StringFromFormat(
-              "Custom Textures prefetching after %.1f MB aborted, not enough RAM available",
-              size_sum / (1024.0 * 1024.0)),
-          10000);
+        StringFromFormat(
+          "Custom Textures prefetching after %.1f MB aborted, not enough RAM available",
+          size_sum / (1024.0 * 1024.0)),
+        10000);
       if (g_ActiveConfig.bWaitForCacheHiresTextures && dialog_lock.owns_lock())
       {
         Host_UpdateProgressDialog("", -1, -1);
@@ -621,16 +593,16 @@ void HiresTexture::Prefetch()
     if (percent >= notification)
     {
       if (g_ActiveConfig.bWaitForCacheHiresTextures &&
-          (dialog_lock.owns_lock() || dialog_lock.try_lock()))
+        (dialog_lock.owns_lock() || dialog_lock.try_lock()))
       {
         Host_UpdateProgressDialog(GetStringT("Prefetching Custom Textures...").c_str(),
-                                  static_cast<int>(count), static_cast<int>(total));
+          static_cast<int>(count), static_cast<int>(total));
       }
       else
       {
         OSD::AddMessage(StringFromFormat("Custom Textures prefetching %.1f MB %zu %% finished",
-                                         size_sum / (1024.0 * 1024.0), percent),
-                        2000);
+          size_sum / (1024.0 * 1024.0), percent),
+          2000);
       }
       notification += 10;
     }
@@ -642,99 +614,165 @@ void HiresTexture::Prefetch()
   }
   u32 stoptime = Common::Timer::GetTimeMs();
   OSD::AddMessage(StringFromFormat("Custom Textures loaded, %.1f MB in %.1f s",
-                                   size_sum / (1024.0 * 1024.0), (stoptime - starttime) / 1000.0),
-                  10000);
+    size_sum / (1024.0 * 1024.0), (stoptime - starttime) / 1000.0),
+    10000);
 }
 
-void HiresTexture::PrefetchAP(std::string fileitem) {
+void HiresTexture::PrefetchAllAP()
+{
   u32 starttime = Common::Timer::GetTimeMs();
-  size_t count = 0;
-  size_t total = 0;
-  size_t notify = 10;
+  std::vector<std::string> pak_files = Common::DoFileSearch(
+    { File::GetSysDirectory() + "AetherLabs" + DIR_SEP + "packages" + DIR_SEP }, { ".ap" },
+    /*recursive*/ true);
 
-  std::shared_ptr<Aether::AetherPak> pak_ptr = nullptr;
-  bool newPak = true;
+  std::vector<std::thread> threads(pak_files.size());
 
-  for (auto& ptr : Aether::GetPaks())
+  for (std::string& fileitem : pak_files)
   {
-    if (!ptr->path.compare(fileitem))
-    {
-      pak_ptr = ptr;
-      newPak = false;
-      break;
-    }
-  }
-
-  if (pak_ptr == nullptr)
-    pak_ptr = std::make_shared<Aether::AetherPak>();
-
-  if (pak_ptr->LoadPak(fileitem))
-  {
-    std::unique_lock<std::mutex> dialog_lock(Aether::progress_mutex, std::try_to_lock);
-
-    if (g_ActiveConfig.bWaitForCacheHiresTextures && dialog_lock.owns_lock())
-    {
-      Host_UpdateProgressDialog("Prefetching Package, this may take up to a minute..", 0, 1);
-    }
-
-    std::unique_lock<std::mutex> lk(s_textureMapMutex);
-
-    if (g_ActiveConfig.bWaitForCacheHiresTextures &&
-        (dialog_lock.owns_lock() || dialog_lock.try_lock()))
-    {
-      Host_UpdateProgressDialog("Processing textures..", 0,
-                                static_cast<int>(total));
-    }
-
-    for (auto const& [key, value] : *pak_ptr->GetAllFiles())
-    {
-      std::string filename;
-      std::string extension;
-      SplitPath(key, nullptr, &filename, &extension);
-      extension.pop_back();  // remove string terminator
-
-      std::string copy = key;
-      if (filename.rfind(s_format_prefix, 0) == 0)
+    threads.push_back(std::thread([=]() {
+      for (auto& ptr : Aether::GetPaks())
       {
-        ProccessTexture(copy, filename, extension, g_ActiveConfig.bHiresMaterialMapsBuild);
-      }
-      else if (filename.rfind(s_enviroment_prefix, 0) == 0)
-      {
-        filename = filename.substr(s_enviroment_prefix.length());
-        ProccessEnviroment(copy, filename, extension);
-      }  
-        
-      count++;
-      total += value->file_size;
-
-      if ((count * 100) / total >= notify)
-      {
-        if (g_ActiveConfig.bWaitForCacheHiresTextures && (dialog_lock.owns_lock() || dialog_lock.try_lock()))
+        if (!ptr->path.compare(fileitem))
         {
-          Host_UpdateProgressDialog("Processing textures..", static_cast<int>(count),
-                                    static_cast<int>(total));
+          // No need to load packages twice
+          return;
         }
-        notify += 10;
-      }  
+      }
+
+      std::shared_ptr<Aether::AetherPak> pak_ptr = std::make_shared<Aether::AetherPak>();
+
+      if (!pak_ptr->LoadPak(fileitem))
+      {
+        wxMsgAlert("Error",
+                    "MPR has detected an error loading a package. Please ensure all the files "
+                    "were successfully "
+                    "extracted."
+                    "\nMPR may not function properly.",
+                    false, MsgType::Critical);
+      }
+      else
+      {
+        Aether::AddPak(pak_ptr);
+      }
+    }));   
+  }
+
+  for (std::thread& thread : threads)
+  {
+    if (thread.joinable())
+      thread.join();
+  }
+
+  threads.clear();
+
+  std::unordered_map<uint32_t, std::set<std::string>> texture_buckets;
+  for (const auto& pak_ptr : Aether::GetPaks())
+  {
+    uint32_t priority = pak_ptr->priority;
+    auto bucket = texture_buckets.find(priority);
+    std::set<std::string> files;
+
+    for (const auto& [key, val] : pak_ptr->file_map)
+    {
+      files.emplace(key);
     }
 
-    if (newPak)
-      Aether::AddPak(std::move(pak_ptr));
-
-    if (g_ActiveConfig.bWaitForCacheHiresTextures && dialog_lock.owns_lock())
+    if (bucket != texture_buckets.end())
     {
-      Host_UpdateProgressDialog("", -1, -1);
+      bucket->second.merge(files);
+    }
+    else
+    {
+      texture_buckets.emplace(std::make_pair(priority, files));
     }
   }
-  else
+
+  for (const auto& pak_ptr : Aether::GetPaks())
+  {
+    threads.push_back(std::thread([=]() {
+      std::unique_lock<std::mutex> dialog_lock(Aether::progress_mutex, std::try_to_lock);
+      size_t count = 0;
+      size_t total = 0;
+      size_t notify = 10;
+
+      if (g_ActiveConfig.bWaitForCacheHiresTextures && dialog_lock.owns_lock())
+      {
+        Host_UpdateProgressDialog("Prefetching Package, this may take up to a minute..", 0, 1);
+      }
+
+      std::unique_lock<std::mutex> lk(s_textureMapMutex);
+
+      if (g_ActiveConfig.bWaitForCacheHiresTextures &&
+          (dialog_lock.owns_lock() || dialog_lock.try_lock()))
+      {
+        Host_UpdateProgressDialog("Processing textures..", 0, static_cast<int>(total));
+      }
+
+      for (auto const& [key, value] : *pak_ptr->GetAllFiles())
+      {
+        std::string filename;
+        std::string extension;
+        SplitPath(key, nullptr, &filename, &extension);
+        extension.pop_back();  // remove string terminator
+
+        for (const auto& bucket : texture_buckets)
+        {
+          if (bucket.first > pak_ptr->priority)
+          {
+            if (bucket.second.find(filename) != bucket.second.end())
+            {
+              // Our texture is a lower priority than another package.
+              continue;
+            }
+          }
+        }
+
+        std::string copy = key;
+        if (filename.rfind(s_format_prefix, 0) == 0)
+        {
+          ProccessTexture(copy, filename, extension, g_ActiveConfig.bHiresMaterialMapsBuild);
+        }
+        else if (filename.rfind(s_enviroment_prefix, 0) == 0)
+        {
+          filename = filename.substr(s_enviroment_prefix.length());
+          ProccessEnviroment(copy, filename, extension);
+        }
+
+        count++;
+        total += value->file_size;
+
+        if ((count * 100) / total >= notify)
+        {
+          if (g_ActiveConfig.bWaitForCacheHiresTextures &&
+              (dialog_lock.owns_lock() || dialog_lock.try_lock()))
+          {
+            Host_UpdateProgressDialog("Processing textures..", static_cast<int>(count),
+                                      static_cast<int>(total));
+          }
+          notify += 10;
+        }
+      }
+
+      if (g_ActiveConfig.bWaitForCacheHiresTextures && dialog_lock.owns_lock())
+      {
+        Host_UpdateProgressDialog("", -1, -1);
+      }
+    }));
+  }
+
+  for (std::thread& thread : threads)
+  {
+    if (thread.joinable())
+      thread.join();
+  }
+
+  if (Aether::GetPaks().size() == 0)
   {
     wxMsgAlert(
         "Error",
-        "MPR has detected an error loading a package. Please ensure all the files were successfully extracted."
+        "MPR has detected missing files. Please ensure all the files were successfully extracted."
         "\nMPR may not function properly.",
         false, MsgType::Critical);
-
-    return;
   }
 
   u32 stoptime = Common::Timer::GetTimeMs();

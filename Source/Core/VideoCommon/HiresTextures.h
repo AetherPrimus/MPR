@@ -56,7 +56,8 @@ private:
                                       bool cacheresult);
 
   static void Prefetch();
-  static void PrefetchAP(std::string fileitem);
+  static void PrefetchAllAP();
+
   HiresTexture();
   static std::set<std::string> GetTextureDirectory(const std::string& game_id);
 };

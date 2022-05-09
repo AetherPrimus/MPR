@@ -160,7 +160,7 @@ bool AetherPak::ProcessFiles(const char* buffer, size_t size) {
     return false;
 
   name = h->name;
-  version = h->version;
+  priority = h->priority;
 
   if (h->pakversion != PAKVERSION) {
     return false;
@@ -277,10 +277,6 @@ void ShutDown() {
 
 void AddPak(std::shared_ptr<AetherPak> pak_ptr) {
   paks.emplace_back(std::move(pak_ptr));
-  std::sort(paks.begin(), paks.end(),
-    [](const std::shared_ptr<AetherPak>& pak1, const std::shared_ptr<AetherPak>& pak2) {
-        return pak1->version > pak2->version;
-    });
 }
 
 std::vector<std::shared_ptr<AetherPak>> GetPaks()

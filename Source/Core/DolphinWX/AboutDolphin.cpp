@@ -27,7 +27,7 @@ AboutDolphin::AboutDolphin(wxWindow* parent, wxWindowID id, const wxString& titl
   const wxString CopyrightText =
       _("(c) 2003-2015+ Dolphin Team. 2018-2022+ MPR Team.. \"GameCube\" and \"Wii\" are trademarks of Nintendo. Dolphin & MPR Team "
         "are not affiliated with Nintendo in any way.");
-  const wxString RevisionText = wxString::Format(_("Revision: %s"), "1.0.1");
+  const wxString RevisionText = wxString::Format(_("Revision: %s"), "1.0.2");
   const wxString CheckUpdateText = _("Check for updates: ");
   const wxString Text =
       _("\n"
