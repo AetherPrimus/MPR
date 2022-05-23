@@ -4,7 +4,6 @@
 
 #include <string>
 #include "Common/Version.h"
-#include "Common/scmrev.h"
 
 namespace Common
 {
@@ -19,9 +18,6 @@ namespace Common
 #endif
 
 const std::string scm_rev_str = "MPR"
-#if !SCM_IS_MASTER
-"[" SCM_BRANCH_STR "] "
-#endif
 
 #ifdef __INTEL_COMPILER
 " " PRIMEHACK_VERSION_STR " -ICC";
@@ -29,18 +25,18 @@ const std::string scm_rev_str = "MPR"
 " " PRIMEHACK_VERSION_STR;
 #endif
 
-const std::string scm_rev_git_str = SCM_REV_STR;
+const std::string scm_rev_git_str = "";
 const std::string scm_rev_cache_str = "202007302245";
-const std::string scm_desc_str = SCM_DESC_STR;
-const std::string scm_branch_str = SCM_BRANCH_STR;
-const std::string scm_distributor_str = SCM_DISTRIBUTOR_STR;
+const std::string scm_desc_str = "";
+const std::string scm_branch_str = "";
+const std::string scm_distributor_str = "";
 
 #ifdef _WIN32
-const std::string netplay_dolphin_ver = SCM_DESC_STR " Win";
+const std::string netplay_dolphin_ver = " Win";
 #elif __APPLE__
-const std::string netplay_dolphin_ver = SCM_DESC_STR " Mac";
+const std::string netplay_dolphin_ver = " Mac";
 #else
-const std::string netplay_dolphin_ver = SCM_DESC_STR " Lin";
+const std::string netplay_dolphin_ver = " Lin";
 #endif
 
 

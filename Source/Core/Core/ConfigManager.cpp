@@ -23,7 +23,6 @@
 #include "Common/MsgHandler.h"
 #include "Common/NandPaths.h"
 #include "Common/StringUtil.h"
-#include "Common/scmrev.h"
 
 #include "Core/Analytics.h"
 #include "Core/Boot/Boot.h"

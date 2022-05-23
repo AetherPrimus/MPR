@@ -555,6 +555,7 @@
     <ClInclude Include="PowerPC\Profiler.h" />
     <ClInclude Include="PrimeHack\AddressDB.h" />
     <ClInclude Include="PrimeHack\EmuVariableManager.h" />
+    <ClInclude Include="PrimeHack\GameFlags.h" />
     <ClInclude Include="PrimeHack\Mods\AutoEFB.h" />
     <ClInclude Include="PrimeHack\Mods\ContextSensitiveControls.h" />
     <ClInclude Include="primehack\mods\CutBeamFxMP1.h" />

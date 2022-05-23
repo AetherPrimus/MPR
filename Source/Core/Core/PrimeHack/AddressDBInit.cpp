@@ -70,6 +70,10 @@ void init_db(AddressDB& addr_db) {
   addr_db.register_dynamic_address(Game::PRIME_1_GCN, "freelook_rotation_speed", "tweak_player", { mrt1(0x280) });
   addr_db.register_dynamic_address(Game::PRIME_1_GCN, "air_transitional_friction", "tweak_player", { mrt1(0x180) });
 
+  addr_db.register_dynamic_address(Game::PRIME_1_GCN, "powerups_array", "state_manager", {mrt1(0x8b8), rt0, rt0});
+  addr_db.register_address(Game::PRIME_1_GCN, "powerups_size", 8, 8, 8);
+  addr_db.register_address(Game::PRIME_1_GCN, "powerups_offset", 0x24, 0x24, 0x24);
+
   // object list = state mgr + x810
   // camera mgr = state mgr + x870
   // camera uid = camera mgr

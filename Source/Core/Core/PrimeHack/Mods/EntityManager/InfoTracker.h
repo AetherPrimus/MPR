@@ -1,11 +1,15 @@
 #pragma once
 
 #include "Core/PrimeHack/PrimeMod.h"
-#include <Core/PrimeHack/HackConfig.h>
-#include <Core/PrimeHack/PrimeUtils.h>
-#include <Core/PrimeHack/TextureSwapper.h>
+#include "Core/PrimeHack/GameFlags.h"
+#include "Core/PrimeHack/HackConfig.h"
+#include "Core/PrimeHack/PrimeUtils.h"
+#include "Core/PrimeHack/TextureSwapper.h"
+
+#include "VideoCommon/Util/Aether.h"
 
 namespace prime {
+  bool HasPhazonSuit = false;
 
   class InfoTracker : public PrimeMod {
   const char* xyz_format =
@@ -54,6 +58,18 @@ namespace prime {
 
         position.read_from(mp1_static.cplayer_address + 0x2c);
       }
+
+      LOOKUP_DYN(powerups_array);
+      LOOKUP(powerups_size);
+      LOOKUP(powerups_offset);
+
+      bool previous = HasPhazonSuit;
+
+      HasPhazonSuit =
+          read32(powerups_array + 0x4 + (0x17 /* Phazon Suit*/ * powerups_size) + powerups_offset + 0x4 /* Tracked by capacity, not amount */);
+
+      if (previous != HasPhazonSuit)
+        Aether::InitPaks();
 
       vec3 xyz = position.loc();
       DevInfo("Position", xyz_format, xyz.x, xyz.y, xyz.z);

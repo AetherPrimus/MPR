@@ -7,11 +7,14 @@
 #include <filters.h>
 #include <files.h>
 
+#include <map>
+
 #include <picojson/picojson.h>
 
 #include "Core/Host.h"
 #include "Core/Core.h"
 #include "Core/ConfigManager.h"
+#include "Core/PrimeHack/GameFlags.h"
 
 #include "VideoCommon/TextureCacheBase.h"
 #include "VideoCommon/VideoConfig.h"
@@ -201,7 +204,7 @@ bool AetherPak::ProcessFiles(const char* buffer, size_t size) {
     const char* name = &buffer[file_pointer];
     file_pointer += e->name_length;
 
-    const std::string str_name = std::string(name, e->name_length);
+    std::string str_name = std::string(name, e->name_length);
     AFile* f = new AFile(str_name, e->file_length, &buffer[file_pointer]);
     file_map.emplace(str_name, f);
 
@@ -216,7 +219,7 @@ bool AetherPak::ProcessFiles(const char* buffer, size_t size) {
 bool AFile::Open(const std::string& filename, const char openmode[]) {
   std::string name = filename;
   name.push_back('\0');
-  for (auto& pak : paks) {
+  for (auto& pak : active_paks) {
     auto file = pak->file_map.find(name);
     if (file != pak->file_map.end()) {
       buffer = file->second->buffer;
@@ -285,12 +288,15 @@ bool AFile::RetrieveDataPtr(u8** ptr, size_t length)
   return true;
 }
 
-#pragma optimize("", off)
 void InitPaks()
 {
+  active_paks.clear();
+
   // Don't block Dolphin or it's UI
-  std::thread([]() {
-    std::lock_guard<std::mutex> lock(Aether::init_mutex);
+  new std::thread([]() {
+    Common::SetCurrentThreadName("AP Loader");
+
+    std::scoped_lock<std::mutex> lock(Aether::init_mutex);
 
     std::vector<std::string> pak_files = Common::DoFileSearch(
         {File::GetSysDirectory() + "AetherLabs" + DIR_SEP + "packages" + DIR_SEP}, {".ap"},
@@ -314,18 +320,16 @@ void InitPaks()
 
         if (!pak_ptr->LoadPak(fileitem))
         {
-          //wxMsgAlert(
-          //    "Error",
-          //    "MPR has detected an error initialising a package. Please ensure all the files "
-          //    "were successfully extracted."
-          //    "\nMPR may not function properly.",
-          //    false, MsgType::Critical);
+          wxMsgAlert(
+              "Error",
+              "MPR has detected an error initialising a package. Please ensure all the files "
+              "were successfully extracted."
+              "\nMPR may not function properly.",
+              false, MsgType::Critical);
         }
         else
         {
-          // Non-dlc should be enabled, for now.
-          if (!pak_ptr->TryGetDLC())
-            Aether::AddPak(pak_ptr);
+          AddPak(pak_ptr);
         }
       }));
     }
@@ -336,80 +340,141 @@ void InitPaks()
         thread.join();
     }
 
-    std::istringstream f(SConfig::GetInstance().m_mpr_dlc);
+    std::vector<std::shared_ptr<AetherPak>> old_paks = active_paks;
+    ClearActivePaks();
+
+    for (const auto& pak : Aether::GetPaks())
+    {
+      // Non-dlc should be enabled, for now.
+      if (!pak->TryGetDLC())
+      {
+        Aether::EnablePak(pak);
+      }
+    }
+
+    std::istringstream f (SConfig::GetInstance().m_mpr_dlc);
     std::string dlc;
     while (std::getline(f, dlc, ';'))
     {
       for (const auto& pak : Aether::GetPaks())
       {
+        // Non-dlc should be enabled, for now.
         if (!dlc.compare(pak->name))
         {
-          Aether::EnablePak(pak);
+           Aether::EnablePak(pak);
         }
       }
+    }
+
+    std::vector<std::string> invalidate_textures;
+
+    /* If a pak was added */
+    for (const auto pak : active_paks) {
+      if (std::find(old_paks.begin(), old_paks.end(), pak) == old_paks.end())
+      {
+        for (const auto& [key, val] : pak->file_map) {
+          invalidate_textures.emplace_back(key);
+        }
+      }
+    }
+
+    /* If a pak was removed */
+    for (const auto pak : old_paks)
+    {
+      if (std::find(active_paks.begin(), active_paks.end(), pak) == active_paks.end())
+      {
+        for (const auto& [key, val] : pak->file_map)
+        {
+          invalidate_textures.emplace_back(key);
+        }
+      }
+    }
+
+    if (!invalidate_textures.empty()) {
+      HiresTexture::Update(invalidate_textures);
     }
   }); 
 }
-#pragma optimize("", on)
 
 bool AetherPak::TryGetDLC()
 {
-  auto file = file_map.find("dlc.json");
-  if (file != file_map.end())
+  if (dlc_info)
+    return true;
+
+  //auto file = file_map.find("dlc.json");
+  for (auto const& [key, file] : file_map)
   {
-    picojson::value v;
-    if (!picojson::parse(v, std::string(&file->second->buffer[0],
-            &file->second->buffer[file->second->file_size])).empty())
+    if (strcmp(key.c_str(), "dlc.json") == 0)
     {
-      return false;
-    }
-
-    if (!v.is<picojson::object>())
-    {
-      return false;
-    }
-
-    DLCInfo* dlc = new DLCInfo;
-    const picojson::value::object& obj = v.get<picojson::object>();  // Root
-    for (picojson::value::object::const_iterator i = obj.begin(); i != obj.end(); ++i)
-    {
-      if (!i->second.is<std::string>())
-        continue;
-
-      if (!i->first.compare("name"))
+      picojson::value v;
+      if (!picojson::parse(v, std::string(&file->buffer[0],
+              &file->buffer[file->file_size])).empty())
       {
-        dlc->display_name = i->second.to_str();
+        return false;
       }
-      else if (!i->first.compare("description"))
+
+      if (!v.is<picojson::object>())
       {
-        dlc->description = i->second.to_str();
+        return false;
       }
-      else if (!i->first.compare("preview_image"))
+
+      DLCInfo* dlc = new DLCInfo;
+      const picojson::value::object& obj = v.get<picojson::object>();  // Root
+      for (picojson::value::object::const_iterator i = obj.begin(); i != obj.end(); ++i)
       {
-        std::string filename = i->second.to_str().substr(0, i->second.to_str().find_last_of("."));
-        auto file = file_map.find(filename + ".ppng");
-        if (file != file_map.end())
+        if (!i->second.is<std::string>())
+          continue;
+
+        if (!i->first.compare("name"))
         {
-          static unsigned char png_sig[8] = {137, 80, 78, 71, 13, 10, 26, 10};
-          size_t size = file->second->file_size;
-          char* data = new char[size];
+          dlc->display_name = i->second.to_str();
+        }
+        else if (!i->first.compare("description"))
+        {
+          dlc->description = i->second.to_str();
+        }
+        else if (!i->first.compare("preview_image"))
+        {
+          std::string filename = i->second.to_str().substr(0, i->second.to_str().find_last_of("."));
+          filename.append(".ppng");
+          filename.push_back('\0');
 
-          for (int i = 0; i < 8; i++)
+          auto file = file_map.find(filename);
+          if (file != file_map.end())
           {
-            data[i] = png_sig[i];
-          }
+            static unsigned char png_sig[8] = {137, 80, 78, 71, 13, 10, 26, 10};
+            size_t size = file->second->file_size;
+            char* data = new char[size];
 
-          dlc->preview_data = data;
+            memcpy(&data[0], &file->second->buffer[0], file->second->file_size);
+
+            for (int i = 0; i < 8; i++)
+            {
+              data[i] = png_sig[i];
+            }
+
+            dlc->preview_data = data;
+            dlc->preview_length = static_cast<int>(size);
+          }
         }
       }
+
+      this->dlc_info = dlc;
+
+      return true;
     }
-
-    this->dlc_info = dlc;
-
-    return true;
   }
 
   return false;
+}
+
+bool AetherPak::LoadConditionMet()
+{
+  if (StringEndsWith(name, "dark_phazon")) {
+    return prime::HasPhazonSuit;
+  }
+
+  return true;
 }
 
 void ShutDown()
@@ -422,7 +487,15 @@ void AddPak(std::shared_ptr<AetherPak> pak_ptr) {
 }
 
 void EnablePak(std::shared_ptr<AetherPak> pak_ptr) {
+  if (!pak_ptr->LoadConditionMet())
+    return;
+
   active_paks.emplace_back(pak_ptr);
+
+  std::sort(active_paks.begin(), active_paks.end(),
+            [](const std::shared_ptr<AetherPak>& ptr1, const std::shared_ptr<AetherPak>& ptr2) {
+              return ptr1->priority > ptr2->priority;
+  });
 }
 
 void ClearActivePaks()
@@ -433,6 +506,11 @@ void ClearActivePaks()
 std::vector<std::shared_ptr<AetherPak>> GetPaks()
 {
   return paks;
+}
+
+std::vector<std::shared_ptr<AetherPak>> GetActivePaks()
+{
+  return active_paks;
 }
 
 void PeriodicallyCheckSnoopers() {

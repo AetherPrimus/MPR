@@ -19,7 +19,7 @@ namespace prime {
   Weathering weathering = NONE;
   ReticleSelection reticle = MPR;
 
-  std::vector<std::string> GetInvalidateQueue() {
+  std::vector<std::string>& GetInvalidateQueue() {
     return texture_queue;
   }
 
@@ -29,6 +29,8 @@ namespace prime {
 
   void ClearInvalidateQueue() {
     texture_queue.clear();
+
+    HiresTexture::Update();
   }
 
   void SwitchBeamCursor(int beam_id) {

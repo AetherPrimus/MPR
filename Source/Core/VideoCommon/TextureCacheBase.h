@@ -148,7 +148,7 @@ public:
   // frameCount is the current frame number.
   void Cleanup(s32 _frameCount);
   void Invalidate();
-  void InvalidateByNames(std::vector<std::string> base_names);
+  void InvalidateByNames(std::vector<std::string>& base_names);
 
   virtual HostTextureFormat GetHostTextureFormat(const s32 texformat, const TlutFormat tlutfmt,
                                                  u32 width, u32 height) = 0;

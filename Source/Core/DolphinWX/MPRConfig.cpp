@@ -18,6 +18,7 @@
 #include <wx/msgdlg.h>
 #include <wx/statbox.h>
 #include <wx/checklst.h>
+#include <wx/mstream.h>
 
 #include "Core/ConfigManager.h"
 #include "Core/HW/Wiimote.h"
@@ -34,6 +35,8 @@
 #include "InputCommon/ControllerInterface/ControllerInterface.h"
 #include "InputCommon/ControllerInterface/Device.h"
 #include "InputCommon/InputConfig.h"
+
+#include "VideoCommon/Util/Aether.h"
 
 MPRConfig::MPRConfig(wxWindow* parent, wxWindowID id, const wxString& title,
   const wxPoint& position, const wxSize& size, long style)
@@ -194,35 +197,42 @@ wxPanel* MPRConfig::CreateDLCTab()
   wxPanel* panel = new wxPanel(Notebook, ID_DLC);
 
   wxBoxSizer* const main_sizer = new wxBoxSizer(wxHORIZONTAL);
-  wxBoxSizer* const left_sizer = new wxBoxSizer(wxVERTICAL);
-  wxBoxSizer* const right_sizer = new wxBoxSizer(wxVERTICAL);
+  wxStaticBoxSizer* const left_sizer = new wxStaticBoxSizer(wxVERTICAL, panel, "Additional Content");
+  wxStaticBoxSizer* const right_sizer = new wxStaticBoxSizer(wxVERTICAL, panel, "Preview");
 
   m_dlc_list = new wxCheckListBox(panel, wxID_ANY, wxDefaultPosition, wxDefaultSize);
-  m_dlc_description = new wxStaticText();
-  m_dlc_description->SetMinSize(wxSize(-200, -1));
-  m_dlc_description->SetLabelText("Select an option for more information!");
+  m_dlc_list->SetMinSize(wxSize(300, 300));
+
+  wxStaticBoxSizer* const description_sizer = new wxStaticBoxSizer(wxVERTICAL, panel, "Description"); 
+  m_dlc_description = new wxStaticText(panel, wxID_ANY, "Description");
+  m_dlc_description->SetMinSize(wxSize(-1, 200));
+  m_dlc_description->SetLabelText("The DLC content is loading, please wait...");
+  description_sizer->Add(m_dlc_description, 0, wxALL | wxEXPAND, space5);
+  description_sizer->AddStretchSpacer();
 
   left_sizer->AddSpacer(space5);
-  left_sizer->Add(m_dlc_list, 0, wxALL | wxEXPAND, space5);
-  left_sizer->AddStretchSpacer();
-  left_sizer->Add(m_dlc_description, 0, wxALL | wxEXPAND, space5);
+  left_sizer->Add(m_dlc_list, 0, wxTOP | wxEXPAND, space5);
   left_sizer->AddSpacer(space5);
+  left_sizer->Add(description_sizer, 0, wxBOTTOM | wxEXPAND, space5);
+  //left_sizer->AddStretchSpacer();
 
-  m_dlc_preview = new wxStaticBitmap();
+  m_dlc_preview = new wxStaticBitmap(panel, wxID_ANY, wxBitmap(), wxDefaultPosition, wxDefaultSize);
+  m_dlc_preview->SetBestFittingSize(wxSize(1000, 500));
 
+  right_sizer->SetMinSize(1000, 500);
   right_sizer->AddSpacer(space5);
-  right_sizer->Add(m_dlc_preview, 0, wxALL | wxEXPAND, space5);
+  right_sizer->Add(m_dlc_preview, 0, wxCENTER | wxEXPAND, space5);
   right_sizer->AddSpacer(space5);
 
   main_sizer->AddSpacer(space5);
-  main_sizer->Add(left_sizer, 0, wxALL | wxEXPAND, space5);
+  main_sizer->Add(left_sizer, 0, wxLEFT | wxEXPAND, space5);
   main_sizer->AddSpacer(space5);
-  main_sizer->Add(right_sizer, 0, wxALL | wxEXPAND, space5);
+  main_sizer->Add(right_sizer, 0, wxRIGHT | wxEXPAND, space5);
   main_sizer->AddSpacer(space5);
 
-  m_hud_presets->Bind(wxEVT_CHECKLISTBOX, &MPRConfig::OnDLCChanged, this);
+  m_dlc_list->Bind(wxEVT_LISTBOX, &MPRConfig::OnDLCChanged, this);
 
-  panel->SetSizerAndFit(main_sizer);
+  panel->SetSizerAndFit(main_sizer );
 
   return panel;
 }
@@ -524,7 +534,17 @@ void MPRConfig::OnZoomChanged(wxCommandEvent& event)
 
 void MPRConfig::OnDLCChanged(wxCommandEvent& event)
 {
+  auto pak = Aether::GetPaks()[m_dlc_list->GetSelection()];
 
+  m_dlc_description->SetLabelText(pak->dlc_info->description);
+
+  if (pak->dlc_info->preview_length != 0) {
+    wxMemoryInputStream is(pak->dlc_info->preview_data, pak->dlc_info->preview_length);
+
+    wxImage img(is, wxBITMAP_TYPE_ANY);
+    wxBitmap btmap (img);
+    m_dlc_preview->SetBitmap(btmap);
+  }  
 }
 
 void MPRConfig::OnOpacityChanged(wxCommandEvent& event)
@@ -570,6 +590,27 @@ void MPRConfig::LoadGUIValues()
 
   if (SConfig::GetInstance().m_mpr_primary_hudcolour == 0x94171223FF)
     m_reset_btn->Disable();
+
+  m_dlc_list->Clear();
+
+  // Asynchronously Load DLC data
+  new std::thread([=] {
+    std::scoped_lock<std::mutex> lock(Aether::init_mutex);
+
+    for (int i = 0; i < Aether::GetPaks().size(); i++)
+    {
+      auto const& dlc = Aether::GetPaks()[i];
+      if (dlc->TryGetDLC())
+      {
+        m_dlc_list->Insert(dlc->dlc_info->display_name, i);
+
+        if (SConfig::GetInstance().m_mpr_dlc.find(dlc->name) != std::string::npos)
+          m_dlc_list->Toggle(i);
+      }
+    }
+
+    m_dlc_description->SetLabelText("Select an option for more information!");
+  });
 }
 
 void MPRConfig::SaveGUIValues() {
@@ -595,7 +636,21 @@ void MPRConfig::SaveGUIValues() {
   preview_widget->SetRGBA(r, g, b, a - 0x50 > a ? 0 : a - 0x50);
   preview_widget->UpdatePreview();
 
-  prime::SetReticle((prime::ReticleSelection)m_reticle_selection->GetFirstSelected());
+  prime::SetReticle((prime::ReticleSelection) m_reticle_selection->GetFirstSelected());
+
+  wxArrayInt arr;
+  m_dlc_list->GetCheckedItems(arr);
+  std::stringstream ss;
+
+  for (int i = 0; i < arr.Count(); i++)
+  {
+    ss << Aether::GetPaks()[arr[i]]->name << ";";  //.GetName().c_str().AsChar() << ";";
+  }
+
+  SConfig::GetInstance().m_mpr_dlc = ss.str();
+  SConfig::GetInstance().SaveSettings();
+
+  Aether::InitPaks();
 }
 
 void MPRConfig::OnClose(wxCloseEvent& WXUNUSED(event))

@@ -23,7 +23,7 @@ namespace prime {
     None
   };
 
-  std::vector<std::string> GetInvalidateQueue();
+  std::vector<std::string>& GetInvalidateQueue();
   void AddInvalidateTexture(std::string texture);
   void ClearInvalidateQueue();
 

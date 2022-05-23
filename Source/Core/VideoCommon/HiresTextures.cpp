@@ -324,31 +324,37 @@ void HiresTexture::ProccessTexture(std::string& fileitem, std::string& filename,
 void HiresTexture::Update()
 {
   bool BuildMaterialMaps = g_ActiveConfig.bHiresMaterialMapsBuild;
-  if (s_prefetcher.joinable())
-  {
-    s_textureCacheAbortLoading.Set();
-    s_prefetcher.join();
-  }
 
-  if (!g_ActiveConfig.bHiresTextures || !Aether::TestForSnoopers())
   {
+    std::scoped_lock lk {s_textureMapMutex, s_textureCacheMutex}; 
+
+    if (s_prefetcher.joinable())
+    {
+      s_textureCacheAbortLoading.Set();
+      s_prefetcher.join();
+    }
+
+    if (!g_ActiveConfig.bHiresTextures || !Aether::TestForSnoopers())
+    {
+      s_textureMap.clear();
+      s_enviromentMap.clear();
+      s_textureCache.clear();
+      s_enviromentCache.clear();
+      size_sum.store(0);
+      return;
+    }
+
+    if (!g_ActiveConfig.bCacheHiresTextures)
+    {
+      s_textureCache.clear();
+      s_enviromentCache.clear();
+      size_sum.store(0);
+    }
+
     s_textureMap.clear();
     s_enviromentMap.clear();
-    s_textureCache.clear();
-    s_enviromentCache.clear();
-    size_sum.store(0);
-    return;
   }
 
-  if (!g_ActiveConfig.bCacheHiresTextures)
-  {
-    s_textureCache.clear();
-    s_enviromentCache.clear();
-    size_sum.store(0);
-  }
-
-  s_textureMap.clear();
-  s_enviromentMap.clear();
   const std::string& game_id = SConfig::GetInstance().GetGameID();
   const std::set<std::string> texture_directories = GetTextureDirectory(game_id);
   const std::string resource_directory = File::GetSysDirectory() + RESOURCES_DIR DIR_SEP;
@@ -357,7 +363,6 @@ void HiresTexture::Update()
   if (!BuildMaterialMaps)
   {
     Extensions.push_back(".dds");
-    Extensions.push_back(".adds");
   }
 
   PrefetchAllAP();
@@ -451,21 +456,24 @@ void HiresTexture::Update(std::vector<std::string> paths)
     std::string filename;
     std::string extension;
     SplitPath(path, nullptr, &filename, &extension);
+    bool invalidate = false;
 
+    std::unique_lock<std::mutex> lk(s_textureCacheMutex);
     auto iter = s_textureCache.find(filename);
     if (iter != s_textureCache.end()) {
       iter = s_textureCache.erase(iter);
+      invalidate = true;
     }
 
+    std::unique_lock<std::mutex> lk2(s_textureMapMutex);
     auto iter1 = s_textureMap.find(filename);
     if (iter1 != s_textureMap.end()) {
       iter1 = s_textureMap.erase(iter1);
+      invalidate = true;
     }
 
-    std::unique_lock<std::mutex> lk(s_textureMapMutex);
-    ProccessTexture(path, filename, extension, BuildMaterialMaps);
-
-    prime::AddInvalidateTexture(filename);
+    if (invalidate)
+      prime::AddInvalidateTexture(filename);
   }
 }
 
@@ -623,16 +631,14 @@ void HiresTexture::PrefetchAllAP()
   u32 starttime = Common::Timer::GetTimeMs();
 
   // If the packages are still initialising, wait until they're done.
-  std::lock_guard<std::mutex> lock(Aether::init_mutex);
+  std::scoped_lock<std::mutex> lock(Aether::init_mutex);
 
-  std::vector<std::string> pak_files = Common::DoFileSearch(
-    { File::GetSysDirectory() + "AetherLabs" + DIR_SEP + "packages" + DIR_SEP }, { ".ap" },
-    /*recursive*/ true);
+  auto paks = Aether::GetActivePaks();
 
-  std::vector<std::thread> threads(pak_files.size());
+  std::vector<std::thread> threads(paks.size());
 
   std::unordered_map<uint32_t, std::set<std::string>> texture_buckets;
-  for (const auto& pak_ptr : Aether::GetPaks())
+  for (const auto& pak_ptr : paks)
   {
     uint32_t priority = pak_ptr->priority;
     auto bucket = texture_buckets.find(priority);
@@ -640,7 +646,11 @@ void HiresTexture::PrefetchAllAP()
 
     for (const auto& [key, val] : pak_ptr->file_map)
     {
-      files.emplace(key);
+      std::string filename;
+      std::string extension;
+      SplitPath(key, nullptr, &filename, &extension);
+
+      files.emplace(filename);
     }
 
     if (bucket != texture_buckets.end())
@@ -653,7 +663,7 @@ void HiresTexture::PrefetchAllAP()
     }
   }
 
-  for (const auto& pak_ptr : Aether::GetPaks())
+  for (const auto& pak_ptr : paks)
   {
     threads.push_back(std::thread([=]() {
       std::unique_lock<std::mutex> dialog_lock(Aether::progress_mutex, std::try_to_lock);
@@ -681,6 +691,7 @@ void HiresTexture::PrefetchAllAP()
         SplitPath(key, nullptr, &filename, &extension);
         extension.pop_back();  // remove string terminator
 
+        bool next = false;
         for (const auto& bucket : texture_buckets)
         {
           if (bucket.first > pak_ptr->priority)
@@ -688,10 +699,14 @@ void HiresTexture::PrefetchAllAP()
             if (bucket.second.find(filename) != bucket.second.end())
             {
               // Our texture is a lower priority than another package.
-              continue;
+              next = true;
+              break;
             }
           }
         }
+
+        if (next)
+          continue;
 
         std::string copy = key;
         if (filename.rfind(s_format_prefix, 0) == 0)
@@ -706,6 +721,7 @@ void HiresTexture::PrefetchAllAP()
 
         count++;
         total += value->file_size;
+        size_sum.fetch_add(value->file_size);
 
         if ((count * 100) / total >= notify)
         {
@@ -732,7 +748,7 @@ void HiresTexture::PrefetchAllAP()
       thread.join();
   }
 
-  if (Aether::GetPaks().size() == 0)
+  if (paks.size() == 0)
   {
     wxMsgAlert(
         "Error",
@@ -742,7 +758,7 @@ void HiresTexture::PrefetchAllAP()
   }
 
   u32 stoptime = Common::Timer::GetTimeMs();
-  OSD::AddMessage(StringFromFormat("Custom Textures loaded, %.1f MB in %.1f s",
+  OSD::AddMessage(StringFromFormat("MPR Textures loaded, %.1f MB in %.1f s",
                                    size_sum / (1024.0 * 1024.0), (stoptime - starttime) / 1000.0),
                   10000);
 }

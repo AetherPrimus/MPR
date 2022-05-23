@@ -40,6 +40,7 @@ namespace Aether {
     std::string display_name;
     std::string description;
     const char* preview_data;
+    int preview_length = 0;
   };
 
   struct AFile : public File::IFile {
@@ -61,8 +62,8 @@ namespace Aether {
     }
   };
 
-  static std::mutex progress_mutex;
-  static std::mutex init_mutex;
+  inline std::mutex progress_mutex;
+  inline std::mutex init_mutex;
 
   struct AetherPak {
     u32 priority;
@@ -80,6 +81,7 @@ namespace Aether {
     bool LoadPak(std::string path);
     bool ProcessFiles(const char* buffer, size_t size);
     bool TryGetDLC();
+    bool LoadConditionMet();
   };
 
   void InitPaks();
@@ -89,6 +91,7 @@ namespace Aether {
   void EnablePak(std::shared_ptr<AetherPak> pak_ptr);
   void ClearActivePaks();
   std::vector<std::shared_ptr<AetherPak>> GetPaks();
+  std::vector<std::shared_ptr<AetherPak>> GetActivePaks();
 
   void PeriodicallyCheckSnoopers();
 
