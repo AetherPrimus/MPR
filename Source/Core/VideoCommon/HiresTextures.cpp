@@ -148,6 +148,7 @@ void HiresTexture::Shutdown()
   s_textureMap.clear();
   s_enviromentMap.clear();
   s_textureCache.clear();
+  Aether::ShutDown();
 }
 
 std::set<std::string> HiresTexture::GetTextureDirectory(const std::string& game_id)

@@ -147,6 +147,8 @@ bool AetherPak::LoadPak(std::string path) {
       Host_UpdateProgressDialog("", -1, -1);
     }
 
+    buffer_container.shrink_to_fit();
+
     if (filter->GetLastResult() == true) {
       if (!ProcessFiles(&buffer_container[0], buffer_container.size()))
         return false;
@@ -480,6 +482,7 @@ bool AetherPak::LoadConditionMet()
 void ShutDown()
 {
   paks.clear();
+  active_paks.clear();
 }
 
 void AddPak(std::shared_ptr<AetherPak> pak_ptr) {
