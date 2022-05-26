@@ -326,13 +326,13 @@ void HiresTexture::Update()
   bool BuildMaterialMaps = g_ActiveConfig.bHiresMaterialMapsBuild;
 
   {
-    std::scoped_lock lk {s_textureMapMutex, s_textureCacheMutex}; 
-
     if (s_prefetcher.joinable())
     {
       s_textureCacheAbortLoading.Set();
       s_prefetcher.join();
     }
+
+    std::scoped_lock lk{s_textureMapMutex, s_textureCacheMutex}; 
 
     if (!g_ActiveConfig.bHiresTextures || !Aether::TestForSnoopers())
     {
@@ -449,6 +449,12 @@ void HiresTexture::Update()
 void HiresTexture::Update(std::vector<std::string> paths)
 {
   bool BuildMaterialMaps = g_ActiveConfig.bHiresMaterialMapsBuild;
+
+  if (s_prefetcher.joinable())
+  {
+    s_textureCacheAbortLoading.Set();
+    s_prefetcher.join();
+  }
 
   for (int i = 0; i < paths.size(); i++) {
     std::string path = paths[i];
