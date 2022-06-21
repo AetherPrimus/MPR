@@ -129,6 +129,9 @@ namespace prime {
 
   void SetReticle(ReticleSelection sel)
   {
+    if (sel < 0)
+      sel = MPR;
+
     reticle = sel;
     HiresTexture::Update(std::vector<std::string>{"/tex1_128x128_847479ca4ca13986_14.adds"});
   }

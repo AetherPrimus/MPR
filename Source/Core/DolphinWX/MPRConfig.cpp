@@ -621,11 +621,11 @@ void MPRConfig::SaveGUIValues() {
   unsigned char g = primary.Green();
   unsigned char b = primary.Blue();
   unsigned char a = static_cast<unsigned char>(m_hud_opacity->GetValue());
+  long reticle_sel = m_reticle_selection->GetFirstSelected();
 
   settings.m_mpr_primary_hudcolour = (r << 24 | g << 16 | b << 8 | a);
   settings.m_mpr_minimal_mode = m_minimal_mode->GetValue();
-  settings.m_mpr_reticle_selection =
-      (prime::ReticleSelection) m_reticle_selection->GetFirstSelected();
+  settings.m_mpr_reticle_selection = reticle_sel;
   settings.m_mpr_hud_zoom_factor = m_hud_zoom->GetValue();
 
   settings.SaveSettings();
@@ -636,7 +636,7 @@ void MPRConfig::SaveGUIValues() {
   preview_widget->SetRGBA(r, g, b, a - 0x50 > a ? 0 : a - 0x50);
   preview_widget->UpdatePreview();
 
-  prime::SetReticle((prime::ReticleSelection) m_reticle_selection->GetFirstSelected());
+  prime::SetReticle((prime::ReticleSelection) reticle_sel);
 
   wxArrayInt arr;
   m_dlc_list->GetCheckedItems(arr);

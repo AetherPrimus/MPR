@@ -731,7 +731,7 @@ void SConfig::LoadMPRSettings(IniFile& ini)
   input->Get("PrimaryHudColour", &m_mpr_primary_hudcolour, -1);
   input->Get("HudZoom", &m_mpr_hud_zoom_factor, 0);
   input->Get("HudMinimalMode", &m_mpr_minimal_mode, false);
-  input->Get("MPRReticle", &m_mpr_reticle_selection, 0);
+  input->Get("MPRReticle", &m_mpr_reticle_selection, 0L);
   input->Get("NKITWarningSeen", &bNKITWarning, false);
   input->Get("DLCSelection", &m_mpr_dlc, "");
 }

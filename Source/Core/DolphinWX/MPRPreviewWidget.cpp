@@ -50,6 +50,9 @@ void PreviewWidget::SetReticleImage(prime::ReticleSelection selection)
   case prime::ReticleSelection::None:
     name += "Reticule_NONE.png";
     break;
+  default:
+    name += "Reticule_DOT.png";
+    break;
   }
 
   reticle = WxUtils::LoadScaledBitmap(name, this).ConvertToImage();
